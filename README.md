@@ -1,6 +1,14 @@
 # Zunéviu for iOS — development source, not a tested release
 
-**Status: partial native port. The initial Xcode Simulator build and 15 automated tests passed on GitHub macOS. This is not full Android parity, not physically iPhone-tested, and not production-certified. Device IPA output is unsigned and requires signing.**
+**Status: incomplete native port, NOT a working Android-equivalent release.**
+
+Version 0.2 adds the real YouTube Music guest catalog protocol, online search,
+artwork, browsable shelves, radio requests, online plain lyrics, and an on-device
+native extractor. These are not all validated. The standalone native extractor
+probe FAILED in run 39466288757 (`extractError`); a separate provider check also
+requested sign-in/verification. The new Simulator/device builds and 26 test methods passed, but the actual online playback test FAILED (27 methods total). Exact scope is tracked in `BUILD_STATUS.md` and `VALIDATION_0_2.json`. No new IPA is released unless real online playback passes.
+The old version 0.1's 15 local-fixture tests do NOT prove version 0.2 streaming.
+Physical iPhone testing and device signing remain required.
 
 The owner requested an iOS version retaining the Android app's design. This archive contains an initial SwiftUI/AVPlayer implementation and an Xcode project, with test code and a macOS CI workflow. Xcode Simulator runtime evidence is linked in `BUILD_STATUS.md`; the earlier static checks remain in `STATIC_VALIDATION.json`.
 
@@ -10,9 +18,24 @@ The owner requested an iOS version retaining the Android app's design. This arch
 - Source inspected at commit `4ba49d58de1b2699b9c948ec0d0c911e05ea0ab0`.
 - Reference gallery: `assets/gallery/discover.png`, `listen.png`, `settings.png` in that repository.
 - The original shared network/UI implementation uses JVM/Android dependencies, not an existing iOS target. This is a separate native implementation, not a claim that Android code now builds unchanged for iOS.
-- Original monochrome music-mark branding was reused. Actual artist covers are not shipped; imported audio supplies its own embedded artwork. Empty-library UI is intentional.
+- Original monochrome music-mark branding was reused. Artist covers are not bundled. Catalog artwork is loaded from the provider; imported audio can supply its own embedded artwork.
 
-## Implemented in source — selected behavior verified by Simulator tests
+## Added in version 0.2 — validation is separate from implementation
+
+- WEB_REMIX configuration bootstrapped from the actual service shell, not a guessed fixed client version.
+- Real guest Listen Now/Explore shelves, online song search, continuation requests and album/artist/playlist browse targets.
+- Remote album artwork, stable video-to-track identities, saved online favorites/playlists/history.
+- Pinned YouTubeKit native extraction with **local-only** methods. Optional hosted remote proxy is disabled.
+- Candidate filtering for native codecs; actual media-byte probe before passing a URL to AVPlayer.
+- Cancelable asynchronous resolution, visible loading/error/retry, no persisted signed media URLs.
+- Song radio and provider plain-lyrics requests; imported synced LRC remains supported.
+- Remote-song sharing uses the public song link, not an invalid local file path.
+- Backward-compatible decoding of version 0.1 local libraries and separate on-device/saved-online collections.
+- Separate real-provider acceptance tests for catalog, search UI, native audio clock advancement, pause, seek and next.
+
+**Implementation is not a runtime pass.** In particular, provider streaming is blocked until its live acceptance test passes.
+
+## Existing local functionality — selected version 0.1 behavior verified by Simulator tests
 
 - Native Listen Now, Explore, Library, Search and Settings navigation.
 - Files import, app-sandbox copies, embedded title/artist/album/artwork extraction.
@@ -28,8 +51,8 @@ The owner requested an iOS version retaining the Android app's design. This arch
 ## Not implemented / not equivalent to Android
 
 - Google/YouTube Music and Spotify authentication, sessions, library sync and acceptance flows.
-- Online streaming catalog, recommendations, stream extraction/resolution and provider downloads.
-- Music video, radio, provider search, Genius/live lyric fetch and automatic album-art lookup.
+- Reliable, validated online streaming. Catalog and a native extractor are now integrated, but the live extraction gate is failing. Provider downloads are not implemented.
+- Music video and Genius/timed online lyric parity. Radio, provider search, plain lyric and artwork requests are implemented but must be validated separately.
 - Android equalizer/DSP, PCM output controls, smart transitions/crossfade, stem separation.
 - Listen-together/party, WebDAV, provider integrations and Android APK update machinery.
 - Full settings parity, localization, Android library migration and pixel-identical visual certification.
@@ -38,11 +61,11 @@ Unavailable features are identified as such in Settings. No decorative switches 
 
 ## Open and run on a Mac
 
-Requirements: full Xcode 16 or newer, installed iOS Simulator runtime, iOS 17+ deployment target. No CocoaPods, Swift packages, service credentials or XcodeGen are required.
+Requirements: full Xcode 16 or newer, installed iOS Simulator runtime, iOS 17+ deployment target. Swift Package Manager resolves YouTubeKit at pinned revision `e5b7d0396ce12bf3444f0d209e8436c83373b7af`. No CocoaPods or XcodeGen is required. Guest catalog calls do not require credentials; authentication/sync is not implemented.
 
 1. Open `Zuneviu.xcodeproj`.
 2. Choose the shared **Zuneviu** scheme and an installed iPhone simulator.
-3. Build/run. On first launch, read the development notice, then import an audio file from Files.
+3. Build/run. On first launch, read the development notice. Home attempts the real guest catalog; Library still supports importing audio from Files.
 4. For a physical iPhone, set **Signing & Capabilities → Team** and choose an available bundle identifier. Apple signing/provisioning is required; this archive supplies no signing secrets.
 
 The iOS code is kept separately in `amitsami/zuneviu-ios`; the Android release repository is not modified. GitHub authorization is used only outside the source tree. No credential is included in this repository.
@@ -53,13 +76,13 @@ The iOS code is kept separately in `amitsami/zuneviu-ios`; the Android release r
 ./scripts/test_on_mac.sh
 ```
 
-Or use Xcode's **Product → Test**. The project includes 13 unit/integration test methods and 2 UI test methods. **All 15 tests passed in both run 39458769222 and final package run 39459965095. This does not replace the physical-device acceptance matrix.** See `TEST_PLAN.md` for coverage and limitations.
+Or use Xcode's **Product → Test**. The project now includes 22 offline unit/integration methods, 2 fixture UI methods, 2 real-provider integration methods and 1 real-search UI method. The **old** version 0.1 passed 15 local tests in runs 39458769222 and 39459965095. Those results do not apply to the newly added code. Real-provider failures must remain failures, not be relabeled as environment passes. See `TEST_PLAN.md` for coverage and limitations.
 
 The script writes a timestamped `.xcresult` and log into `TestResults/`. It exits unsuccessfully if Xcode tests fail. No report in this archive substitutes for those runtime results.
 
 ### GitHub Actions
 
-The included `.github/workflows/ios.yml` is manual-only (`workflow_dispatch`), runs on `macos-15` with a 20-minute job timeout, builds the app, executes the tests on an available iPhone simulator, and uploads `.xcresult`/logs with one-day retention. Pushing code does not automatically start a billable run. The simulator app is uploaded only after test success. A simulator `.app` is **not** an installable iPhone IPA. The initial Simulator workflow successfully ran in this repository. The expanded workflow successfully built an unsigned iPhone IPA and captured a real Simulator screenshot in run 39459965095. The IPA is an arm64 iOS device build for iOS 17+, not a Simulator binary. Its SHA-256 and build provenance are in `BUILD_EVIDENCE.json`.
+The included `.github/workflows/ios.yml` is manual-only (`workflow_dispatch`), runs on `macos-15` with a 25-minute job timeout, builds the app, executes the tests on an available iPhone simulator, and uploads `.xcresult`/logs with one-day retention. Pushing code does not automatically start a billable run. The simulator app is uploaded after offline regression success; that alone is NOT online playback acceptance. The current IPA delivery step additionally requires the live-provider gate to succeed. A simulator `.app` is **not** an installable iPhone IPA. The initial Simulator workflow successfully ran in this repository. The expanded workflow successfully built an unsigned iPhone IPA and captured a real Simulator screenshot in run 39459965095. The IPA is an arm64 iOS device build for iOS 17+, not a Simulator binary. Its SHA-256 and build provenance are in `BUILD_EVIDENCE.json`.
 
 Place the archive contents at the root of a new repository, or adapt paths and workflow triggers if placing it under a subfolder in an existing repository. GitHub-hosted macOS runners require account/repository access and may incur charges; only standard public-repository runners are used; no paid/larger runner is selected.
 
@@ -81,10 +104,10 @@ python3 scripts/generate_project.py
 
 ## Storage and privacy
 
-Audio imports copy into `Library/Application Support/Zuneviu/`. Originals are not modified. Metadata and playlists are in `library.json`; imported artwork and lyrics sit beside the copied music. Corrupt manifests are not overwritten by a scene-save. The app has no analytics, embedded login or online music endpoint. System Files/iCloud, sharing, device backup and AirPlay retain their own platform behavior. Deleting the app deletes this sandbox.
+Audio imports copy into `Library/Application Support/Zuneviu/`. Originals are not modified. Metadata and playlists are in `library.json`; imported artwork and lyrics sit beside the copied music. Corrupt manifests are not overwritten by a scene-save. The app has no analytics or embedded sign-in. Online catalog/search, media resolution/playback, artwork and lyric requests contact YouTube/Google directly. Optional remote extraction proxies are disabled. Search terms and playback requests therefore leave the device; local imports/favorites/playlists/history are stored in the sandbox. System Files/iCloud, sharing, device backup and AirPlay retain their own platform behavior. Deleting the app deletes this sandbox.
 
 `TestTone.wav` is an original generated 8-second 440 Hz tone for tests. The debug-only `--ui-testing` launch flag creates an isolated test library, not the user's normal library. It is not a demo of provider streaming.
 
 ## License
 
-GPL-3.0; see `LICENSE`. Original branding and source references retain attribution in `UPSTREAM-NOTICE.md`. `UPSTREAM-THIRD-PARTY-NOTICES.md` is retained historical context for the Android app, not a declaration that all Android dependencies are linked into this SwiftUI target. No Android Kotlin implementation, AGPL smart-transition code or external music-provider credentials are included in this archive.
+GPL-3.0; see `LICENSE`. Original branding and source references retain attribution in `UPSTREAM-NOTICE.md`. `UPSTREAM-THIRD-PARTY-NOTICES.md` is retained historical context for the Android app, not a declaration that all Android dependencies are linked into this SwiftUI target. The catalog parser/protocol is ported from the GPL Android source; original notices are retained. No AGPL smart-transition implementation or external music-provider credentials are included. YouTubeKit and its bundled resources retain their own upstream licenses.

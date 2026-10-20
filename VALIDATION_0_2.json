@@ -1,0 +1,44 @@
+{
+  "sourceCommit": "5f020b9d169122ed6ee3b7a7e5afa37d5f041ec4",
+  "version": "0.2.0",
+  "workflowRun": 39467391958,
+  "url": "https://github.com/amitsami/zuneviu-ios/actions/runs/39467391958",
+  "overallResult": "FAILED_ONLINE_PLAYBACK_ACCEPTANCE",
+  "simulatorBuild": "passed",
+  "unsignedDeviceBuild": "passed",
+  "offlineRegression": {
+    "unitIntegrationPassed": 22,
+    "fixtureUIPassed": 2,
+    "failed": 0
+  },
+  "liveCatalogSearchHome": "passed",
+  "realOnlineSearchUI": "passed",
+  "actualOnlinePlayback": {
+    "result": "failed",
+    "reason": "Native streaming failed before playback position advanced; one failed test with four failed assertions. Pause/seek/next on online audio were not reached."
+  },
+  "total": {
+    "methodsPassed": 26,
+    "methodsFailed": 1
+  },
+  "ipaDelivery": "withheld because live acceptance failed",
+  "standaloneNativeExtractor": {
+    "run": 39466288757,
+    "result": "failed",
+    "error": "YouTubeKit.YouTubeKitError.extractError"
+  },
+  "notImplemented": [
+    "Google/Spotify authentication and account sync",
+    "Provider downloads",
+    "Music video",
+    "Android DSP/crossfade/stems/party feature parity"
+  ],
+  "notValidated": [
+    "Physical iPhone playback",
+    "Audible output",
+    "All browse/radio/online lyric cases",
+    "Background and route matrix",
+    "100% Android visual and functional equivalence"
+  ],
+  "generatedAt": "2026-10-20T17:50:59.849875+00:00"
+}

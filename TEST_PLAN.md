@@ -1,8 +1,25 @@
-# Runtime acceptance plan — not yet executed
+# Runtime acceptance plan — current and historical scope
 
 The 13 unit/integration and 2 UI test methods passed in GitHub Actions run 39458769222. Every physical-device row below remains **PENDING**. Automated tests are implementation checks, not a universal device or service compatibility guarantee.
 
-## Automated tests
+## Version 0.2 results
+
+Run 39467391958 built both Simulator and unsigned device binaries. All 24 offline
+regression methods passed. Live catalog/home and real search UI methods passed.
+The actual online audio method FAILED before playback began (4 failed assertions).
+Online pause/seek/next were not reached. Total: 26 methods passed, 1 failed.
+No new IPA was delivered because the live gate failed. See VALIDATION_0_2.json.
+
+## Version 0.2 online acceptance
+
+- 9 added offline tests cover real catalog renderer shapes, metadata, order/deduplication, stable identities, invalid IDs, browse-vs-track classification, shelves/continuation, dynamic shell configuration, and old-library/remote-favorites persistence.
+- Separate real-provider tests request actual catalog/home data and actual native streams. Playback must advance, pause, seek and move to the next real song.
+- A real UI test searches the live online catalog and attaches the actual search screenshot.
+- Test tones, mocks and local fixture tests CANNOT satisfy any real online playback acceptance.
+- Any provider restriction, sign-in requirement or extraction failure remains a failing gate until legitimately resolved. Do not treat a restricted runner as proof of success on an iPhone.
+- Physical iPhone verification is still pending for every device row below.
+
+## Historical/local automated tests
 
 Use `./scripts/test_on_mac.sh` or Xcode Product → Test.
 
@@ -39,7 +56,7 @@ Use `./scripts/test_on_mac.sh` or Xcode Product → Test.
 
 ## Android parity work
 
-Streaming providers and their iOS-compatible authentication/stream resolution, provider search and recommendations, online downloads, music video, effects, smart transitions, party features, migrations and localization remain separate unimplemented work. They cannot pass an acceptance gate by testing only the local-player subset.
+Guest catalog/search/shelves, native extraction, radio and plain lyric requests are now implemented in source, but live streaming acceptance is not yet passed. iOS authentication/sync, provider downloads, music video, effects, smart transitions, party features, migrations and localization remain unimplemented. They cannot pass an acceptance gate by testing only the local-player subset.
 
 ## Evidence needed before calling it tested
 
