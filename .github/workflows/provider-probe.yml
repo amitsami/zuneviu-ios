@@ -1,0 +1,20 @@
+name: Live provider feasibility
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-extractor:
+    runs-on: macos-15
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build pinned native extractor and fetch real media bytes
+        working-directory: scripts/live-probe
+        run: swift run -c release LiveProbe
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: live-provider-probe
+          path: scripts/live-probe/live-provider-probe.json
+          retention-days: 1
