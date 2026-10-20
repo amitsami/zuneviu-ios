@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T16:43:34.017447+00:00",
+  "generatedAt": "2026-10-20T16:54:48.823447+00:00",
   "scope": "STATIC_ONLY",
   "summary": {
     "checks": 153,
@@ -9,7 +9,7 @@
     "unitTestsWritten": 13,
     "uiTestsWritten": 2
   },
-  "notExecuted": [
+  "notExecutedByThisScript": [
     "Apple SDK compilation",
     "XCTest unit tests",
     "XCUITest UI tests",

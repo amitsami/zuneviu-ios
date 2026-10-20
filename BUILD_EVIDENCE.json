@@ -1,0 +1,25 @@
+{
+  "sourceCommit": "efd987efbc07103cb9b024d97b071177c7f78083",
+  "buildRun": "https://github.com/amitsami/zuneviu-ios/actions/runs/39459965095",
+  "buildResult": "success",
+  "xcode": "16.4 (16F6)",
+  "simulator": "iPhone 16 Pro, iOS 18.5",
+  "unitIntegrationTestsPassed": 13,
+  "uiTestsPassed": 2,
+  "testFailures": 0,
+  "ipa": {
+    "file": "Zuneviu-unsigned.ipa",
+    "sha256": "846c303c5b732f344adac23811ab8961c149708ee42a933fe46b084762b010a1",
+    "bytes": 411924,
+    "bundleIdentifier": "com.zuneviu.ios",
+    "version": "0.1.0",
+    "minimumIOS": "17.0",
+    "architecture": "arm64",
+    "machOPlatform": "iOS device",
+    "signing": "unsigned; requires owner signing/provisioning before installation",
+    "embeddedProvisioningProfile": false
+  },
+  "screenshot": "Actual iOS Simulator launch with generated Test Tone fixture; not a design mockup.",
+  "physicalDeviceTests": "not performed",
+  "featureParity": "partial local-music port; online streaming, provider login/sync, video and Android DSP remain unimplemented"
+}

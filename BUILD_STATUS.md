@@ -2,21 +2,23 @@
 
 ## Verified result
 
-GitHub Actions run **39458769222** successfully compiled the app and executed the iOS Simulator test suites using Xcode 16.4.
+GitHub Actions runs **39458769222** and **39459965095** successfully compiled the app and executed the iOS Simulator test suites using Xcode 16.4. The second run also successfully built the unsigned iPhone device IPA and captured an actual Simulator screenshot.
 
-- Tested application source commit: `7e3d3b87bfcd46fe6bd1db43ad9603179e7babff`.
+- Latest built and tested application source commit: `efd987efbc07103cb9b024d97b071177c7f78083`.
+- Environment: Xcode 16.4 (16F6), iPhone 16 Pro Simulator, iOS 18.5.
 - 13 XCTest unit/integration methods: passed, zero failures.
 - 2 XCUITest UI methods: passed, zero failures.
 - Native AVPlayer playback clock advance, pause and seek were tested with a generated WAV fixture.
 - Real audio import/lyrics import/deletion, original-file preservation, favorites/playlists persistence and corrupt-manifest protection passed.
 - UI fixture playback/favorite and local search passed.
-- Evidence: https://github.com/amitsami/zuneviu-ios/actions/runs/39458769222
+- Latest evidence: https://github.com/amitsami/zuneviu-ios/actions/runs/39459965095
+- First successful test run: https://github.com/amitsami/zuneviu-ios/actions/runs/39458769222
 
 **This is not full Android parity or physical iPhone certification.** Audible output, lock-screen/background behavior, AirPlay, interruptions, every codec, accessibility, provider services and full sleep-timer expiration still require manual/device testing. Streaming providers and Google/Spotify login are not implemented.
 
 ## Package status
 
-The initial run produced a Simulator app. The updated manual workflow additionally builds an unsigned device IPA and captures an actual Simulator screenshot after tests pass. Consult the corresponding run for whether those steps completed. An unsigned IPA requires signing before installation; it is not an App Store/TestFlight release.
+The final run produced `Zuneviu-unsigned.ipa` and a real Simulator screenshot. The downloaded IPA was integrity-checked against its SHA-256 and its Mach-O load commands confirmed arm64 **iOS device** platform (not Simulator), minimum iOS 17.0. See `BUILD_EVIDENCE.json` for checksum and provenance. An unsigned IPA requires signing before installation; it is not an App Store/TestFlight release. GitHub artifacts use one-day retention.
 
 ## Static checks
 

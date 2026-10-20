@@ -53,13 +53,13 @@ The iOS code is kept separately in `amitsami/zuneviu-ios`; the Android release r
 ./scripts/test_on_mac.sh
 ```
 
-Or use Xcode's **Product → Test**. The project includes 13 unit/integration test methods and 2 UI test methods. **All 15 tests passed in initial run 39458769222. This does not replace the physical-device acceptance matrix.** See `TEST_PLAN.md` for coverage and limitations.
+Or use Xcode's **Product → Test**. The project includes 13 unit/integration test methods and 2 UI test methods. **All 15 tests passed in both run 39458769222 and final package run 39459965095. This does not replace the physical-device acceptance matrix.** See `TEST_PLAN.md` for coverage and limitations.
 
 The script writes a timestamped `.xcresult` and log into `TestResults/`. It exits unsuccessfully if Xcode tests fail. No report in this archive substitutes for those runtime results.
 
 ### GitHub Actions
 
-The included `.github/workflows/ios.yml` is manual-only (`workflow_dispatch`), runs on `macos-15` with a 20-minute job timeout, builds the app, executes the tests on an available iPhone simulator, and uploads `.xcresult`/logs with one-day retention. Pushing code does not automatically start a billable run. The simulator app is uploaded only after test success. A simulator `.app` is **not** an installable iPhone IPA. The initial Simulator workflow successfully ran in this repository. The expanded workflow also attempts an unsigned iPhone build and captures a real Simulator screenshot after successful tests.
+The included `.github/workflows/ios.yml` is manual-only (`workflow_dispatch`), runs on `macos-15` with a 20-minute job timeout, builds the app, executes the tests on an available iPhone simulator, and uploads `.xcresult`/logs with one-day retention. Pushing code does not automatically start a billable run. The simulator app is uploaded only after test success. A simulator `.app` is **not** an installable iPhone IPA. The initial Simulator workflow successfully ran in this repository. The expanded workflow successfully built an unsigned iPhone IPA and captured a real Simulator screenshot in run 39459965095. The IPA is an arm64 iOS device build for iOS 17+, not a Simulator binary. Its SHA-256 and build provenance are in `BUILD_EVIDENCE.json`.
 
 Place the archive contents at the root of a new repository, or adapt paths and workflow triggers if placing it under a subfolder in an existing repository. GitHub-hosted macOS runners require account/repository access and may incur charges; only standard public-repository runners are used; no paid/larger runner is selected.
 

@@ -50,10 +50,10 @@ methods=[]
 for path in (ROOT/'Tests').glob('*.swift'): methods+=re.findall(r'func (test\w+)\(',path.read_text())
 ui=[]
 for path in (ROOT/'UITests').glob('*.swift'): ui+=re.findall(r'func (test\w+)\(',path.read_text())
-report={'generatedAt':datetime.now(timezone.utc).isoformat(),'scope':'STATIC_ONLY','summary':{'checks':len(checks),'passed':sum(c['passed'] for c in checks),'failed':sum(not c['passed'] for c in checks),'swiftFiles':len(swiftFiles),'unitTestsWritten':len(methods),'uiTestsWritten':len(ui)},'notExecuted':['Apple SDK compilation','XCTest unit tests','XCUITest UI tests','iOS Simulator execution','Physical iPhone testing','GitHub Actions workflow'],'checks':checks,'sourceSHA256':{str(x.relative_to(ROOT)):hashlib.sha256(x.read_bytes()).hexdigest() for x in swiftFiles}}
+report={'generatedAt':datetime.now(timezone.utc).isoformat(),'scope':'STATIC_ONLY','summary':{'checks':len(checks),'passed':sum(c['passed'] for c in checks),'failed':sum(not c['passed'] for c in checks),'swiftFiles':len(swiftFiles),'unitTestsWritten':len(methods),'uiTestsWritten':len(ui)},'notExecutedByThisScript':['Apple SDK compilation','XCTest unit tests','XCUITest UI tests','iOS Simulator execution','Physical iPhone testing','GitHub Actions workflow'],'checks':checks,'sourceSHA256':{str(x.relative_to(ROOT)):hashlib.sha256(x.read_bytes()).hexdigest() for x in swiftFiles}}
 (ROOT/'STATIC_VALIDATION.json').write_text(json.dumps(report,indent=2))
 print(json.dumps(report['summary'],indent=2))
 for c in checks:
     if not c['passed']: print('FAILED:',c['check'])
-print('NOT an iOS build/test pass. Apple compilation and runtime tests remain unexecuted.')
+print('NOT an iOS build/test pass. Apple compilation and runtime tests are not executed by this script; see BUILD_STATUS.md for remote results.')
 raise SystemExit(1 if any(not c['passed'] for c in checks) else 0)
