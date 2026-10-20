@@ -26,14 +26,20 @@ struct NowPlayingView: View {
                     VStack(spacing: 24) {
                         HStack {
                             Button { dismiss() } label: { Image(systemName: "chevron.down").frame(width: 44, height: 44) }.accessibilityLabel("Close player")
-                            Spacer(); Text("Playing from your library").font(.caption.weight(.semibold)); Spacer()
+                            Spacer(); Text(playback.current?.isLocal == false ? "Playing from YouTube Music" : "Playing from your library").font(.caption.weight(.semibold)); Spacer()
                             Menu {
                                 if let track = playback.current {
                                     Button("Import lyrics (.lrc / .txt)", systemImage: "text.bubble") { importingLyrics = true }
                                     Menu("Add to playlist") {
                                         ForEach(library.snapshot.playlists) { list in Button(list.name) { library.add(track.id, to: list.id) } }
                                     }
-                                    ShareLink(item: library.file(track.audioFile)) { Label("Share audio file", systemImage: "square.and.arrow.up") }
+                                    if track.isLocal {
+                                        ShareLink(item: library.file(track.audioFile)) { Label("Share audio file", systemImage: "square.and.arrow.up") }
+                                    } else if let id = track.videoID {
+                                        Button("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) }
+                                        Button("Retry stream", systemImage: "arrow.clockwise") { playback.retry() }
+                                        ShareLink(item: URL(string: "https://music.youtube.com/watch?v=" + id)!) { Label("Share song", systemImage: "square.and.arrow.up") }
+                                    }
                                 }
                                 Menu("Sleep timer") {
                                     ForEach([15, 30, 45, 60], id: \.self) { minutes in Button("\(minutes) minutes") { playback.setSleep(minutes: minutes) } }
@@ -93,7 +99,7 @@ struct NowPlayingView: View {
                 }
             }.foregroundStyle(.white).preferredColorScheme(.dark)
         }
-        .task(id: playback.current?.id) { refreshLyrics() }
+        .task(id: playback.current?.id) { await fetchLyricsIfNeeded(); refreshLyrics() }
         .onChange(of: library.tracks) { _, _ in refreshLyrics() }
         .sheet(isPresented: $showingQueue) { NavigationStack { QueueView() } }
         .sheet(isPresented: $showingLyrics, onDismiss: {
@@ -109,8 +115,17 @@ struct NowPlayingView: View {
             }
         }
         .alert("Playback needs attention", isPresented: Binding(get: { playback.error != nil }, set: { if !$0 { playback.error = nil } })) {
-            Button("OK") { playback.error = nil }
+            Button("Retry") { playback.error = nil; playback.retry() }
+            Button("OK", role: .cancel) { playback.error = nil }
         } message: { Text(playback.error ?? "") }
+    }
+    private func fetchLyricsIfNeeded() async {
+        guard let track = playback.current, let videoID = track.videoID, library.lyricText(track.id).isEmpty else { return }
+        // Absence of lyrics is normal. Never replace imported lyrics or show a
+        // playback error just because this separate provider call failed.
+        if let text = try? await MusicCatalog.shared.lyrics(videoID), !text.isEmpty, !Task.isCancelled {
+            library.setLyrics(text, for: track)
+        }
     }
     private func refreshLyrics() {
         guard let id = playback.current?.id else { lines = []; return }
@@ -156,7 +171,13 @@ struct LyricsView: View {
             }.onChange(of: activeID) { _, id in if let id { withAnimation { proxy.scrollTo(id, anchor: .center) } } }
         }.navigationTitle("Lyrics").toolbar { Button("Import", action: importAction) }
             .task(id: playback.current?.id) {
-                if let id = playback.current?.id { text = library.lyricText(id); lines = LRCParser.parse(text) }
+                if let track = playback.current {
+                    text = library.lyricText(track.id)
+                    if text.isEmpty, let id = track.videoID, let fetched = try? await MusicCatalog.shared.lyrics(id), !Task.isCancelled {
+                        library.setLyrics(fetched, for: track); text = fetched
+                    }
+                    lines = LRCParser.parse(text)
+                }
             }
     }
 }

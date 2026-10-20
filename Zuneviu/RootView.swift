@@ -86,7 +86,9 @@ struct RootView: View {
                     Spacer(minLength: 0)
                 }
             }.buttonStyle(.plain).accessibilityLabel("Now playing: \(track.title)")
-            Button { playback.toggle() } label: { Image(systemName: playback.isPlaying ? "pause.fill" : "play.fill").frame(width: 44, height: 44) }
+            Button { playback.toggle() } label: {
+                Group { if playback.isLoading { ProgressView() } else { Image(systemName: playback.isPlaying ? "pause.fill" : "play.fill") } }.frame(width: 44, height: 44)
+            }
                 .accessibilityLabel(playback.isPlaying ? "Pause" : "Play")
             Button { playback.next() } label: { Image(systemName: "forward.fill").frame(width: 44, height: 44) }.accessibilityLabel("Next track")
         }.padding(7).background(.regularMaterial, in: Capsule())

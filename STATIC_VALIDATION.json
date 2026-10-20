@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-10-20T17:33:10.407168+00:00",
+  "generatedAt": "2026-10-20T17:35:15.949284+00:00",
   "scope": "STATIC_ONLY",
   "summary": {
-    "checks": 181,
-    "passed": 181,
+    "checks": 186,
+    "passed": 186,
     "failed": 0,
-    "swiftFiles": 21,
+    "swiftFiles": 22,
     "unitTestsWritten": 24,
-    "uiTestsWritten": 2
+    "uiTestsWritten": 3
   },
   "notExecutedByThisScript": [
     "Apple SDK compilation",
@@ -45,6 +45,11 @@
     },
     {
       "check": "Swift syntax: UITests/AppUITests.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: UITests/LiveCatalogUITests.swift",
       "passed": true,
       "detail": "Tree-sitter parse only; no Apple SDK type checking"
     },
@@ -250,6 +255,11 @@
     },
     {
       "check": "Reference 0A300DBF3250EDF7A3D43A3C.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 0F2612BBE722F8B97292B1A7.children",
       "passed": true,
       "detail": ""
     },
@@ -614,6 +624,16 @@
       "detail": ""
     },
     {
+      "check": "Reference 9A5D90BEDB08DDFC91A3B7A2.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference F9ACDEB529017EFC18F5E60A.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "Reference F9ACDEB529017EFC18F5E60A.files",
       "passed": true,
       "detail": ""
@@ -879,6 +899,11 @@
       "detail": ""
     },
     {
+      "check": "File exists: UITests/LiveCatalogUITests.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "Background audio declared",
       "passed": true,
       "detail": ""
@@ -931,16 +956,17 @@
     "Tests/CatalogTests.swift": "d31bbfe8b1c174d666e0578095f453f759fd0e1ccd64bd1504805bbe93178354",
     "Tests/LiveProviderTests.swift": "3ff499685e591a60cfac7a478337f85f010e24155005cc3eaee5b3b7ac7f9e6e",
     "UITests/AppUITests.swift": "5d4a329061cc3a8ba236655ee95d22c88708e26edded672784c512feb3ae692a",
+    "UITests/LiveCatalogUITests.swift": "68ac50d8ea8128a37cbd06b05152a6b4ebf43b2f4d4e27a48c9935d580195b16",
     "Zuneviu/Components.swift": "df32f7e9d0855b523ea3a6067e287c683eda5fbf97f12f96089ad2d0a64f8020",
     "Zuneviu/DebugFixture.swift": "a02c60619ac27a58b5b14365f495487af8d1afb88be5976c32ee46db92d7976c",
     "Zuneviu/LibraryStore.swift": "6f082f1f274fe648092457f8dc1d7a94d934a1d630d115ba98923e538be727ee",
     "Zuneviu/LibraryView.swift": "0185fb1da6631b763fe4e20f4ae85ad86370859057e7893849476517e317af27",
     "Zuneviu/Models.swift": "74e5623f2dad2211266ee8919b7824005264117d1c8f75fb71f489ae0c68010b",
-    "Zuneviu/NowPlayingView.swift": "a7b25c09a7648c21e1d8757d8873d8a9f553416154df5db46c637fe126bb5bf3",
+    "Zuneviu/NowPlayingView.swift": "78a5b36056e411e9a271a5326c6246a2fc5dace41e9f2c906cd9a41edafe3d43",
     "Zuneviu/PlaybackStore.swift": "87569d45cd9e92df31746c93e1aec2b1b960e57403c64a4d3c62c015b844353e",
-    "Zuneviu/RootView.swift": "326f96f798d632f825528cee4798395ddbf792a1baf21735dd826d9b47766da3",
-    "Zuneviu/SettingsView.swift": "5bd5196568d1ede24ac6bdc05edb575750e98b90387ae46783d3a7c9846959ad",
-    "Zuneviu/ZuneviuApp.swift": "9536077c43aea68d87b89b37864a41d4fd7ffaef5a000820941888a03df8a1ac",
+    "Zuneviu/RootView.swift": "50ffbe65e4d1d1484116a313886047676eac723b1c45bc3a9452c0c44697f4d4",
+    "Zuneviu/SettingsView.swift": "63845c487529417ee87c6418d5f460cac17d9d45119df63c5eb4fde141e15ca2",
+    "Zuneviu/ZuneviuApp.swift": "99457f1611efe01d1ed19c277eb714bb6c68445a44521b398c00c0a73f00d263",
     "Zuneviu/MusicCatalog.swift": "492dd096f9a69aff5c17f03621d8ef9781f01e8b64b32d64b357743974a7598b",
     "Zuneviu/StreamResolver.swift": "9716b0390e7a4d2a75d95235014b5c17770f22ca2d443e86d4383c1038e360e7",
     "Zuneviu/OnlineViews.swift": "670c1199eef01c0f62bcc46ff5565ed5db2506c089f6aa6656fdb50d0d652915",

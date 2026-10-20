@@ -21,12 +21,14 @@ jobs:
           xcrun simctl boot "$UDID" || true
           xcrun simctl bootstatus "$UDID" -b
       - name: Build and run unit and UI tests
+        id: offline
         run: |
           set -o pipefail
           mkdir -p TestResults
           xcodebuild test -project Zuneviu.xcodeproj -scheme Zuneviu \
             -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
             -skip-testing:ZuneviuTests/LiveProviderTests \
+            -skip-testing:ZuneviuUITests/LiveCatalogUITests \
             -derivedDataPath DerivedData -resultBundlePath TestResults/Zuneviu.xcresult \
             CODE_SIGNING_ALLOWED=NO | tee TestResults/xcodebuild.log
       - name: Upload test evidence
@@ -61,6 +63,7 @@ jobs:
           xcodebuild test -project Zuneviu.xcodeproj -scheme Zuneviu \
             -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
             -only-testing:ZuneviuTests/LiveProviderTests \
+            -only-testing:ZuneviuUITests/LiveCatalogUITests \
             -derivedDataPath DerivedData -resultBundlePath TestResults/LiveProvider.xcresult \
             CODE_SIGNING_ALLOWED=NO | tee TestResults/live-provider.log
       - name: Upload live-provider evidence (including failures)
@@ -71,12 +74,20 @@ jobs:
           path: TestResults/
           retention-days: 1
       - name: Capture actual simulator launch
+        if: always() && steps.offline.outcome == 'success'
         run: |
           xcrun simctl install "$SIMULATOR_ID" DerivedData/Build/Products/Debug-iphonesimulator/Zuneviu.app
           xcrun simctl terminate "$SIMULATOR_ID" com.zuneviu.ios || true
           xcrun simctl launch "$SIMULATOR_ID" com.zuneviu.ios --live-ui-testing
           sleep 12
           xcrun simctl io "$SIMULATOR_ID" screenshot Zuneviu-simulator.png
+      - name: Upload catalog screenshot separately from playback acceptance
+        if: always() && steps.offline.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: actual-catalog-ui-not-playback-proof
+          path: Zuneviu-simulator.png
+          retention-days: 1
       - name: Upload unsigned iPhone app and screenshot
         uses: actions/upload-artifact@v4
         with:
