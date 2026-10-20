@@ -1,6 +1,6 @@
 # Runtime acceptance plan — not yet executed
 
-Every row below is **PENDING**. Unit tests and UI tests are implementation checks, not a universal device or service compatibility guarantee.
+The 13 unit/integration and 2 UI test methods passed in GitHub Actions run 39458769222. Every physical-device row below remains **PENDING**. Automated tests are implementation checks, not a universal device or service compatibility guarantee.
 
 ## Automated tests
 

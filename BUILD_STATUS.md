@@ -1,35 +1,32 @@
 # Validation status
 
-## Outcome
+## Verified result
 
-**NOT COMPILED. NOT RUNTIME-TESTED. NOT A READY-TO-INSTALL iOS APP. NOT FULL ANDROID PARITY.**
+GitHub Actions run **39458769222** successfully compiled the app and executed the iOS Simulator test suites using Xcode 16.4.
 
-This environment is Linux and has no `xcodebuild`, Apple iOS SDK, iOS Simulator or connected iPhone. GitHub authorization is now available, but no remote macOS job has run. Remaining Actions quota could not be verified using the available account permissions. No potentially paid workflow has been dispatched. There is no IPA, physical-device acceptance result, or claim that all features work.
+- Tested application source commit: `7e3d3b87bfcd46fe6bd1db43ad9603179e7babff`.
+- 13 XCTest unit/integration methods: passed, zero failures.
+- 2 XCUITest UI methods: passed, zero failures.
+- Native AVPlayer playback clock advance, pause and seek were tested with a generated WAV fixture.
+- Real audio import/lyrics import/deletion, original-file preservation, favorites/playlists persistence and corrupt-manifest protection passed.
+- UI fixture playback/favorite and local search passed.
+- Evidence: https://github.com/amitsami/zuneviu-ios/actions/runs/39458769222
 
-## Executed checks
+**This is not full Android parity or physical iPhone certification.** Audible output, lock-screen/background behavior, AirPlay, interruptions, every codec, accessibility, provider services and full sleep-timer expiration still require manual/device testing. Streaming providers and Google/Spotify login are not implemented.
 
-- Tree-sitter syntax parsing: 14 Swift files, no syntax error nodes.
-- Static project/asset/plist/reference checks: 153 passed, 0 failed.
-- Xcode OpenStep project: parsed successfully; three targets present.
-- Shared scheme XML and Info/privacy plist: parsed successfully.
-- 1024×1024 RGB app icon and referenced assets: checked.
-- Generated WAV fixture: 8 seconds, mono PCM, checked.
-- Shell syntax: `bash -n scripts/test_on_mac.sh` passed.
+## Package status
 
-Full machine-readable output and Swift-file hashes are in `STATIC_VALIDATION.json`. These results only cover the supplied static checks. They do not prove that Apple's compiler will accept the program or that any iOS behavior works.
+The initial run produced a Simulator app. The updated manual workflow additionally builds an unsigned device IPA and captures an actual Simulator screenshot after tests pass. Consult the corresponding run for whether those steps completed. An unsigned IPA requires signing before installation; it is not an App Store/TestFlight release.
 
-## Test code present, not executed
+## Static checks
 
-- 13 XCTest unit/integration methods: lyrics parsing, time formatting, JSON round trip, playlist/favorite persistence, corrupt-manifest protection, real audio-file import/deletion, invalid-file rejection, native playback/seek/pause and missing-file handling.
-- 2 XCUITest methods: fixture playback/favorite interaction and local search.
-- `.github/workflows/ios.yml`: proposed macOS simulator execution and evidence upload.
+`STATIC_VALIDATION.json` records earlier syntax/project/reference/asset checks and Swift source hashes. It is separate from the above Xcode runtime evidence. Existing checked Swift sources are unchanged by this workflow/documentation update.
 
-## Release gate still blocked
+## Remaining release gates
 
-1. Apple SDK compilation and linking must pass.
-2. The included XCTest and XCUITest suites must run, failures must be fixed, and the resulting `.xcresult` must be inspected.
-3. Manual iPhone tests in `TEST_PLAN.md` must pass for the implemented features.
-4. Missing Android features must be implemented and validated before claiming parity.
-5. Signing, entitlement, license, provider-policy and distribution requirements must be reviewed before a device/App Store release.
+- Complete the physical iPhone acceptance matrix in TEST_PLAN.md.
+- Implement and validate the missing Android features before claiming parity.
+- Sign and provision any device installation using the owner's chosen installation method.
+- Review license, provider-policy and distribution requirements before a public app release.
 
-No passing runtime result or actual iOS screenshot is provided because none exists from this session.
+The Android release repository has not been modified.

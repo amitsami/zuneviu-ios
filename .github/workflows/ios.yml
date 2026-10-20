@@ -43,3 +43,29 @@ jobs:
           name: Zuneviu-simulator
           path: Zuneviu-simulator.zip
           retention-days: 1
+      - name: Build unsigned iPhone app (requires signing to install)
+        run: |
+          set -o pipefail
+          xcodebuild build -project Zuneviu.xcodeproj -scheme Zuneviu \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath DeviceDerivedData CODE_SIGNING_ALLOWED=NO \
+            | tee TestResults/iphone-build.log
+          mkdir -p DevicePackage/Payload
+          ditto DeviceDerivedData/Build/Products/Release-iphoneos/Zuneviu.app DevicePackage/Payload/Zuneviu.app
+          (cd DevicePackage && zip -qry ../Zuneviu-unsigned.ipa Payload)
+          shasum -a 256 Zuneviu-unsigned.ipa > Zuneviu-unsigned.ipa.sha256
+      - name: Capture actual simulator launch
+        run: |
+          xcrun simctl install "$SIMULATOR_ID" DerivedData/Build/Products/Debug-iphonesimulator/Zuneviu.app
+          xcrun simctl launch "$SIMULATOR_ID" com.zuneviu.ios --ui-testing
+          sleep 3
+          xcrun simctl io "$SIMULATOR_ID" screenshot Zuneviu-simulator.png
+      - name: Upload unsigned iPhone app and screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: Zuneviu-unsigned-iPhone
+          path: |
+            Zuneviu-unsigned.ipa
+            Zuneviu-unsigned.ipa.sha256
+            Zuneviu-simulator.png
+          retention-days: 1
