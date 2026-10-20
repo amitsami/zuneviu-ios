@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-20T16:25:57.093476+00:00",
+  "generatedAt": "2026-10-20T16:43:34.017447+00:00",
   "scope": "STATIC_ONLY",
   "summary": {
     "checks": 153,
@@ -19,62 +19,12 @@
   ],
   "checks": [
     {
-      "check": "Swift syntax: Zuneviu/Models.swift",
-      "passed": true,
-      "detail": "Tree-sitter parse only; no Apple SDK type checking"
-    },
-    {
-      "check": "Swift syntax: Zuneviu/LibraryStore.swift",
-      "passed": true,
-      "detail": "Tree-sitter parse only; no Apple SDK type checking"
-    },
-    {
-      "check": "Swift syntax: Zuneviu/PlaybackStore.swift",
-      "passed": true,
-      "detail": "Tree-sitter parse only; no Apple SDK type checking"
-    },
-    {
-      "check": "Swift syntax: Zuneviu/ZuneviuApp.swift",
-      "passed": true,
-      "detail": "Tree-sitter parse only; no Apple SDK type checking"
-    },
-    {
-      "check": "Swift syntax: Zuneviu/Components.swift",
-      "passed": true,
-      "detail": "Tree-sitter parse only; no Apple SDK type checking"
-    },
-    {
-      "check": "Swift syntax: Zuneviu/RootView.swift",
-      "passed": true,
-      "detail": "Tree-sitter parse only; no Apple SDK type checking"
-    },
-    {
-      "check": "Swift syntax: Zuneviu/LibraryView.swift",
-      "passed": true,
-      "detail": "Tree-sitter parse only; no Apple SDK type checking"
-    },
-    {
-      "check": "Swift syntax: Zuneviu/NowPlayingView.swift",
-      "passed": true,
-      "detail": "Tree-sitter parse only; no Apple SDK type checking"
-    },
-    {
-      "check": "Swift syntax: Zuneviu/SettingsView.swift",
-      "passed": true,
-      "detail": "Tree-sitter parse only; no Apple SDK type checking"
-    },
-    {
-      "check": "Swift syntax: Zuneviu/DebugFixture.swift",
+      "check": "Swift syntax: Tests/LibraryTests.swift",
       "passed": true,
       "detail": "Tree-sitter parse only; no Apple SDK type checking"
     },
     {
       "check": "Swift syntax: Tests/ModelTests.swift",
-      "passed": true,
-      "detail": "Tree-sitter parse only; no Apple SDK type checking"
-    },
-    {
-      "check": "Swift syntax: Tests/LibraryTests.swift",
       "passed": true,
       "detail": "Tree-sitter parse only; no Apple SDK type checking"
     },
@@ -85,6 +35,56 @@
     },
     {
       "check": "Swift syntax: UITests/AppUITests.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/Components.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/DebugFixture.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/LibraryStore.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/LibraryView.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/Models.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/NowPlayingView.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/PlaybackStore.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/RootView.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/SettingsView.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/ZuneviuApp.swift",
       "passed": true,
       "detail": "Tree-sitter parse only; no Apple SDK type checking"
     },
@@ -785,19 +785,19 @@
     }
   ],
   "sourceSHA256": {
-    "Zuneviu/Models.swift": "cb660f9dc32c09ed185b65c331fa750a9d08592afc9d43bd9c806be20f041a17",
-    "Zuneviu/LibraryStore.swift": "4a6e6588162a7066f7a1dc4d720a2af411c3d108ee81e4155c24ed1a1f145c95",
-    "Zuneviu/PlaybackStore.swift": "42c252bc715952694a4f425ed7f55cfbc5676dbb83276774f4f2c128a951d28c",
-    "Zuneviu/ZuneviuApp.swift": "9536077c43aea68d87b89b37864a41d4fd7ffaef5a000820941888a03df8a1ac",
-    "Zuneviu/Components.swift": "c146897265ec81700ba0da297f53c15fee7832c6f184e2ad06f1778683c08835",
-    "Zuneviu/RootView.swift": "f043d991cb548db23b936254bd195dc984719491ab450feb12727fbf867dd4ab",
-    "Zuneviu/LibraryView.swift": "a8e1e05efdb0d2f4c34a895ebc6d87fd4bbf6bb2fde8cec1e592717d4bc740d4",
-    "Zuneviu/NowPlayingView.swift": "a7b25c09a7648c21e1d8757d8873d8a9f553416154df5db46c637fe126bb5bf3",
-    "Zuneviu/SettingsView.swift": "5bd5196568d1ede24ac6bdc05edb575750e98b90387ae46783d3a7c9846959ad",
-    "Zuneviu/DebugFixture.swift": "a02c60619ac27a58b5b14365f495487af8d1afb88be5976c32ee46db92d7976c",
-    "Tests/ModelTests.swift": "1785b703aadb9c02586a26cfcea5daa4c1932f1975ffec62457892ddd9ce9ea9",
     "Tests/LibraryTests.swift": "a053d54351c85ae0d8a0473f8cd5b77a616d0e106c9b4979820b916c40842d8a",
+    "Tests/ModelTests.swift": "1785b703aadb9c02586a26cfcea5daa4c1932f1975ffec62457892ddd9ce9ea9",
     "Tests/PlaybackTests.swift": "f4c14097d6e446f405d9349e9a396442d814111d019b4c214d89e07113559d9c",
-    "UITests/AppUITests.swift": "5d4a329061cc3a8ba236655ee95d22c88708e26edded672784c512feb3ae692a"
+    "UITests/AppUITests.swift": "5d4a329061cc3a8ba236655ee95d22c88708e26edded672784c512feb3ae692a",
+    "Zuneviu/Components.swift": "c146897265ec81700ba0da297f53c15fee7832c6f184e2ad06f1778683c08835",
+    "Zuneviu/DebugFixture.swift": "a02c60619ac27a58b5b14365f495487af8d1afb88be5976c32ee46db92d7976c",
+    "Zuneviu/LibraryStore.swift": "9f2910aa029edacab999432a33e62eab4aeeaabb2f5f34973a3e2678fbcfa61e",
+    "Zuneviu/LibraryView.swift": "a8e1e05efdb0d2f4c34a895ebc6d87fd4bbf6bb2fde8cec1e592717d4bc740d4",
+    "Zuneviu/Models.swift": "cb660f9dc32c09ed185b65c331fa750a9d08592afc9d43bd9c806be20f041a17",
+    "Zuneviu/NowPlayingView.swift": "a7b25c09a7648c21e1d8757d8873d8a9f553416154df5db46c637fe126bb5bf3",
+    "Zuneviu/PlaybackStore.swift": "42c252bc715952694a4f425ed7f55cfbc5676dbb83276774f4f2c128a951d28c",
+    "Zuneviu/RootView.swift": "f043d991cb548db23b936254bd195dc984719491ab450feb12727fbf867dd4ab",
+    "Zuneviu/SettingsView.swift": "5bd5196568d1ede24ac6bdc05edb575750e98b90387ae46783d3a7c9846959ad",
+    "Zuneviu/ZuneviuApp.swift": "9536077c43aea68d87b89b37864a41d4fd7ffaef5a000820941888a03df8a1ac"
   }
 }

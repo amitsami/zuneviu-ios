@@ -57,6 +57,7 @@ jobs:
       - name: Capture actual simulator launch
         run: |
           xcrun simctl install "$SIMULATOR_ID" DerivedData/Build/Products/Debug-iphonesimulator/Zuneviu.app
+          xcrun simctl terminate "$SIMULATOR_ID" com.zuneviu.ios || true
           xcrun simctl launch "$SIMULATOR_ID" com.zuneviu.ios --ui-testing
           sleep 3
           xcrun simctl io "$SIMULATOR_ID" screenshot Zuneviu-simulator.png

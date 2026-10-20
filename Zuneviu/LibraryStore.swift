@@ -1,6 +1,6 @@
 import Foundation
 import Combine
-import AVFoundation
+@preconcurrency import AVFoundation
 
 @MainActor final class LibraryStore: ObservableObject {
     @Published private(set) var snapshot = LibrarySnapshot()

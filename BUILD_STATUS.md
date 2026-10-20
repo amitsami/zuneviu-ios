@@ -20,7 +20,7 @@ The initial run produced a Simulator app. The updated manual workflow additional
 
 ## Static checks
 
-`STATIC_VALIDATION.json` records earlier syntax/project/reference/asset checks and Swift source hashes. It is separate from the above Xcode runtime evidence. Existing checked Swift sources are unchanged by this workflow/documentation update.
+`STATIC_VALIDATION.json` records earlier syntax/project/reference/asset checks and Swift source hashes. It is separate from the above Xcode runtime evidence. AVFoundation is imported with pre-concurrency compatibility for its legacy non-Sendable metadata objects; the expanded workflow reruns the complete test suite.
 
 ## Remaining release gates
 
