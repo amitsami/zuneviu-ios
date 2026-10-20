@@ -1,0 +1,803 @@
+{
+  "generatedAt": "2026-10-20T16:25:57.093476+00:00",
+  "scope": "STATIC_ONLY",
+  "summary": {
+    "checks": 153,
+    "passed": 153,
+    "failed": 0,
+    "swiftFiles": 14,
+    "unitTestsWritten": 13,
+    "uiTestsWritten": 2
+  },
+  "notExecuted": [
+    "Apple SDK compilation",
+    "XCTest unit tests",
+    "XCUITest UI tests",
+    "iOS Simulator execution",
+    "Physical iPhone testing",
+    "GitHub Actions workflow"
+  ],
+  "checks": [
+    {
+      "check": "Swift syntax: Zuneviu/Models.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/LibraryStore.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/PlaybackStore.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/ZuneviuApp.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/Components.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/RootView.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/LibraryView.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/NowPlayingView.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/SettingsView.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/DebugFixture.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Tests/ModelTests.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Tests/LibraryTests.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Tests/PlaybackTests.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: UITests/AppUITests.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "OpenStep Xcode project parses",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 0A300DBF3250EDF7A3D43A3C.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 0A300DBF3250EDF7A3D43A3C.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 0A300DBF3250EDF7A3D43A3C.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 0F2612BBE722F8B97292B1A7.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 96316AF13F45443E4E9C4BA0.buildConfigurations",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 96316AF13F45443E4E9C4BA0.buildConfigurations",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference DD5708808DBFF33203C7BFA8.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference D213F5C3F89831AEF45158B9.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 61D532810FF0189A8FFBFA8C.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 0B95141C53EFAA217DE1C850.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 85DDA1310899BF4B001D7B52.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference DA9CB62D01371AED6219BA24.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 787F74FCDC20479874558B51.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 86384A2E094A2684526E8343.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference B5E4E298C07D61205F8101FE.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 6535BF67738FD0725D62B2DE.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 949D493B91791558E87BC5D7.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 949D493B91791558E87BC5D7.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 949D493B91791558E87BC5D7.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 949D493B91791558E87BC5D7.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 949D493B91791558E87BC5D7.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 949D493B91791558E87BC5D7.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 949D493B91791558E87BC5D7.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 949D493B91791558E87BC5D7.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 949D493B91791558E87BC5D7.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 949D493B91791558E87BC5D7.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference BB175D9938C632D56D7224F5.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 858F78E69C6D19DBB04B7686.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 7BD0FF809BF091D6588EDE32.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 11A17403250CD5550A3F8E4A.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference B436600680A941AD4AF5AD29.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference DF5FE743111EAB50B5AB6894.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 8ECC8B5D05B79F879ACDF1A2.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 8ECC8B5D05B79F879ACDF1A2.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 8ECC8B5D05B79F879ACDF1A2.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 8ECC8B5D05B79F879ACDF1A2.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 8ECC8B5D05B79F879ACDF1A2.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 8ECC8B5D05B79F879ACDF1A2.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 277EF9D2908DE87D83B8FECE.buildConfigurations",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 277EF9D2908DE87D83B8FECE.buildConfigurations",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference F75109BEB4DD8800DA6B45F8.buildConfigurationList",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference F75109BEB4DD8800DA6B45F8.productReference",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference F75109BEB4DD8800DA6B45F8.buildPhases",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference F75109BEB4DD8800DA6B45F8.buildPhases",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference F75109BEB4DD8800DA6B45F8.buildPhases",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 31B73F07022BDE4BFFEFDE43.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 3FEF676FF165E371172A215B.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 000233D0637908C6CAA8C6F9.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 5DDB0E64CE5DBFEFCE957171.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 5DDB0E64CE5DBFEFCE957171.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 5DDB0E64CE5DBFEFCE957171.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference A2C1AAABE5CE846EA9429419.containerPortal",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference A2C1AAABE5CE846EA9429419.remoteGlobalIDString",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 03C64E9A3C3BED951AC96980.target",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 03C64E9A3C3BED951AC96980.targetProxy",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 81E95C6DBB1C626AA7E5C4F2.buildConfigurations",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 81E95C6DBB1C626AA7E5C4F2.buildConfigurations",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 48021BA534050206D31D8AAD.buildConfigurationList",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 48021BA534050206D31D8AAD.productReference",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 48021BA534050206D31D8AAD.buildPhases",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 48021BA534050206D31D8AAD.buildPhases",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 48021BA534050206D31D8AAD.buildPhases",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 48021BA534050206D31D8AAD.dependencies",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference B0F8FCE9685791F5405EA8A0.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference F9ACDEB529017EFC18F5E60A.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference C79C3E4FFACCEA2AC84AC2E0.containerPortal",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference C79C3E4FFACCEA2AC84AC2E0.remoteGlobalIDString",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference FE41E3343258A6882539145A.target",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference FE41E3343258A6882539145A.targetProxy",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference A1CF8FA1FF6B3602810CBB10.buildConfigurations",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference A1CF8FA1FF6B3602810CBB10.buildConfigurations",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 794AAC98ACE6EB716B86C3A5.buildConfigurationList",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 794AAC98ACE6EB716B86C3A5.productReference",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 794AAC98ACE6EB716B86C3A5.buildPhases",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 794AAC98ACE6EB716B86C3A5.buildPhases",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 794AAC98ACE6EB716B86C3A5.buildPhases",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 794AAC98ACE6EB716B86C3A5.dependencies",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference FBDC4F23F93125BBEEAE800C.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference FBDC4F23F93125BBEEAE800C.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference FBDC4F23F93125BBEEAE800C.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference B28B7AF69320201D1CF206EB.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference B28B7AF69320201D1CF206EB.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference B28B7AF69320201D1CF206EB.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference B28B7AF69320201D1CF206EB.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 98F54143AB4E86B28C3AFEE0.buildConfigurationList",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 98F54143AB4E86B28C3AFEE0.mainGroup",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 98F54143AB4E86B28C3AFEE0.productRefGroup",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 98F54143AB4E86B28C3AFEE0.targets",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 98F54143AB4E86B28C3AFEE0.targets",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 98F54143AB4E86B28C3AFEE0.targets",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Three Xcode targets",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/Components.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/DebugFixture.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/LibraryStore.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/LibraryView.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/Models.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/NowPlayingView.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/PlaybackStore.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/RootView.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/SettingsView.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/ZuneviuApp.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/Assets.xcassets",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/LICENSE.txt",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/UPSTREAM-NOTICE.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/ASSET-CREDITS.md",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/TestTone.wav",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/PrivacyInfo.xcprivacy",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Zuneviu/Info.plist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Tests/LibraryTests.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Tests/ModelTests.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: Tests/PlaybackTests.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: UITests/AppUITests.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Background audio declared",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "No App Transport Security bypass",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "No tracking declared",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "UserDefaults required-reason declaration",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Asset file exists: AppIcon.png",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Asset file exists: MusicMark.png",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Opaque 1024 app icon",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Shared scheme XML parses",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "8-second audio fixture",
+      "passed": true,
+      "detail": ""
+    }
+  ],
+  "sourceSHA256": {
+    "Zuneviu/Models.swift": "cb660f9dc32c09ed185b65c331fa750a9d08592afc9d43bd9c806be20f041a17",
+    "Zuneviu/LibraryStore.swift": "4a6e6588162a7066f7a1dc4d720a2af411c3d108ee81e4155c24ed1a1f145c95",
+    "Zuneviu/PlaybackStore.swift": "42c252bc715952694a4f425ed7f55cfbc5676dbb83276774f4f2c128a951d28c",
+    "Zuneviu/ZuneviuApp.swift": "9536077c43aea68d87b89b37864a41d4fd7ffaef5a000820941888a03df8a1ac",
+    "Zuneviu/Components.swift": "c146897265ec81700ba0da297f53c15fee7832c6f184e2ad06f1778683c08835",
+    "Zuneviu/RootView.swift": "f043d991cb548db23b936254bd195dc984719491ab450feb12727fbf867dd4ab",
+    "Zuneviu/LibraryView.swift": "a8e1e05efdb0d2f4c34a895ebc6d87fd4bbf6bb2fde8cec1e592717d4bc740d4",
+    "Zuneviu/NowPlayingView.swift": "a7b25c09a7648c21e1d8757d8873d8a9f553416154df5db46c637fe126bb5bf3",
+    "Zuneviu/SettingsView.swift": "5bd5196568d1ede24ac6bdc05edb575750e98b90387ae46783d3a7c9846959ad",
+    "Zuneviu/DebugFixture.swift": "a02c60619ac27a58b5b14365f495487af8d1afb88be5976c32ee46db92d7976c",
+    "Tests/ModelTests.swift": "1785b703aadb9c02586a26cfcea5daa4c1932f1975ffec62457892ddd9ce9ea9",
+    "Tests/LibraryTests.swift": "a053d54351c85ae0d8a0473f8cd5b77a616d0e106c9b4979820b916c40842d8a",
+    "Tests/PlaybackTests.swift": "f4c14097d6e446f405d9349e9a396442d814111d019b4c214d89e07113559d9c",
+    "UITests/AppUITests.swift": "5d4a329061cc3a8ba236655ee95d22c88708e26edded672784c512feb3ae692a"
+  }
+}

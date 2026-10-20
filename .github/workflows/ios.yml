@@ -1,0 +1,45 @@
+name: iOS build and tests
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ios-build-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  simulator:
+    runs-on: macos-15
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record Xcode version
+        run: xcodebuild -version
+      - name: Select available iPhone simulator
+        run: |
+          UDID=$(xcrun simctl list devices available -j | python3 -c 'import json,sys; data=json.load(sys.stdin); phones=[d["udid"] for runtime,devices in data["devices"].items() if "iOS" in runtime for d in devices if d.get("isAvailable") and "iPhone" in d["name"]]; assert phones, "No iPhone simulator installed"; print(phones[0])')
+          echo "SIMULATOR_ID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+      - name: Build and run unit and UI tests
+        run: |
+          set -o pipefail
+          mkdir -p TestResults
+          xcodebuild test -project Zuneviu.xcodeproj -scheme Zuneviu \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -derivedDataPath DerivedData -resultBundlePath TestResults/Zuneviu.xcresult \
+            CODE_SIGNING_ALLOWED=NO | tee TestResults/xcodebuild.log
+      - name: Upload test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-test-evidence
+          path: TestResults/
+          retention-days: 1
+      - name: Package simulator app (not an iPhone IPA)
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent DerivedData/Build/Products/Debug-iphonesimulator/Zuneviu.app Zuneviu-simulator.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Zuneviu-simulator
+          path: Zuneviu-simulator.zip
+          retention-days: 1

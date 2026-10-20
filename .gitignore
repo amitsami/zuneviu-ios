@@ -1,0 +1,8 @@
+.DS_Store
+DerivedData/
+TestResults/
+*.xcuserstate
+xcuserdata/
+*.ipa
+*.p12
+*.mobileprovision
