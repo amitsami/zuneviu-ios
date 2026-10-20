@@ -5,6 +5,19 @@
 	};
 	"objectVersion" = "56";
 	"objects" = {
+		"6D067C3576CD33C04DC994E7" = {
+			"isa" = "XCRemoteSwiftPackageReference";
+			"repositoryURL" = "https://github.com/alexeichhorn/YouTubeKit.git";
+			"requirement" = {
+				"kind" = "revision";
+				"revision" = "e5b7d0396ce12bf3444f0d209e8436c83373b7af";
+			};
+		};
+		"F154BFDF3392B9C51EB6D08A" = {
+			"isa" = "XCSwiftPackageProductDependency";
+			"package" = "6D067C3576CD33C04DC994E7";
+			"productName" = "YouTubeKit";
+		};
 		"95615CD4E74C7CAD9CD82A4B" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
@@ -35,10 +48,22 @@
 			"path" = "Models.swift";
 			"sourceTree" = "<group>";
 		};
+		"C88136F9638315D295C652EC" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "MusicCatalog.swift";
+			"sourceTree" = "<group>";
+		};
 		"10C244EBA3582E8FD91A4ECA" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "NowPlayingView.swift";
+			"sourceTree" = "<group>";
+		};
+		"C9FF133D452724B4477BE85E" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "OnlineViews.swift";
 			"sourceTree" = "<group>";
 		};
 		"9C64BC0D25E9B4BEC93D4F0C" = {
@@ -59,16 +84,34 @@
 			"path" = "SettingsView.swift";
 			"sourceTree" = "<group>";
 		};
+		"B6CF338C727DB7680FAC75A8" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "StreamResolver.swift";
+			"sourceTree" = "<group>";
+		};
 		"545A7A1F108D3015EE148343" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "ZuneviuApp.swift";
 			"sourceTree" = "<group>";
 		};
+		"66B24770BFB1CA67F22BB856" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "CatalogTests.swift";
+			"sourceTree" = "<group>";
+		};
 		"02BBEACCBDAD7544D8B8EEE9" = {
 			"isa" = "PBXFileReference";
 			"lastKnownFileType" = "sourcecode.swift";
 			"path" = "LibraryTests.swift";
+			"sourceTree" = "<group>";
+		};
+		"D6CE96432617016B7F28D34A" = {
+			"isa" = "PBXFileReference";
+			"lastKnownFileType" = "sourcecode.swift";
+			"path" = "LiveProviderTests.swift";
 			"sourceTree" = "<group>";
 		};
 		"5875AF536CEB0F47DA26647D" = {
@@ -139,10 +182,13 @@
 				"257C98C519661726892049C5",
 				"2B896E88150845A6D4BCD0E5",
 				"FD0810F224E579D708BCE4A4",
+				"C88136F9638315D295C652EC",
 				"10C244EBA3582E8FD91A4ECA",
+				"C9FF133D452724B4477BE85E",
 				"9C64BC0D25E9B4BEC93D4F0C",
 				"F65BAAE60937BC094C9C7796",
 				"6B983C0AC7D8C28B185B4275",
+				"B6CF338C727DB7680FAC75A8",
 				"545A7A1F108D3015EE148343",
 				"7B281B5834FC2FFF02CCC69B",
 				"15889A7DCB8C2628D6FD230D",
@@ -158,7 +204,9 @@
 		"0A300DBF3250EDF7A3D43A3C" = {
 			"isa" = "PBXGroup";
 			"children" = (
+				"66B24770BFB1CA67F22BB856",
 				"02BBEACCBDAD7544D8B8EEE9",
+				"D6CE96432617016B7F28D34A",
 				"5875AF536CEB0F47DA26647D",
 				"5F99942A6026CA07BE203F4C",
 			);
@@ -248,9 +296,17 @@
 			"isa" = "PBXBuildFile";
 			"fileRef" = "FD0810F224E579D708BCE4A4";
 		};
+		"116F9558397292CD3C53AB76" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "C88136F9638315D295C652EC";
+		};
 		"DA9CB62D01371AED6219BA24" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "10C244EBA3582E8FD91A4ECA";
+		};
+		"5D78B2970D40B56A41DE924F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "C9FF133D452724B4477BE85E";
 		};
 		"787F74FCDC20479874558B51" = {
 			"isa" = "PBXBuildFile";
@@ -263,6 +319,10 @@
 		"B5E4E298C07D61205F8101FE" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "6B983C0AC7D8C28B185B4275";
+		};
+		"B8031B69730A01C6154C6192" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "B6CF338C727DB7680FAC75A8";
 		};
 		"6535BF67738FD0725D62B2DE" = {
 			"isa" = "PBXBuildFile";
@@ -277,18 +337,26 @@
 				"61D532810FF0189A8FFBFA8C",
 				"0B95141C53EFAA217DE1C850",
 				"85DDA1310899BF4B001D7B52",
+				"116F9558397292CD3C53AB76",
 				"DA9CB62D01371AED6219BA24",
+				"5D78B2970D40B56A41DE924F",
 				"787F74FCDC20479874558B51",
 				"86384A2E094A2684526E8343",
 				"B5E4E298C07D61205F8101FE",
+				"B8031B69730A01C6154C6192",
 				"6535BF67738FD0725D62B2DE",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
+		};
+		"C99846C6352FAC352B362244" = {
+			"isa" = "PBXBuildFile";
+			"productRef" = "F154BFDF3392B9C51EB6D08A";
 		};
 		"BD92572B49AC16A86614498D" = {
 			"isa" = "PBXFrameworksBuildPhase";
 			"buildActionMask" = "2147483647";
 			"files" = (
+				"C99846C6352FAC352B362244",
 			);
 			"runOnlyForDeploymentPostprocessing" = "0";
 		};
@@ -337,7 +405,7 @@
 				"TARGETED_DEVICE_FAMILY" = "1";
 				"CODE_SIGN_STYLE" = "Automatic";
 				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "0.1.0";
+				"MARKETING_VERSION" = "0.2.0";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"SUPPORTS_MACCATALYST" = "NO";
 				"LD_RUNPATH_SEARCH_PATHS" = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -360,7 +428,7 @@
 				"TARGETED_DEVICE_FAMILY" = "1";
 				"CODE_SIGN_STYLE" = "Automatic";
 				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "0.1.0";
+				"MARKETING_VERSION" = "0.2.0";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"SUPPORTS_MACCATALYST" = "NO";
 				"LD_RUNPATH_SEARCH_PATHS" = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -395,6 +463,9 @@
 			);
 			"dependencies" = (
 			);
+			"packageProductDependencies" = (
+				"F154BFDF3392B9C51EB6D08A",
+			);
 			"name" = "Zuneviu";
 			"productName" = "Zuneviu";
 			"productReference" = "4E783A9E10D2A8ABA38CD11C";
@@ -407,9 +478,17 @@
 			"path" = "ZuneviuTests.xctest";
 			"sourceTree" = "BUILT_PRODUCTS_DIR";
 		};
+		"7878622E5CEA182D48B2064F" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "66B24770BFB1CA67F22BB856";
+		};
 		"31B73F07022BDE4BFFEFDE43" = {
 			"isa" = "PBXBuildFile";
 			"fileRef" = "02BBEACCBDAD7544D8B8EEE9";
+		};
+		"B6C6B5823F7DC8F93BC1B865" = {
+			"isa" = "PBXBuildFile";
+			"fileRef" = "D6CE96432617016B7F28D34A";
 		};
 		"3FEF676FF165E371172A215B" = {
 			"isa" = "PBXBuildFile";
@@ -423,7 +502,9 @@
 			"isa" = "PBXSourcesBuildPhase";
 			"buildActionMask" = "2147483647";
 			"files" = (
+				"7878622E5CEA182D48B2064F",
 				"31B73F07022BDE4BFFEFDE43",
+				"B6C6B5823F7DC8F93BC1B865",
 				"3FEF676FF165E371172A215B",
 				"000233D0637908C6CAA8C6F9",
 			);
@@ -463,7 +544,7 @@
 				"TARGETED_DEVICE_FAMILY" = "1";
 				"CODE_SIGN_STYLE" = "Automatic";
 				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "0.1.0";
+				"MARKETING_VERSION" = "0.2.0";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"SUPPORTS_MACCATALYST" = "NO";
 				"LD_RUNPATH_SEARCH_PATHS" = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -486,7 +567,7 @@
 				"TARGETED_DEVICE_FAMILY" = "1";
 				"CODE_SIGN_STYLE" = "Automatic";
 				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "0.1.0";
+				"MARKETING_VERSION" = "0.2.0";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"SUPPORTS_MACCATALYST" = "NO";
 				"LD_RUNPATH_SEARCH_PATHS" = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -521,6 +602,8 @@
 			);
 			"dependencies" = (
 				"03C64E9A3C3BED951AC96980",
+			);
+			"packageProductDependencies" = (
 			);
 			"name" = "ZuneviuTests";
 			"productName" = "ZuneviuTests";
@@ -580,7 +663,7 @@
 				"TARGETED_DEVICE_FAMILY" = "1";
 				"CODE_SIGN_STYLE" = "Automatic";
 				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "0.1.0";
+				"MARKETING_VERSION" = "0.2.0";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"SUPPORTS_MACCATALYST" = "NO";
 				"LD_RUNPATH_SEARCH_PATHS" = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -602,7 +685,7 @@
 				"TARGETED_DEVICE_FAMILY" = "1";
 				"CODE_SIGN_STYLE" = "Automatic";
 				"CURRENT_PROJECT_VERSION" = "1";
-				"MARKETING_VERSION" = "0.1.0";
+				"MARKETING_VERSION" = "0.2.0";
 				"SUPPORTED_PLATFORMS" = "iphoneos iphonesimulator";
 				"SUPPORTS_MACCATALYST" = "NO";
 				"LD_RUNPATH_SEARCH_PATHS" = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
@@ -636,6 +719,8 @@
 			);
 			"dependencies" = (
 				"FE41E3343258A6882539145A",
+			);
+			"packageProductDependencies" = (
 			);
 			"name" = "ZuneviuUITests";
 			"productName" = "ZuneviuUITests";
@@ -695,6 +780,9 @@
 				"F75109BEB4DD8800DA6B45F8",
 				"48021BA534050206D31D8AAD",
 				"794AAC98ACE6EB716B86C3A5",
+			);
+			"packageReferences" = (
+				"6D067C3576CD33C04DC994E7",
 			);
 		};
 	};

@@ -9,7 +9,7 @@ struct LibraryView: View {
     @State private var pendingRemoval: Track?
     @AppStorage("librarySort") private var sort = "added"
     private var sorted: [Track] {
-        sort == "title" ? library.tracks.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending } : Array(library.tracks.reversed())
+        sort == "title" ? library.onDevice.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending } : Array(library.onDevice.reversed())
     }
     var body: some View {
         List {
@@ -23,6 +23,7 @@ struct LibraryView: View {
                     .background(LinearGradient(colors: [.pink.opacity(0.18), .gray.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 24))
                     .listRowInsets(EdgeInsets()).listRowBackground(Color.clear)
                 Button("Import from Files", systemImage: "square.and.arrow.down") { importAction() }.disabled(library.isImporting)
+                NavigationLink { TrackCollection(title: "Saved online songs", tracks: library.tracks.filter { !$0.isLocal }) } label: { Label("Saved online songs", systemImage: "cloud") }
                 NavigationLink { FavoritesView() } label: { Label("Liked songs · \(library.favorites.count)", systemImage: "heart.fill").foregroundStyle(.pink) }
                 NavigationLink { TrackCollection(title: "Recently played", tracks: library.recent) } label: { Label("Recently played", systemImage: "clock.arrow.circlepath") }
             }
@@ -35,7 +36,7 @@ struct LibraryView: View {
                 Button("New playlist", systemImage: "plus") { newPlaylist = true }
             } header: { Text("Playlists") }
             Section {
-                if library.tracks.isEmpty { EmptyLibrary(importAction: importAction).listRowBackground(Color.clear) }
+                if library.onDevice.isEmpty { EmptyLibrary(importAction: importAction).listRowBackground(Color.clear) }
                 ForEach(sorted) { track in
                     TrackRow(track: track, context: sorted).swipeActions {
                         Button("Remove", role: .destructive) { pendingRemoval = track }

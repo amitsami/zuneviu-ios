@@ -10,6 +10,9 @@ import SwiftUI
         #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("--ui-testing") {
             store = DebugFixture.makeLibrary()
+        } else if ProcessInfo.processInfo.arguments.contains("--live-ui-testing") {
+            UserDefaults.standard.set(true, forKey: "hasSeenPortNotice")
+            store = LibraryStore(root: FileManager.default.temporaryDirectory.appendingPathComponent("LiveAcceptance-" + UUID().uuidString))
         } else { store = LibraryStore() }
         #else
         store = LibraryStore()

@@ -27,6 +27,21 @@ import Combine
         do { try JSONEncoder().encode(snapshot).write(to: file("library.json"), options: .atomic); return true }
         catch { self.error = "Could not save library: \(error.localizedDescription)"; return false }
     }
+    var onDevice: [Track] { tracks.filter(\.isLocal) }
+    func remember(_ track: Track) {
+        guard storageReady, !snapshot.tracks.contains(where: { $0.id == track.id }) else { return }
+        snapshot.tracks.append(track); save()
+    }
+    func setLyrics(_ text: String, for track: Track) {
+        guard storageReady, !text.isEmpty else { return }
+        remember(track)
+        guard let index = snapshot.tracks.firstIndex(where: { $0.id == track.id }) else { return }
+        do {
+            let name = "\(track.id.uuidString).lrc"
+            try Data(text.utf8).write(to: file(name), options: .atomic)
+            snapshot.tracks[index].lyricsFile = name; save()
+        } catch { self.error = error.localizedDescription }
+    }
     func track(_ id: UUID) -> Track? { tracks.first { $0.id == id } }
     func toggleFavorite(_ id: UUID) {
         if snapshot.favorites.contains(id) { snapshot.favorites.remove(id) } else { snapshot.favorites.insert(id) }
@@ -54,7 +69,7 @@ import Combine
         for index in snapshot.playlists.indices { snapshot.playlists[index].trackIDs.removeAll { $0 == id } }
         // Save the manifest first. Never delete the user's original Files document.
         guard save() else { snapshot = previous; return }
-        for name in [track.audioFile, track.artworkFile, track.lyricsFile].compactMap({ $0 }) { try? FileManager.default.removeItem(at: file(name)) }
+        for name in [track.audioFile, track.artworkFile, track.lyricsFile].compactMap({ $0 }).filter({ !$0.isEmpty }) { try? FileManager.default.removeItem(at: file(name)) }
     }
     func importAudio(_ urls: [URL]) async {
         guard storageReady, !isImporting else { return }; isImporting = true

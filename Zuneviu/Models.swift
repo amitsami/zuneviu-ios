@@ -10,6 +10,11 @@ struct Track: Identifiable, Codable, Equatable {
     var lyricsFile: String?
     var duration: Double
     var importedAt: Date
+    var videoID: String?
+    var artworkURL: String?
+    var artistBrowseID: String?
+    var albumBrowseID: String?
+    var isLocal: Bool { !audioFile.isEmpty }
 }
 struct Playlist: Identifiable, Codable, Equatable {
     var id = UUID()

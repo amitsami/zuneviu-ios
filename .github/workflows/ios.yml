@@ -9,7 +9,7 @@ concurrency:
 jobs:
   simulator:
     runs-on: macos-15
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - name: Record Xcode version
@@ -26,6 +26,7 @@ jobs:
           mkdir -p TestResults
           xcodebuild test -project Zuneviu.xcodeproj -scheme Zuneviu \
             -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -skip-testing:ZuneviuTests/LiveProviderTests \
             -derivedDataPath DerivedData -resultBundlePath TestResults/Zuneviu.xcresult \
             CODE_SIGNING_ALLOWED=NO | tee TestResults/xcodebuild.log
       - name: Upload test evidence
@@ -54,12 +55,27 @@ jobs:
           ditto DeviceDerivedData/Build/Products/Release-iphoneos/Zuneviu.app DevicePackage/Payload/Zuneviu.app
           (cd DevicePackage && zip -qry ../Zuneviu-unsigned.ipa Payload)
           shasum -a 256 Zuneviu-unsigned.ipa > Zuneviu-unsigned.ipa.sha256
+      - name: Real online catalog and native playback acceptance gate
+        run: |
+          set -o pipefail
+          xcodebuild test -project Zuneviu.xcodeproj -scheme Zuneviu \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -only-testing:ZuneviuTests/LiveProviderTests \
+            -derivedDataPath DerivedData -resultBundlePath TestResults/LiveProvider.xcresult \
+            CODE_SIGNING_ALLOWED=NO | tee TestResults/live-provider.log
+      - name: Upload live-provider evidence (including failures)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: live-ios-evidence
+          path: TestResults/
+          retention-days: 1
       - name: Capture actual simulator launch
         run: |
           xcrun simctl install "$SIMULATOR_ID" DerivedData/Build/Products/Debug-iphonesimulator/Zuneviu.app
           xcrun simctl terminate "$SIMULATOR_ID" com.zuneviu.ios || true
-          xcrun simctl launch "$SIMULATOR_ID" com.zuneviu.ios --ui-testing
-          sleep 3
+          xcrun simctl launch "$SIMULATOR_ID" com.zuneviu.ios --live-ui-testing
+          sleep 12
           xcrun simctl io "$SIMULATOR_ID" screenshot Zuneviu-simulator.png
       - name: Upload unsigned iPhone app and screenshot
         uses: actions/upload-artifact@v4

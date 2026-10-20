@@ -19,6 +19,9 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
     @Published var repeatMode: RepeatMode = .off
     let player = AVPlayer()
     private let library: LibraryStore
+    private var resolveTask: Task<Void, Never>?
+    private var requestID = UUID()
+    private var isResolving = false
     private var tick: Any?
     private var observers: [NSObjectProtocol] = []
     private var subscriptions = Set<AnyCancellable>()
@@ -34,7 +37,7 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
         player.publisher(for: \.timeControlStatus).receive(on: DispatchQueue.main).sink { [weak self] status in
             Task { @MainActor in
                 self?.isPlaying = status == .playing
-                self?.isLoading = status == .waitingToPlayAtSpecifiedRate
+                self?.isLoading = self?.isResolving == true || status == .waitingToPlayAtSpecifiedRate
                 self?.updateNowPlaying()
             }
         }.store(in: &subscriptions)
@@ -66,10 +69,38 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
         if !queue.contains(where: { $0.id == track.id }) { queue.insert(track, at: 0) }
         load(track)
     }
-    private func load(_ track: Track) {
-        do {
+    private func load(_ requestedTrack: Track) {
+        resolveTask?.cancel(); requestID = UUID()
+        let token = requestID
+        let track = library.track(requestedTrack.id) ?? requestedTrack
+        error = nil; isResolving = false; isLoading = false
+        player.pause(); player.replaceCurrentItem(with: nil)
+        if track.isLocal {
             let url = library.file(track.audioFile)
-            guard FileManager.default.fileExists(atPath: url.path) else { throw CocoaError(.fileNoSuchFile) }
+            guard FileManager.default.fileExists(atPath: url.path) else {
+                current = nil; error = "Playback failed: the imported file is missing."; return
+            }
+            start(track, url: url)
+        } else if let videoID = track.videoID {
+            current = track; position = 0; duration = track.duration
+            isResolving = true; isLoading = true
+            resolveTask = Task { [weak self] in
+                do {
+                    let url = try await StreamResolver.shared.resolve(videoID)
+                    try Task.checkCancellation()
+                    guard let self, self.requestID == token else { return }
+                    self.isResolving = false; self.start(track, url: url)
+                } catch {
+                    guard !Task.isCancelled, let self, self.requestID == token else { return }
+                    self.isResolving = false; self.isLoading = false; self.isPlaying = false
+                    self.error = "Could not stream this song. The provider may be unavailable, require sign-in, or restrict playback in your region. Try another song or Retry."
+                }
+            }
+        } else { current = nil; error = "This song has no audio source." }
+    }
+    func retry() { if let current { load(current) } }
+    private func start(_ track: Track, url: URL) {
+        do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
             try AVAudioSession.sharedInstance().setActive(true)
             current = track; position = 0; duration = track.duration
@@ -78,18 +109,38 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
                 nowPlayingArtwork = MPMediaItemArtwork(boundsSize: image.size) { _ in image }
             }
             let item = AVPlayerItem(url: url)
-            itemSubscription = item.publisher(for: \.status).receive(on: DispatchQueue.main).sink { [weak self, weak item] status in
+            let token = requestID
+            itemSubscription = item.publisher(for: \.status).receive(on: DispatchQueue.main).sink { [weak self] status in
                 Task { @MainActor in
-                    if status == .failed { self?.error = item?.error?.localizedDescription ?? "Could not play this file." }
+                    guard let self, self.requestID == token else { return }
+                    if status == .failed {
+                        self.isLoading = false; self.isPlaying = false
+                        self.error = "iOS could not play this audio. Try Retry or another track."
+                    }
                 }
             }
             player.replaceCurrentItem(with: item)
-            library.recordPlay(track.id); resume(); updateNowPlaying()
-        } catch { self.error = "Playback failed: \(error.localizedDescription)" }
+            library.remember(track); library.recordPlay(track.id)
+            resume(); updateNowPlaying()
+        } catch { self.error = "Playback failed: \(error.localizedDescription)"; isLoading = false }
     }
-    func toggle() { if isPlaying || isLoading { pause() } else { resume() } }
+    func startRadio(_ track: Track) {
+        guard let videoID = track.videoID else { return }
+        Task {
+            do {
+                let songs = try await MusicCatalog.shared.radio(videoID)
+                guard !songs.isEmpty else { throw MusicServiceError.noResults }
+                play(songs.first(where: { $0.videoID == videoID }) ?? songs[0], in: songs)
+            } catch { self.error = "Could not load song radio. Please try again." }
+        }
+    }
+    func toggle() {
+        if isPlaying || isLoading { pause() }
+        else if player.currentItem == nil, let current { load(current) }
+        else { resume() }
+    }
     func resume() {
-        guard current != nil else { return }
+        guard current != nil, !isResolving else { return }
         do {
             try AVAudioSession.sharedInstance().setActive(true)
             let storedRate = UserDefaults.standard.double(forKey: "playbackRate")
@@ -97,8 +148,12 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
             player.playImmediately(atRate: Float(rate))
         } catch { self.error = error.localizedDescription }
     }
-    func pause() { player.pause(); library.save(); updateNowPlaying() }
+    func pause() {
+        if isResolving { resolveTask?.cancel(); requestID = UUID(); isResolving = false; isLoading = false }
+        player.pause(); library.save(); updateNowPlaying()
+    }
     func stop() {
+        resolveTask?.cancel(); requestID = UUID(); isResolving = false; isLoading = false
         pause(); player.replaceCurrentItem(with: nil); current = nil; queue = []; position = 0; duration = 0
         MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
     }

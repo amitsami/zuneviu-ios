@@ -15,6 +15,10 @@ struct Artwork: View {
         ZStack {
             if let file = track?.artworkFile, let image = UIImage(contentsOfFile: library.file(file).path) {
                 Image(uiImage: image).resizable().scaledToFill()
+            } else if let source = track?.artworkURL, let url = URL(string: source) {
+                AsyncImage(url: url) { image in image.resizable().scaledToFill() } placeholder: {
+                    Color(white: 0.12).overlay(Image(systemName: "music.note").foregroundStyle(.secondary))
+                }
             } else {
                 LinearGradient(colors: [Color(white: 0.22), .black], startPoint: .topLeading, endPoint: .bottomTrailing)
                 Image(systemName: "music.note").font(.system(size: 38, weight: .medium)).foregroundStyle(.white.opacity(0.65))
@@ -43,10 +47,13 @@ struct TrackRow: View {
             Menu {
                 Button("Play next", systemImage: "text.line.first.and.arrowtriangle.forward") { playback.enqueue(track, next: true) }
                 Button("Add to queue", systemImage: "text.badge.plus") { playback.enqueue(track) }
-                Button(library.snapshot.favorites.contains(track.id) ? "Unlike" : "Like", systemImage: "heart") { library.toggleFavorite(track.id) }
+                Button(library.snapshot.favorites.contains(track.id) ? "Unlike" : "Like", systemImage: "heart") { library.remember(track); library.toggleFavorite(track.id) }
+                if track.videoID != nil { Button("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) } }
+                if let id = track.artistBrowseID { NavigationLink("Open artist") { CatalogBrowseView(id: id, title: track.artist) } }
+                if let id = track.albumBrowseID { NavigationLink("Open album") { CatalogBrowseView(id: id, title: track.album) } }
                 if !library.snapshot.playlists.isEmpty {
                     Menu("Add to playlist") {
-                        ForEach(library.snapshot.playlists) { list in Button(list.name) { library.add(track.id, to: list.id) } }
+                        ForEach(library.snapshot.playlists) { list in Button(list.name) { library.remember(track); library.add(track.id, to: list.id) } }
                     }
                 }
             } label: { Image(systemName: "ellipsis").frame(width: 44, height: 44).contentShape(Rectangle()) }

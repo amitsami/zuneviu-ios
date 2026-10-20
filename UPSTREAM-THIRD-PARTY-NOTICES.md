@@ -27,3 +27,11 @@ Retain the notices and license files in the corresponding source and dependencie
 Lyrics/artwork/music remain the property of their respective rights holders. Provider acknowledgments and inherited attribution are preserved, including lyrics work from binimum/am-lyrics and the providers listed in the source README. Use external services only in accordance with their terms. No rights to music, artwork, lyrics, trademarks, or third-party accounts are granted by the application license.
 
 This inventory does not replace the actual licenses embedded in dependencies or source files. It is not a legal certification.
+
+## Native iOS extractor: YouTubeKit
+https://github.com/alexeichhorn/YouTubeKit
+Pinned revision e5b7d0396ce12bf3444f0d209e8436c83373b7af.
+Copyright (c) 2022 Alexander Eichhorn. MIT license; full text bundled in ASSET-CREDITS.md.
+Only local extraction is enabled; the optional remote proxy is NOT enabled.
+The package's bundled JavaScript parser/solver resources and their upstream notices
+must be retained when distributing this dependency.

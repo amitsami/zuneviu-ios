@@ -42,9 +42,9 @@ struct RootView: View {
                 Brand()
                 Text("iOS development build").font(.largeTitle.bold())
                 Text("This is an initial native iOS port, not the full Android feature set.").font(.title3.weight(.semibold))
-                Text("Start by importing your music. Local playback, favorites, playlists and LRC lyrics are implemented. Streaming catalogs, Google/Spotify sign-in, online downloads and Android audio effects have not been ported.")
+                Text("Online catalog, search and on-device stream extraction are now integrated for validation. Local music still works offline. Google/Spotify sign-in, account sync and Android audio effects are not yet ported. Streaming may fail where the provider requires authentication or blocks extraction.")
                 Text("This development port requires build and device validation before production use.").foregroundStyle(.secondary)
-                Button("Continue to library") {
+                Button("Continue") {
                     UserDefaults.standard.set(true, forKey: "hasSeenPortNotice"); showWelcome = false
                 }.buttonStyle(.borderedProminent)
             }.padding(28).presentationDetents([.large]).interactiveDismissDisabled()
@@ -57,7 +57,8 @@ struct RootView: View {
         }
         .overlay { if library.isImporting { ProgressView("Importing music…").padding(24).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20)) } }
         .alert("Something needs attention", isPresented: Binding(get: { library.error != nil || playback.error != nil }, set: { if !$0 { library.error = nil; playback.error = nil } })) {
-            Button("OK") { library.error = nil; playback.error = nil }
+            Button("Retry playback") { library.error = nil; playback.error = nil; playback.retry() }
+            Button("OK", role: .cancel) { library.error = nil; playback.error = nil }
         } message: { Text(library.error ?? playback.error ?? "") }
     }
     @ToolbarContentBuilder private var settingsButton: some ToolbarContent {
@@ -93,7 +94,7 @@ struct RootView: View {
     }
 }
 
-struct HomeView: View {
+struct LocalHomeView: View {
     @EnvironmentObject var library: LibraryStore
     @EnvironmentObject var playback: PlaybackStore
     let importAction: () -> Void
@@ -130,42 +131,3 @@ struct HomeView: View {
     }
 }
 
-struct ExploreView: View {
-    @EnvironmentObject var library: LibraryStore
-    private var artists: [String] { Array(Set(library.tracks.map(\.artist))).sorted() }
-    private var albums: [String] { Array(Set(library.tracks.map(\.album))).sorted() }
-    var body: some View {
-        List {
-            Section {
-                NavigationLink { SearchView() } label: { Label("Search your music", systemImage: "magnifyingglass") }
-            }
-            Section("Artists") {
-                ForEach(artists, id: \.self) { artist in
-                    NavigationLink { TrackCollection(title: artist, tracks: library.tracks.filter { $0.artist == artist }) } label: { Label(artist, systemImage: "person.crop.circle") }
-                }
-                if artists.isEmpty { Text("Import music to explore your artists and albums.").foregroundStyle(.secondary) }
-            }
-            Section("Albums") {
-                ForEach(albums, id: \.self) { album in
-                    NavigationLink { TrackCollection(title: album, tracks: library.tracks.filter { $0.album == album }) } label: { Label(album, systemImage: "square.stack") }
-                }
-            }
-            Section("Streaming discovery") { Text("Android's online recommendations and provider catalogs are not connected in this development build.").font(.subheadline).foregroundStyle(.secondary) }
-        }.navigationTitle("Explore")
-    }
-}
-
-struct SearchView: View {
-    @EnvironmentObject var library: LibraryStore
-    @State private var query = ""
-    private var results: [Track] {
-        let key = query.trimmingCharacters(in: .whitespacesAndNewlines)
-        return key.isEmpty ? library.tracks : library.tracks.filter { [$0.title, $0.artist, $0.album].contains { $0.localizedCaseInsensitiveContains(key) } }
-    }
-    var body: some View {
-        List {
-            ForEach(results) { TrackRow(track: $0, context: results) }
-            if results.isEmpty { ContentUnavailableView.search(text: query) }
-        }.listStyle(.plain).navigationTitle("Search").searchable(text: $query, prompt: "Songs, artists, albums")
-    }
-}

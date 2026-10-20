@@ -1,4 +1,4 @@
-"""Generate a dependency-free iOS Xcode project. Safe to rerun after adding Swift files."""
+"""Generate an iOS Xcode project with a pinned native extractor. Safe to rerun after adding Swift files."""
 from pathlib import Path
 import hashlib, json, plistlib
 from xml.sax.saxutils import escape
@@ -12,6 +12,8 @@ def encode(v, depth=0):
     if isinstance(v, list): return '(\n'+''.join('\t'*(depth+1)+encode(x,depth+1)+',\n' for x in v)+'\t'*depth+')'
     return json.dumps(str(v))
 projectID=ident('project'); appID=ident('app-target')
+package=add('youtubekit-package','XCRemoteSwiftPackageReference',repositoryURL='https://github.com/alexeichhorn/YouTubeKit.git',requirement={'kind':'revision','revision':'e5b7d0396ce12bf3444f0d209e8436c83373b7af'})
+packageProduct=add('youtubekit-product','XCSwiftPackageProductDependency',package=package,productName='YouTubeKit')
 appFiles=[]; unitFiles=[]; uiFiles=[]
 for folder,out in [('Zuneviu',appFiles),('Tests',unitFiles),('UITests',uiFiles)]:
     for file in sorted((ROOT/folder).glob('*.swift')):
@@ -38,10 +40,10 @@ for key,name,files,kind in [('app','Zuneviu',appFiles,'application'),('unit','Zu
     product=add(key+'-product','PBXFileReference',explicitFileType='wrapper.application' if key=='app' else 'wrapper.cfbundle',includeInIndex='0',path=name+('.app' if key=='app' else '.xctest'),sourceTree='BUILT_PRODUCTS_DIR'); products.append(product)
     sourceBuilds=[add(key+'-build-'+file,'PBXBuildFile',fileRef=file) for file in files]
     sourcePhase=add(key+'-sources','PBXSourcesBuildPhase',buildActionMask='2147483647',files=sourceBuilds,runOnlyForDeploymentPostprocessing='0')
-    frameworkPhase=add(key+'-frameworks','PBXFrameworksBuildPhase',buildActionMask='2147483647',files=[],runOnlyForDeploymentPostprocessing='0')
+    frameworkPhase=add(key+'-frameworks','PBXFrameworksBuildPhase',buildActionMask='2147483647',files=[add('youtubekit-framework','PBXBuildFile',productRef=packageProduct)] if key=='app' else [],runOnlyForDeploymentPostprocessing='0')
     resourceBuilds=[add(key+'-res-'+file,'PBXBuildFile',fileRef=file) for file in resources] if key=='app' else []
     resourcePhase=add(key+'-resources','PBXResourcesBuildPhase',buildActionMask='2147483647',files=resourceBuilds,runOnlyForDeploymentPostprocessing='0')
-    settings={'PRODUCT_BUNDLE_IDENTIFIER':'com.zuneviu.ios'+('' if key=='app' else '.'+key+'tests'),'PRODUCT_NAME':'$(TARGET_NAME)','TARGETED_DEVICE_FAMILY':'1','CODE_SIGN_STYLE':'Automatic','CURRENT_PROJECT_VERSION':'1','MARKETING_VERSION':'0.1.0','SUPPORTED_PLATFORMS':'iphoneos iphonesimulator','SUPPORTS_MACCATALYST':'NO','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks @loader_path/Frameworks'}
+    settings={'PRODUCT_BUNDLE_IDENTIFIER':'com.zuneviu.ios'+('' if key=='app' else '.'+key+'tests'),'PRODUCT_NAME':'$(TARGET_NAME)','TARGETED_DEVICE_FAMILY':'1','CODE_SIGN_STYLE':'Automatic','CURRENT_PROJECT_VERSION':'1','MARKETING_VERSION':'0.2.0','SUPPORTED_PLATFORMS':'iphoneos iphonesimulator','SUPPORTS_MACCATALYST':'NO','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks @loader_path/Frameworks'}
     dependencies=[]
     if key=='app': settings.update({'INFOPLIST_FILE':'Zuneviu/Info.plist','ASSETCATALOG_COMPILER_APPICON_NAME':'AppIcon','ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME':'AccentColor'})
     else:
@@ -50,11 +52,11 @@ for key,name,files,kind in [('app','Zuneviu',appFiles,'application'),('unit','Zu
         dependencies=[add(key+'-dependency','PBXTargetDependency',target=appID,targetProxy=proxy)]
         if key=='unit': settings.update({'TEST_HOST':'$(BUILT_PRODUCTS_DIR)/Zuneviu.app/Zuneviu','BUNDLE_LOADER':'$(TEST_HOST)'})
         else: settings['TEST_TARGET_NAME']='Zuneviu'
-    target=add(key+'-target','PBXNativeTarget',buildConfigurationList=configs(key,settings),buildPhases=[sourcePhase,frameworkPhase,resourcePhase],buildRules=[],dependencies=dependencies,name=name,productName=name,productReference=product,productType='com.apple.product-type.'+kind)
+    target=add(key+'-target','PBXNativeTarget',buildConfigurationList=configs(key,settings),buildPhases=[sourcePhase,frameworkPhase,resourcePhase],buildRules=[],dependencies=dependencies,packageProductDependencies=[packageProduct] if key=='app' else [],name=name,productName=name,productReference=product,productType='com.apple.product-type.'+kind)
     target_ids.append(target)
 productsGroup=add('products','PBXGroup',children=products,name='Products',sourceTree='<group>')
 mainGroup=add('main','PBXGroup',children=[appGroup,unitGroup,uiGroup,productsGroup],sourceTree='<group>')
-add('project','PBXProject',attributes={'BuildIndependentTargetsInParallel':'YES','LastUpgradeCheck':'1600','TargetAttributes':{t:{'CreatedOnToolsVersion':'16.0'} for t in target_ids}},buildConfigurationList=projectConfigs,compatibilityVersion='Xcode 14.0',developmentRegion='en',hasScannedForEncodings='0',knownRegions=['en','Base'],mainGroup=mainGroup,productRefGroup=productsGroup,projectDirPath='',projectRoot='',targets=target_ids)
+add('project','PBXProject',attributes={'BuildIndependentTargetsInParallel':'YES','LastUpgradeCheck':'1600','TargetAttributes':{t:{'CreatedOnToolsVersion':'16.0'} for t in target_ids}},buildConfigurationList=projectConfigs,compatibilityVersion='Xcode 14.0',developmentRegion='en',hasScannedForEncodings='0',knownRegions=['en','Base'],mainGroup=mainGroup,productRefGroup=productsGroup,projectDirPath='',projectRoot='',targets=target_ids,packageReferences=[package])
 proj=ROOT/'Zuneviu.xcodeproj';proj.mkdir(exist_ok=True)
 (proj/'project.pbxproj').write_text('// !$*UTF8*$!\n'+encode({'archiveVersion':'1','classes':{},'objectVersion':'56','objects':objects,'rootObject':projectID})+'\n')
 scheme='''<?xml version="1.0" encoding="UTF-8"?>
