@@ -26,9 +26,16 @@ final class SettingsUITests: XCTestCase {
     func testSourcesOptInIsExplicit() {
         let app = open("Sources")
         let source = app.switches["sources.saavn"]
+        XCTAssertTrue(source.waitForExistence(timeout: 8))
         if !source.isHittable { app.swipeUp() }
-        XCTAssertTrue(source.waitForExistence(timeout: 5)); XCTAssertEqual(source.value as? String, "0")
-        source.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap()
+        let hittable = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isHittable == true"), object: source)
+        XCTAssertEqual(XCTWaiter.wait(for: [hittable], timeout: 5), .completed)
+        XCTAssertEqual(source.value as? String, "0")
+        // SwiftUI exposes the whole row as a Switch. On iOS 26 a tap on
+        // the empty track can miss activation; target the actual OFF thumb,
+        // measured in the exported native hierarchy/recording, not row center.
+        source.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0.5))
+            .withOffset(CGVector(dx: source.frame.width - 58, dy: 0)).tap()
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "1"), object: source)
         XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 5), .completed)
         capture(app, "Settings-Sources-explicit-opt-in")

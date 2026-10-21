@@ -19,9 +19,14 @@ final class LiveCatalogUITests: XCTestCase {
         XCTAssertTrue(settingsSearch.waitForExistence(timeout: 10)); settingsSearch.tap(); settingsSearch.typeText("Sources")
         app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Sources")).firstMatch.tap()
         let source = app.switches["sources.saavn"]
-        if !source.isHittable { app.swipeUp() }
         XCTAssertTrue(source.waitForExistence(timeout: 8))
-        if source.value as? String != "1" { source.coordinate(withNormalizedOffset: CGVector(dx: 0.9, dy: 0.5)).tap() }
+        if !source.isHittable { app.swipeUp() }
+        let sourceHittable = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isHittable == true"), object: source)
+        XCTAssertEqual(XCTWaiter.wait(for: [sourceHittable], timeout: 5), .completed)
+        if source.value as? String != "1" {
+            source.coordinate(withNormalizedOffset: CGVector(dx: 0, dy: 0.5))
+                .withOffset(CGVector(dx: source.frame.width - 58, dy: 0)).tap()
+        }
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "1"), object: source)
         XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 5), .completed)
         dismissSheet(app, title: "Sources")
