@@ -1,6 +1,22 @@
 # Validation status
 
-## Current version 0.2 — build passed, online playback FAILED
+## Current version 0.3 — glass/compatibility regression passed; streaming NOT fixed
+
+- Final application source: `23ca6ad`; final run: https://github.com/amitsami/zuneviu-ios/actions/runs/39554273435
+- Both Simulator environments passed **28 offline unit/integration + 7 fixture UI methods** each, zero failures (35 unique methods, 70 executions).
+- Native Glass: Xcode 26.2 (17C52), iPhone 16 Pro, iOS 26.2.
+- Material fallback: Xcode 16.4 (16F6), iPhone SE 3, iOS 18.5.
+- Unsigned iPhone Release build passed; built app `MinimumOSVersion` is **15.0**.
+- Direct iOS 15 runtime execution and physical iPhone tests: NOT RUN. The deployment target alone is not runtime certification.
+- UI: separate search circle, three-tab pill, low safe-area placement, mini-player above, complete untruncated branding. No full-width opaque footer surface.
+- Accessibility: system reduce-motion/transparency are respected; DEBUG overrides exercise solid fallback and large type without mutating read-only system settings.
+- Regression assertions: local AVPlayer clock advances without publishing player/library state every tick; listening seconds batch and persist correctly; decoded artwork downsamples and cache identity is reused.
+- Scroll metrics target the app process; no before baseline or FPS claim.
+- Visual QA exported actual screenshots, caught the native toolbar's clipped brand and retested the correction. The Home guest catalog screenshot is not provider-playback proof.
+- Known previous online audio acceptance failure remains UNRESOLVED; live tests are deliberately separate and skipped in the footer workflow. No new IPA was delivered as a working-equivalent release.
+- See `VALIDATION_0_3.json` for exact method names and evidence hashes.
+
+## Version 0.2 — build passed, online playback FAILED
 
 - Completed iOS build/regression/live gate run: https://github.com/amitsami/zuneviu-ios/actions/runs/39467391958
 - Source under test: `5f020b9`.

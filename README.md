@@ -2,13 +2,23 @@
 
 **Status: incomplete native port, NOT a working Android-equivalent release.**
 
-Version 0.2 adds the real YouTube Music guest catalog protocol, online search,
-artwork, browsable shelves, radio requests, online plain lyrics, and an on-device
-native extractor. These are not all validated. The standalone native extractor
-probe FAILED in run 39466288757 (`extractError`); a separate provider check also
-requested sign-in/verification. The new Simulator/device builds and 26 test methods passed, but the actual online playback test FAILED (27 methods total). Exact scope is tracked in `BUILD_STATUS.md` and `VALIDATION_0_2.json`. No new IPA is released unless real online playback passes.
-The old version 0.1's 15 local-fixture tests do NOT prove version 0.2 streaming.
-Physical iPhone testing and device signing remain required.
+Version 0.3 targets **iOS 15.0+** and adds the Android-shaped split floating
+dock: Home/Explore/Library capsule, separate round Search and a mini-player above.
+iOS 26 uses native Liquid Glass; older systems use a translucent material fallback.
+The full-width opaque footer background is removed. Playback clock notifications,
+listening-time persistence and decoded artwork are optimized without an invented
+FPS or percentage-speedup claim.
+
+**Verified:** 28 offline unit/integration + 7 fixture UI methods passed on **each**
+of iOS 26.2 (iPhone 16 Pro) and iOS 18.5 (iPhone SE 3). The unsigned iPhone Release
+also compiled with `MinimumOSVersion=15.0`. iOS 15 actual runtime and physical
+phone tests have **not** run. See `VALIDATION_0_3.json` and `BUILD_STATUS.md`.
+
+**Not fixed:** real online audio acceptance previously FAILED, and this footer
+workflow does not rerun or override that failure. Google/Spotify sign-in/sync,
+provider downloads/video and Android effects remain incomplete. No new working-
+equivalent IPA is released. Catalog images and fixture playback are not proof
+of provider audio playback.
 
 The owner requested an iOS version retaining the Android app's design. This archive contains an initial SwiftUI/AVPlayer implementation and an Xcode project, with test code and a macOS CI workflow. Xcode Simulator runtime evidence is linked in `BUILD_STATUS.md`; the earlier static checks remain in `STATIC_VALIDATION.json`.
 
@@ -19,6 +29,19 @@ The owner requested an iOS version retaining the Android app's design. This arch
 - Reference gallery: `assets/gallery/discover.png`, `listen.png`, `settings.png` in that repository.
 - The original shared network/UI implementation uses JVM/Android dependencies, not an existing iOS target. This is a separate native implementation, not a claim that Android code now builds unchanged for iOS.
 - Original monochrome music-mark branding was reused. Artist covers are not bundled. Catalog artwork is loaded from the provider; imported audio can supply its own embedded artwork.
+
+## Version 0.3 verification
+
+Run: https://github.com/amitsami/zuneviu-ios/actions/runs/39554273435
+
+Actual iOS 26.2 guest Home screenshot below: **UI evidence, not streaming proof**.
+
+![Actual Simulator Home and lower split glass dock](docs/screenshots/ios26-online-home.png)
+
+The separate manual `glass-compatibility.yml` workflow tests both glass paths,
+44pt targets, footer safe areas, mini-player separation, navigation, a legacy-
+compatible playlist sheet, reduced motion/transparency and large text. It does
+not produce a signed release or bypass live-provider acceptance.
 
 ## Added in version 0.2 — validation is separate from implementation
 
@@ -61,7 +84,7 @@ Unavailable features are identified as such in Settings. No decorative switches 
 
 ## Open and run on a Mac
 
-Requirements: full Xcode 16 or newer, installed iOS Simulator runtime, iOS 17+ deployment target. Swift Package Manager resolves YouTubeKit at pinned revision `e5b7d0396ce12bf3444f0d209e8436c83373b7af`. No CocoaPods or XcodeGen is required. Guest catalog calls do not require credentials; authentication/sync is not implemented.
+Requirements: full Xcode 16 or newer, installed iOS Simulator runtime, iOS 15.0+ deployment target (Xcode 26.2 for native iOS 26 Liquid Glass). Swift Package Manager resolves YouTubeKit at pinned revision `e5b7d0396ce12bf3444f0d209e8436c83373b7af`. No CocoaPods or XcodeGen is required. Guest catalog calls do not require credentials; authentication/sync is not implemented.
 
 1. Open `Zuneviu.xcodeproj`.
 2. Choose the shared **Zuneviu** scheme and an installed iPhone simulator.
@@ -76,13 +99,13 @@ The iOS code is kept separately in `amitsami/zuneviu-ios`; the Android release r
 ./scripts/test_on_mac.sh
 ```
 
-Or use Xcode's **Product → Test**. The project now includes 22 offline unit/integration methods, 2 fixture UI methods, 2 real-provider integration methods and 1 real-search UI method. The **old** version 0.1 passed 15 local tests in runs 39458769222 and 39459965095. Those results do not apply to the newly added code. Real-provider failures must remain failures, not be relabeled as environment passes. See `TEST_PLAN.md` for coverage and limitations.
+Or use Xcode's **Product → Test**. The project now includes 28 offline unit/integration methods, 7 fixture UI methods, 2 real-provider integration methods and 1 real-search UI method. The **old** version 0.1 passed 15 local tests in runs 39458769222 and 39459965095. Those results do not apply to the newly added code. Real-provider failures must remain failures, not be relabeled as environment passes. See `TEST_PLAN.md` for coverage and limitations.
 
 The script writes a timestamped `.xcresult` and log into `TestResults/`. It exits unsuccessfully if Xcode tests fail. No report in this archive substitutes for those runtime results.
 
 ### GitHub Actions
 
-The included `.github/workflows/ios.yml` is manual-only (`workflow_dispatch`), runs on `macos-15` with a 25-minute job timeout, builds the app, executes the tests on an available iPhone simulator, and uploads `.xcresult`/logs with one-day retention. Pushing code does not automatically start a billable run. The simulator app is uploaded after offline regression success; that alone is NOT online playback acceptance. The current IPA delivery step additionally requires the live-provider gate to succeed. A simulator `.app` is **not** an installable iPhone IPA. The initial Simulator workflow successfully ran in this repository. The expanded workflow successfully built an unsigned iPhone IPA and captured a real Simulator screenshot in run 39459965095. The IPA is an arm64 iOS device build for iOS 17+, not a Simulator binary. Its SHA-256 and build provenance are in `BUILD_EVIDENCE.json`.
+The included `.github/workflows/ios.yml` is manual-only (`workflow_dispatch`), runs on `macos-15` with a 25-minute job timeout, builds the app, executes the tests on an available iPhone simulator, and uploads `.xcresult`/logs with one-day retention. Pushing code does not automatically start a billable run. The simulator app is uploaded after offline regression success; that alone is NOT online playback acceptance. The current IPA delivery step additionally requires the live-provider gate to succeed. A simulator `.app` is **not** an installable iPhone IPA. The initial Simulator workflow successfully ran in this repository. The expanded workflow successfully built an unsigned iPhone IPA and captured a real Simulator screenshot in run 39459965095. That historical version 0.1 IPA is an arm64 iOS device build for iOS 17+, not a Simulator binary. Its SHA-256 and build provenance are in `BUILD_EVIDENCE.json`.
 
 Place the archive contents at the root of a new repository, or adapt paths and workflow triggers if placing it under a subfolder in an existing repository. GitHub-hosted macOS runners require account/repository access and may incur charges; only standard public-repository runners are used; no paid/larger runner is selected.
 
