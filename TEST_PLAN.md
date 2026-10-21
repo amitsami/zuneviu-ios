@@ -1,5 +1,21 @@
 # Runtime acceptance plan — current and historical scope
 
+## Version 0.4 acceptance gates
+
+The current suite contains **49 offline unit/integration methods, 10 fixture UI methods, one real JioSaavn acceptance method, two real YouTube provider methods and one real YouTube catalog UI method and one real JioSaavn UI method**. Exact run/commit outcomes belong in BUILD_STATUS.md and VALIDATION_0_4.json, not in this checklist. A failed earlier run remains a failure even if a later fix passes.
+
+- Test both Xcode 26.2 / iOS 26.2 / iPhone 16 Pro and Xcode 16.4 / iOS 18.5 / iPhone SE 3. Target iOS 15.0; do not call that actual iOS 15 runtime coverage.
+- Offline integration covers valid and invalid/short audio, extensionless WAV and generated AAC files, atomic install/rollback, playback from the persisted app copy, cancel/retry state, source opt-out and Wi-Fi gating, restored/interrupted queues and corrupt data preservation.
+- Removing a source download must retain favorites, playlists, history and lyrics, while removing only its app-owned audio file. Sort views independently and stably without mutating queue/playlist data.
+- Discovery fixtures cover qualified listening, eight-seed bounds, persistence, interleaving/dedup/exclusion and generation-safe reset.
+- Real JioSaavn gate: direct search for an exact full recording; native AVPlayer clock advances; pause holds; seek/resume works; actual listening qualifies a seed; real artist-search suggestions exclude the seed; complete-file download validates; relaunch the library; disable the source; play the persisted file URL and verify the clock advances. No mock URL, test tone, preview or substitute provider may satisfy this gate.
+- Real JioSaavn UI: explicitly enable the source through Settings, select its catalog in Search, find the exact title/artist, play it, verify native Pause state and advancing elapsed time, and attach actual Search/Now Playing screenshots. This is separate from the full download/offline integration gate.
+- Actual Settings UI: native switch knob toggles and observable value changes, source initially off then explicitly enabled, Downloads manager reachable. Capture and visually review real Simulator attachments. These three UI methods do not prove every Settings feature or all Android settings.
+- Device Release: compile arm64 iPhone binary, inspect MinimumOSVersion and Mach-O platform independently, package and verify checksum. Mark any delivered IPA **unsigned**. Signing and physical-device acceptance remain separate.
+- YouTube verification/extraction failure is not resolved by JioSaavn success. Sources remain separate; no recording substitution, proxy or location-spoofing headers.
+
+
+
 The 13 unit/integration and 2 UI test methods passed in GitHub Actions run 39458769222. Every physical-device row below remains **PENDING**. Automated tests are implementation checks, not a universal device or service compatibility guarantee.
 
 ## Version 0.2 results
@@ -56,7 +72,7 @@ Use `./scripts/test_on_mac.sh` or Xcode Product → Test.
 
 ## Android parity work
 
-Guest catalog/search/shelves, native extraction, radio and plain lyric requests are now implemented in source, but live streaming acceptance is not yet passed. iOS authentication/sync, provider downloads, music video, effects, smart transitions, party features, migrations and localization remain unimplemented. They cannot pass an acceptance gate by testing only the local-player subset.
+Guest catalog/search/shelves, native extraction, radio/plain lyric requests and optional JioSaavn search/playback/progressive-file downloads are implemented in source. Runtime acceptance is provider-specific and recorded separately. iOS authentication/sync, reliable YouTube extraction, music video, effects, smart transitions, party features, migrations and localization remain incomplete. They cannot pass an acceptance gate by testing only the local-player subset.
 
 ## Evidence needed before calling it tested
 
