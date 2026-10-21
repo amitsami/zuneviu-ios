@@ -206,8 +206,8 @@ struct PlayerTrackControls: View {
                             playbackActions
                             RouteLink { SettingDetail(title: "Lyrics").navigationBarHidden(false) } label: { row("Lyrics offset", "slider.horizontal.3") }
                             Button(action: importAction) { row("Import lyrics (.lrc / .txt)", "text.bubble") }
-                            if track.isLocal, let url = library.file(track.audioFile) {
-                                Button { shareAction(url) } label: { row("Share audio file", "square.and.arrow.up") }
+                            if track.isLocal {
+                                Button { shareAction(library.file(track.audioFile)) } label: { row("Share audio file", "square.and.arrow.up") }
                             } else if let id = track.videoID, let url = URL(string: "https://music.youtube.com/watch?v=" + id) {
                                 Button { shareAction(url) } label: { row("Share song", "square.and.arrow.up") }
                             }

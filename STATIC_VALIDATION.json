@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-21T15:10:46.362176+00:00",
+  "generatedAt": "2026-10-21T15:14:05.400571+00:00",
   "scope": "STATIC_ONLY",
   "summary": {
     "checks": 271,
@@ -1408,7 +1408,7 @@
     "Zuneviu/ZuneviuApp.swift": "781b353209fefa59fee74a9dcc3ec8ab2e11d709211247287d833462837ae4b6",
     "Zuneviu/Components.swift": "520e21637921fc651b811267a60dc63f5558e99d2d5aeaaab842875e73539ab7",
     "Zuneviu/LibraryView.swift": "eb302d8794b2e32b851e27d0c90b90fc3b4a4118af69801111ae8bfc59810e4d",
-    "Zuneviu/NowPlayingView.swift": "40e88e8b54e11103e1fe5640ec75909ac5b3ce10872259fd782ac31b3103ee67",
+    "Zuneviu/NowPlayingView.swift": "9efd82dff7d9a891341976ede4d450769a369d4acc48f8a0ef71dfa12f5b3458",
     "Zuneviu/OnlineViews.swift": "cbe512ff341d3d55f78cdb6ac2988b56ceb7d852d9c0ee51b6b400f46ef7dfe9",
     "Zuneviu/RootView.swift": "0ca81fe65fb881e941812cbdda32911ff295b1a01d1f2aee91183830ad796309",
     "Zuneviu/SettingsView.swift": "27f3fcdb0ac45642079be86f4d643cd7df4462d3012bf0c1aa8b551ce7674509",
