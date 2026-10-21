@@ -17,9 +17,12 @@ struct GlassFooter: View {
     var openPlayer: () -> Void
     @EnvironmentObject private var playback: PlaybackStore
     @EnvironmentObject private var library: LibraryStore
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.testReduceMotion) private var testReduceMotion
+    private var reduceMotion: Bool { systemReduceMotion || testReduceMotion }
     @Namespace private var selectionNamespace
-    @ScaledMetric(relativeTo: .body) private var height = DockLayout.baseHeight
+    @ScaledMetric(relativeTo: .body) private var scaledHeight = DockLayout.baseHeight
+    private var height: CGFloat { min(96, max(DockLayout.baseHeight, scaledHeight)) }
 
     var body: some View {
         VStack(spacing: 8) {
@@ -70,7 +73,7 @@ struct GlassFooter: View {
         Button { select(value) } label: {
             VStack(spacing: 3) {
                 Image(systemName: icon).font(.system(size: 21, weight: selection == value ? .semibold : .regular))
-                Text(title).font(.caption.weight(selection == value ? .semibold : .medium)).lineLimit(1)
+                Text(title).font(.caption.weight(selection == value ? .semibold : .medium)).lineLimit(1).minimumScaleFactor(0.65)
             }
             .frame(maxWidth: .infinity).frame(height: height - 8)
             .foregroundStyle(selection == value ? Color.primary : Color.primary.opacity(0.56))
@@ -130,7 +133,9 @@ struct GlassMiniPlayer: View {
 
 struct CapsuleGlass: ViewModifier {
     var interactive = false
-    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceTransparency) private var systemReduceTransparency
+    @Environment(\.testReduceTransparency) private var testReduceTransparency
+    private var reduceTransparency: Bool { systemReduceTransparency || testReduceTransparency }
     @Environment(\.colorScheme) private var scheme
     @ViewBuilder func body(content: Content) -> some View {
         if reduceTransparency {
@@ -156,7 +161,9 @@ struct CapsuleGlass: ViewModifier {
     }
 }
 struct GlassPressStyle: ButtonStyle {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
+    @Environment(\.testReduceMotion) private var testReduceMotion
+    private var reduceMotion: Bool { systemReduceMotion || testReduceMotion }
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .opacity(configuration.isPressed ? 0.75 : 1)

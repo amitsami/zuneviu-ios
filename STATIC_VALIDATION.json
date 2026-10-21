@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-21T05:47:33.153900+00:00",
+  "generatedAt": "2026-10-21T05:53:57.949104+00:00",
   "scope": "STATIC_ONLY",
   "summary": {
     "checks": 216,
@@ -1122,9 +1122,9 @@
     "Zuneviu/MusicCatalog.swift": "c1c3ca9a2dfb9092e22a78119aaefdf85a79f46ae7cdeec2d1068aa87d084ca0",
     "Zuneviu/StreamResolver.swift": "9716b0390e7a4d2a75d95235014b5c17770f22ca2d443e86d4383c1038e360e7",
     "Zuneviu/OnlineViews.swift": "7e461817631b2633c496ec67fc7ed2cf9327d2ba0cc23d5eda7d8b89a425ea89",
-    "Zuneviu/GlassFooter.swift": "6800e3b85181d380818041a674add63e4cceb5e02abe3db470bd9d5c8892cfe0",
+    "Zuneviu/GlassFooter.swift": "c125f8db1b4a943da5f21dc94876ecfc36470d29ec71e3b069b87f743c88f354",
     "Zuneviu/ArtworkLoader.swift": "1025024a22c3d128732e0b0a24c000e0b8536fd2964c176b56b317771dc14270",
-    "Zuneviu/AppAccessibilitySettings.swift": "275d50d5089e0d33f95a8928b64f1513d8da14ff971dbfb5e429cd30978606a0",
+    "Zuneviu/AppAccessibilitySettings.swift": "04530d2b3f2461c3e6040be9e75821e63fbbc33ca1035ac19818f3df97088c40",
     "Zuneviu/Compatibility.swift": "742f66e38f16c4e0b8148f5ecaa70eff9490ae47be3c8a883e38a322cf6ac18a",
     "scripts/live-probe/Package.swift": "7c1b2f8f85cda645a596c8db72cc3b465ad4627e866fb3787f1f5999c5c74d19",
     "scripts/live-probe/Sources/LiveProbe/main.swift": "07b2fe8511df71e5f131c7af072af823eb44a0a6c1bd331756ea9159e805f344"
