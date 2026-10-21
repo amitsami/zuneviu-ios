@@ -24,6 +24,9 @@ struct NowPlayingView: View {
     }
     var body: some View {
         GeometryReader { geometry in
+            let compact = geometry.size.height < 700
+            let artworkSide = min(geometry.size.width - 48,
+                                  compact ? max(120, geometry.size.height - 450) : 380)
             ZStack {
                 if preferences.values.fullBleedArtwork && !preferences.values.reduceDynamicBlur {
                     Artwork(track: playback.current, radius: 0)
@@ -31,7 +34,7 @@ struct NowPlayingView: View {
                         .clipped().blur(radius: 65).overlay(Color.black.opacity(0.6)).ignoresSafeArea()
                 } else { Color.black.ignoresSafeArea() }
                 ScrollView {
-                    VStack(spacing: 24) {
+                    VStack(spacing: compact ? 16 : 24) {
                         HStack {
                             Button { dismiss() } label: { Image(systemName: "chevron.down").frame(width: 44, height: 44) }.accessibilityLabel("Close player")
                             Spacer(); if !preferences.values.hideSongStatus { Text(playback.current?.isLocal == false ? "Playing from " + (playback.current?.sourceName ?? "online source") : "Playing from your library").font(.caption.weight(.semibold)) }; Spacer()
@@ -60,7 +63,7 @@ struct NowPlayingView: View {
                         }
                         if let track = playback.current {
                             Artwork(track: track, radius: 22)
-                                .frame(width: min(geometry.size.width - 48, 380), height: min(geometry.size.width - 48, 380))
+                                .frame(width: artworkSide, height: artworkSide)
                             HStack(spacing: 12) {
                                 VStack(alignment: .leading, spacing: 5) {
                                     Text(track.title).font(.title2.bold()).lineLimit(2)
