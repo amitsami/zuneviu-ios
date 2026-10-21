@@ -55,6 +55,14 @@ final class GlassFooterUITests: XCTestCase {
         capture(app, "Glass-04-MiniPlayer-local-audio-fixture")
         app.buttons["Now playing: Test Tone"].tap()
         XCTAssertTrue(app.buttons["Close player"].waitForExistence(timeout: 5))
+        let transport = app.buttons["player.transport"]
+        XCTAssertTrue(transport.waitForExistence(timeout: 5))
+        for control in [transport, app.buttons["Next track"], app.buttons["Previous track"], app.buttons["Track options"]] {
+            XCTAssertTrue(control.isHittable)
+            XCTAssertGreaterThanOrEqual(control.frame.minX, app.frame.minX)
+            XCTAssertLessThanOrEqual(control.frame.maxX, app.frame.maxX)
+        }
+        capture(app, "Glass-Player-width-and-transport-regression")
         app.buttons["Close player"].tap()
     }
     func testReducedMotionTransparencyAndLargeTextRemainUsable() {

@@ -26,7 +26,9 @@ struct NowPlayingView: View {
         GeometryReader { geometry in
             ZStack {
                 if preferences.values.fullBleedArtwork && !preferences.values.reduceDynamicBlur {
-                    Artwork(track: playback.current, radius: 0).blur(radius: 65).overlay(Color.black.opacity(0.6)).ignoresSafeArea()
+                    Artwork(track: playback.current, radius: 0)
+                        .frame(width: geometry.size.width, height: geometry.size.height)
+                        .clipped().blur(radius: 65).overlay(Color.black.opacity(0.6)).ignoresSafeArea()
                 } else { Color.black.ignoresSafeArea() }
                 ScrollView {
                     VStack(spacing: 24) {
@@ -86,7 +88,7 @@ struct NowPlayingView: View {
                                 Spacer()
                                 Button { playback.toggle() } label: {
                                     Group { if playback.isLoading { ProgressView().tint(.white) } else { Image(systemName: playback.isPlaying ? "pause.fill" : "play.fill").font(.system(size: 43)) } }.frame(width: 64, height: 64)
-                                }.accessibilityLabel(playback.isPlaying ? "Pause" : "Play")
+                                }.accessibilityLabel(playback.isPlaying ? "Pause" : "Play").accessibilityIdentifier("player.transport")
                                 Spacer()
                                 Button { playback.next() } label: { Image(systemName: "forward.fill").font(.system(size: 30)).frame(width: 48, height: 60) }.accessibilityLabel("Next track")
                                 Spacer()
@@ -104,9 +106,14 @@ struct NowPlayingView: View {
                             }
                             if let deadline = playback.sleepDeadline { Text("Sleep timer · \(deadline, style: .relative)").font(.caption).foregroundStyle(.white.opacity(0.6)) }
                         } else { EmptyStateView("Nothing playing", systemImage: "music.note") }
-                    }.padding(.horizontal, 24).padding(.bottom, 28)
+                    }
+                    // Remote artwork and UIKit route/volume views must never
+                    // dictate an unbounded ideal width for the vertical scroll.
+                    .frame(width: max(0, geometry.size.width - 48))
+                    .padding(.horizontal, 24).padding(.bottom, 28)
                 }
-            }.foregroundStyle(.white).preferredColorScheme(.dark)
+            }.frame(width: geometry.size.width, height: geometry.size.height)
+                .foregroundStyle(.white).preferredColorScheme(.dark)
         }
         .task(id: playback.current?.id) { await fetchLyricsIfNeeded(); refreshLyrics() }
         .sheet(isPresented: Binding(get: { shareURL != nil }, set: { if !$0 { shareURL = nil } })) { if let shareURL { ActivitySheet(items: [shareURL]) } }

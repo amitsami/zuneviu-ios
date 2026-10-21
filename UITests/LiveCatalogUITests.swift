@@ -48,14 +48,21 @@ final class LiveCatalogUITests: XCTestCase {
         dismissSheet(app, title: "Search")
         let nowPlaying = app.buttons["Now playing: Tum Hi Ho"]
         XCTAssertTrue(nowPlaying.waitForExistence(timeout: 12)); nowPlaying.tap()
-        XCTAssertTrue(app.scrollViews.buttons["Pause"].waitForExistence(timeout: 50), "Native real-source playback did not reach playing")
+        XCTAssertTrue(app.buttons["player.transport"].waitForExistence(timeout: 50), "Native real-source playback did not reach playing")
         XCTAssertTrue(app.staticTexts["Playing from JioSaavn"].exists)
         let advancing = app.staticTexts.matching(NSPredicate(format: "label MATCHES %@", "0:(0[2-9]|[1-5][0-9])")).firstMatch
         XCTAssertTrue(advancing.waitForExistence(timeout: 15), "Real playback position did not advance in UI")
         capture(app, "Real-JioSaavn-Now-Playing-native-AVPlayer")
-        // Scope to the presented player; the underlying dock also has Pause.
-        app.scrollViews.buttons["Pause"].tap()
-        XCTAssertTrue(app.scrollViews.buttons["Play"].waitForExistence(timeout: 5))
+        let transport = app.buttons["player.transport"]
+        for control in [transport, app.buttons["Next track"], app.buttons["Previous track"], app.buttons["Track options"]] {
+            XCTAssertTrue(control.isHittable)
+            XCTAssertGreaterThanOrEqual(control.frame.minX, app.frame.minX)
+            XCTAssertLessThanOrEqual(control.frame.maxX, app.frame.maxX)
+        }
+        XCTAssertEqual(transport.label, "Pause")
+        transport.tap()
+        let paused = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label == %@", "Play"), object: transport)
+        XCTAssertEqual(XCTWaiter.wait(for: [paused], timeout: 5), .completed)
     }
 
     func testRealOnlineSearchUI() throws {
