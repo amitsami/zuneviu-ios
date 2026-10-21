@@ -24,6 +24,9 @@ struct CatalogHomeView: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 26) {
+                if preferences.values.saavnEnabled {
+                    RouteLink { SearchView(initialSource: "saavn") } label: { Label("Search JioSaavn", systemImage: "magnifyingglass").padding(.horizontal) }
+                }
                 if !explore {
                     if !library.recent.isEmpty { OnlineTrackShelf(title: "Listen again", subtitle: "From your listening", tracks: library.recent) }
                     if preferences.values.localRecommendations, !discovery.suggestions.isEmpty {
@@ -156,6 +159,9 @@ struct CatalogBrowseView: View {
     }
 }
 struct SearchView: View {
+    var initialSource = "youtube"
+    @EnvironmentObject var preferences: PreferenceStore
+    @State private var source = "youtube"
     @EnvironmentObject var library: LibraryStore
     @State private var query = ""
     @State private var online = !ProcessInfo.processInfo.arguments.contains("--ui-testing")
@@ -171,6 +177,10 @@ struct SearchView: View {
         List {
             Picker("Search in", selection: $online) { Text("Online").tag(true); Text("Library").tag(false) }.pickerStyle(.segmented)
             if online {
+                if preferences.values.saavnEnabled {
+                    Picker("Catalog source", selection: $source) { Text("YouTube Music").tag("youtube"); Text("JioSaavn").tag("saavn") }.pickerStyle(.segmented).accessibilityIdentifier("search.source")
+                }
+                Text(source == "saavn" ? "JioSaavn results · No automatic recording substitution" : "YouTube Music results").font(.caption).foregroundStyle(.secondary)
                 if loading { ProgressView("Searching music…") }
                 if let failure { ServiceFailure(message: failure) { Task { await search(more: false) } } }
                 ForEach(items) { item in
@@ -186,7 +196,9 @@ struct SearchView: View {
             }
         }.listStyle(.plain).navigationTitle("Search")
             .searchable(text: $query, prompt: "Songs, artists, albums")
-            .task(id: query + String(online)) {
+            .onAppear { source = initialSource }
+            .onChange(of: preferences.values.saavnEnabled) { enabled in if !enabled { source = "youtube" } }
+            .task(id: query + String(online) + source) {
                 guard online else { return }
                 items = []; continuation = nil; failure = nil
                 guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
@@ -196,15 +208,21 @@ struct SearchView: View {
     @MainActor private func search(more: Bool) async {
         let term = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !term.isEmpty else { return }
+        let selectedSource = source
         loading = true; failure = nil
-        defer { loading = false }
+        defer { if source == selectedSource { loading = false } }
         do {
-            let page = try await MusicCatalog.shared.search(term, continuation: more ? continuation : nil)
+            let page: CatalogPage
+            if selectedSource == "saavn" {
+                guard preferences.values.saavnEnabled else { return }
+                let tracks = try await SaavnService.shared.search(term)
+                page = CatalogPage(items: tracks.map { CatalogItem(id: $0.id.uuidString, title: $0.title, subtitle: $0.artist, artwork: $0.artworkURL, track: $0) }, continuation: nil)
+            } else { page = try await MusicCatalog.shared.search(term, continuation: more ? continuation : nil) }
             try Task.checkCancellation()
-            guard query.trimmingCharacters(in: .whitespacesAndNewlines) == term, online else { return }
+            guard source == selectedSource, query.trimmingCharacters(in: .whitespacesAndNewlines) == term, online else { return }
             if more { let seen = Set(items.map(\.id)); items += page.items.filter { !seen.contains($0.id) } } else { items = page.items }
             continuation = page.continuation
-        } catch { if !Task.isCancelled && term == query.trimmingCharacters(in: .whitespacesAndNewlines) { failure = error.localizedDescription } }
+        } catch { if !Task.isCancelled && source == selectedSource && term == query.trimmingCharacters(in: .whitespacesAndNewlines) { failure = error.localizedDescription } }
     }
 }
 

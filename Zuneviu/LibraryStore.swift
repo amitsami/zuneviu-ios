@@ -42,6 +42,8 @@ import Combine
         if self.track(track.id)?.isLocal == true { return }
         let asset = AVURLAsset(url: temporaryFile)
         guard try await asset.load(.isPlayable) else { throw MusicServiceError.unavailable("The downloaded file is not playable audio.") }
+        let audioTracks = try await asset.loadTracks(withMediaType: .audio)
+        guard !audioTracks.isEmpty else { throw MusicServiceError.unavailable("The source returned no audio track.") }
         let seconds = try await asset.load(.duration).seconds
         guard seconds.isFinite, seconds > 0,
               track.duration <= 0 || seconds >= track.duration - max(3, track.duration * 0.05) else {
@@ -49,7 +51,11 @@ import Combine
         }
         try Task.checkCancellation()
         let previous = snapshot
-        let filename = "download-" + track.id.uuidString + ".m4a"
+        let handle = try FileHandle(forReadingFrom: temporaryFile)
+        let prefix = try handle.read(upToCount: 16) ?? Data(); try handle.close()
+        let magic = String(decoding: prefix, as: UTF8.self)
+        let ext = magic.hasPrefix("RIFF") ? "wav" : magic.hasPrefix("fLaC") ? "flac" : magic.hasPrefix("ID3") ? "mp3" : "m4a"
+        let filename = "download-" + track.id.uuidString + "." + ext
         let destination = file(filename)
         try FileManager.default.copyItem(at: temporaryFile, to: destination)
         var downloaded = track; downloaded.audioFile = filename; downloaded.downloadedAt = Date(); downloaded.duration = seconds

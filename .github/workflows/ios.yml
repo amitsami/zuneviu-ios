@@ -28,6 +28,7 @@ jobs:
           xcodebuild test -project Zuneviu.xcodeproj -scheme Zuneviu \
             -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
             -skip-testing:ZuneviuTests/LiveProviderTests \
+            -skip-testing:ZuneviuTests/LiveSaavnTests \
             -skip-testing:ZuneviuUITests/LiveCatalogUITests \
             -derivedDataPath DerivedData -resultBundlePath TestResults/Zuneviu.xcresult \
             CODE_SIGNING_ALLOWED=NO | tee TestResults/xcodebuild.log

@@ -15,6 +15,9 @@ struct Track: Identifiable, Codable, Equatable {
     var artistBrowseID: String?
     var albumBrowseID: String?
     var downloadedAt: Date?
+    var saavnID: String?
+    var hasOnlineSource: Bool { videoID != nil || saavnID != nil }
+    var sourceName: String { saavnID != nil ? "JioSaavn" : "YouTube Music" }
     var isLocal: Bool { !audioFile.isEmpty }
 }
 struct Playlist: Identifiable, Codable, Equatable {

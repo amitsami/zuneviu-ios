@@ -32,7 +32,7 @@ struct NowPlayingView: View {
                     VStack(spacing: 24) {
                         HStack {
                             Button { dismiss() } label: { Image(systemName: "chevron.down").frame(width: 44, height: 44) }.accessibilityLabel("Close player")
-                            Spacer(); if !preferences.values.hideSongStatus { Text(playback.current?.isLocal == false ? "Playing from YouTube Music" : "Playing from your library").font(.caption.weight(.semibold)) }; Spacer()
+                            Spacer(); if !preferences.values.hideSongStatus { Text(playback.current?.isLocal == false ? "Playing from " + (playback.current?.sourceName ?? "online source") : "Playing from your library").font(.caption.weight(.semibold)) }; Spacer()
                             Menu {
                                 if let track = playback.current {
                                     IconButton("Import lyrics (.lrc / .txt)", systemImage: "text.bubble") { importingLyrics = true }
@@ -41,11 +41,13 @@ struct NowPlayingView: View {
                                     }
                                     if track.isLocal {
                                         IconButton("Share audio file", systemImage: "square.and.arrow.up") { shareURL = library.file(track.audioFile) }
-                                    } else if let id = track.videoID {
+                                    } else if track.hasOnlineSource {
                                         IconButton("Download", systemImage: "arrow.down.circle") { downloads.enqueue(track) }
-                                        IconButton("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) }
                                         IconButton("Retry stream", systemImage: "arrow.clockwise") { playback.retry() }
-                                        IconButton("Share song", systemImage: "square.and.arrow.up") { shareURL = URL(string: "https://music.youtube.com/watch?v=" + id) }
+                                        if let id = track.videoID {
+                                            IconButton("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) }
+                                            IconButton("Share song", systemImage: "square.and.arrow.up") { shareURL = URL(string: "https://music.youtube.com/watch?v=" + id) }
+                                        }
                                     }
                                 }
                                 Menu("Sleep timer") {
@@ -173,13 +175,13 @@ struct LyricsView: View {
                     } else if lines.isEmpty { Text(text).font(.title2.weight(.semibold)).textSelection(.enabled) }
                     else {
                         ForEach(lines) { line in
-                            Button { playback.seek(max(0, line.time - offset)) } label: {
+                            Button { if preferences.values.syncedLyrics { playback.seek(max(0, line.time - offset)) } } label: {
                                 Text(line.text.isEmpty ? "♪" : line.text).font(.title2.bold()).foregroundStyle(!preferences.values.syncedLyrics || activeID == line.id ? Color.primary : Color.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 6).blur(radius: preferences.values.lyricsBlur && preferences.values.syncedLyrics && activeID != line.id ? 1.5 : 0)
                             }.buttonStyle(.plain).id(line.id)
                         }
                     }
                 }.padding(24)
-            }.onChange(of: activeID) { id in if preferences.values.syncedLyrics, let id { withAnimation { proxy.scrollTo(id, anchor: .center) } } }
+            }.onChange(of: activeID) { id in if preferences.values.syncedLyrics, let id { if preferences.values.reduceAnimation || UIAccessibility.isReduceMotionEnabled { proxy.scrollTo(id, anchor: .center) } else { withAnimation { proxy.scrollTo(id, anchor: .center) } } } }
         }.navigationTitle("Lyrics").toolbar { Button("Import", action: importAction) }
             .task(id: playback.current?.id) {
                 if let track = playback.current {

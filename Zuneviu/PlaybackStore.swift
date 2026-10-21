@@ -101,7 +101,8 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
                 current = nil; error = "Playback failed: the imported file is missing."; return
             }
             start(track, url: url)
-        } else if let videoID = track.videoID {
+        } else if track.hasOnlineSource {
+            guard track.saavnID == nil || preferences.values.saavnEnabled else { current = nil; error = "Enable JioSaavn in Settings → Sources before playing its online results."; return }
             current = track; position = 0; duration = track.duration
             isResolving = true; isLoading = true
             resolveTask = Task { [weak self] in
@@ -110,7 +111,7 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
                     let network = NetworkStatus.shared
                     guard network.kind != .cellular || self.preferences.values.cellularStreamingAllowed else { throw MusicServiceError.unavailable("Cellular streaming is disabled in Audio quality settings.") }
                     let quality = (network.kind == .wifi || network.kind == .wired) ? self.preferences.values.audioQualityWifi : self.preferences.values.audioQualityCellular
-                    let url = try await StreamResolver.shared.resolve(videoID, quality: quality)
+                    let url = try await AudioSourceResolver.resolve(track, quality: quality)
                     try Task.checkCancellation()
                     guard self.requestID == token else { return }
                     self.isResolving = false; self.start(track, url: url)

@@ -95,8 +95,7 @@ final class DownloadTransfer: NSObject, URLSessionDownloadDelegate, @unchecked S
     private var queueFile: URL { library.file("download-queue.json") }
     init(library: LibraryStore, preferences: PreferenceStore, network: NetworkStatus,
          resolver: @escaping Resolver = { track, quality in
-             guard let id = track.videoID else { throw MusicServiceError.noStream }
-             return try await StreamResolver.shared.resolve(id, quality: quality)
+             return try await AudioSourceResolver.resolve(track, quality: quality)
          }, fetcher: @escaping Fetcher = { url, wifiOnly, progress in try await DownloadTransfer(progress: progress).fetch(url, wifiOnly: wifiOnly) }) {
         self.library = library; self.preferences = preferences; self.network = network; self.resolver = resolver; self.fetcher = fetcher
         do {
@@ -111,6 +110,7 @@ final class DownloadTransfer: NSObject, URLSessionDownloadDelegate, @unchecked S
         preferences.$values.dropFirst().sink { [weak self] _ in Task { @MainActor in self?.pump() } }.store(in: &subscriptions)
     }
     func enqueue(_ track: Track) {
+        guard track.saavnID == nil || preferences.values.saavnEnabled else { return }
         guard storageReady, library.storageReady, !track.isLocal, library.track(track.id)?.isLocal != true else { return }
         guard !jobs.contains(where: { $0.id == track.id && [.queued, .waitingForWifi, .resolving, .downloading, .verifying].contains($0.state) }) else { return }
         jobs.removeAll { $0.id == track.id }; jobs.append(DownloadJob(track: track)); persist(); pump()

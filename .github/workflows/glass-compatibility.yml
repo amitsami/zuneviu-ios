@@ -38,10 +38,21 @@ jobs:
           xcodebuild test -project Zuneviu.xcodeproj -scheme Zuneviu \
             -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
             -skip-testing:ZuneviuTests/LiveProviderTests \
+            -skip-testing:ZuneviuTests/LiveSaavnTests \
             -skip-testing:ZuneviuUITests/LiveCatalogUITests \
             -parallel-testing-enabled NO \
             -derivedDataPath DerivedData -resultBundlePath TestResults/Glass.xcresult \
             CODE_SIGNING_ALLOWED=NO | tee TestResults/test.log
+      - name: Real optional-source playback, download and offline acceptance
+        if: success()
+        run: |
+          set -o pipefail
+          xcodebuild test -project Zuneviu.xcodeproj -scheme Zuneviu \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -only-testing:ZuneviuTests/LiveSaavnTests \
+            -parallel-testing-enabled NO -derivedDataPath DerivedData \
+            -resultBundlePath TestResults/LiveSaavn.xcresult \
+            CODE_SIGNING_ALLOWED=NO | tee TestResults/live-saavn.log
       - name: Capture real online home UI (not playback proof)
         if: success()
         run: |

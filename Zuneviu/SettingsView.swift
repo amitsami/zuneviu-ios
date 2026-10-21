@@ -86,8 +86,12 @@ struct SettingDetail: View {
                     Label("Guest catalog & search", systemImage: "magnifyingglass")
                     Text("Uses the Android app’s catalog protocol and an on-device iOS extractor. A visible song is not proof that its audio is available. Some requests currently require provider verification; playback and downloads can fail.")
                 }
-                Section("Other Android sources") {
-                    Text("JioSaavn is optional in Android, not a guaranteed fallback for the same recording. It has not been enabled in this iOS build. Private addon/module configuration is not in the repository and is not executed by this app.")
+                Section("JioSaavn · optional") {
+                    Toggle("Enable JioSaavn catalog", isOn: $preferences.values.saavnEnabled).accessibilityIdentifier("sources.saavn")
+                    Text("Off by default, like Android. Enables a separate catalog selector in online Search. Songs keep their source identity; YouTube songs are never silently replaced by covers or other recordings. Availability varies by region and provider. Requests go directly to JioSaavn and its audio CDN.")
+                }
+                Section("Private Android sources") {
+                    Text("Private addon/module configuration is not in the repository and is not executed by this app.")
                     Text("No location-spoofing headers, shared account cookies or third-party extraction proxies are used.")
                 }
                 Section("Offline source") { Text("Import your own compatible audio using Library → Import music. These files do not depend on an online provider.") }

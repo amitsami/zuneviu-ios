@@ -25,6 +25,7 @@ struct NativePreferences: Codable, Equatable {
     var syncedLyrics = true
     var lyricsBlur = false
     var autoplay = true
+    var saavnEnabled = false
     var imageCacheBudgetMiB = 48
 }
 @MainActor final class PreferenceStore: ObservableObject {
@@ -33,7 +34,10 @@ struct NativePreferences: Codable, Equatable {
     private let defaults: UserDefaults
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        values = defaults.data(forKey: "nativePreferencesV1").flatMap { try? JSONDecoder().decode(NativePreferences.self, from: $0) } ?? NativePreferences()
+        let baseline = (try? JSONEncoder().encode(NativePreferences())).flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] } ?? [:]
+        let saved = defaults.data(forKey: "nativePreferencesV1").flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: Any] } ?? [:]
+        let merged = baseline.merging(saved) { _, saved in saved }
+        values = (try? JSONSerialization.data(withJSONObject: merged)).flatMap { try? JSONDecoder().decode(NativePreferences.self, from: $0) } ?? NativePreferences()
     }
     private func persist() { if let data = try? JSONEncoder().encode(values) { defaults.set(data, forKey: "nativePreferencesV1") } }
 }

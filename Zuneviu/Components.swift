@@ -41,12 +41,13 @@ struct TrackRow: View {
                     Spacer(minLength: 0)
                 }.contentShape(Rectangle())
             }.buttonStyle(.plain)
+            if library.track(track.id)?.isLocal == true { Image(systemName: "arrow.down.circle.fill").font(.caption).foregroundStyle(.secondary).accessibilityLabel("Available offline") }
             if library.snapshot.favorites.contains(track.id) { Image(systemName: "heart.fill").font(.caption).foregroundStyle(.pink) }
             Menu {
                 IconButton("Play next", systemImage: "text.line.first.and.arrowtriangle.forward") { playback.enqueue(track, next: true) }
                 IconButton("Add to queue", systemImage: "text.badge.plus") { playback.enqueue(track) }
                 IconButton(library.snapshot.favorites.contains(track.id) ? "Unlike" : "Like", systemImage: "heart") { library.remember(track); library.toggleFavorite(track.id) }
-                if !track.isLocal, track.videoID != nil { IconButton("Download", systemImage: "arrow.down.circle") { downloads.enqueue(track) } }
+                if !track.isLocal, track.hasOnlineSource { IconButton("Download", systemImage: "arrow.down.circle") { downloads.enqueue(track) } }
                 if track.videoID != nil { IconButton("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) } }
                 if let id = track.artistBrowseID { RouteLink("Open artist") { CatalogBrowseView(id: id, title: track.artist) } }
                 if let id = track.albumBrowseID { RouteLink("Open album") { CatalogBrowseView(id: id, title: track.album) } }

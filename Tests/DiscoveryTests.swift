@@ -56,7 +56,8 @@ final class DiscoveryTests: XCTestCase {
         XCTAssertTrue(store.suggestions.isEmpty); XCTAssertFalse(store.loading)
     }
     @MainActor func testPreferencesPersistWithoutSharingTestDefaults() {
-        let name = UUID().uuidString, defaults = UserDefaults(suiteName: UUID().uuidString)!
+        let name = UUID().uuidString
+        let defaults = UserDefaults(suiteName: name)!
         defer { defaults.removePersistentDomain(forName: name) }
         let store = PreferenceStore(defaults: defaults)
         store.values.audioQualityWifi = .high; store.values.wifiOnlyDownloads = false; store.values.reduceAnimation = true

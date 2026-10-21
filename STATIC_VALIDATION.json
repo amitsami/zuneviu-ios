@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-10-21T06:55:45.305144+00:00",
+  "generatedAt": "2026-10-21T07:00:08.599255+00:00",
   "scope": "STATIC_ONLY",
   "summary": {
-    "checks": 251,
-    "passed": 251,
+    "checks": 271,
+    "passed": 271,
     "failed": 0,
-    "swiftFiles": 35,
-    "unitTestsWritten": 42,
-    "uiTestsWritten": 8
+    "swiftFiles": 39,
+    "unitTestsWritten": 48,
+    "uiTestsWritten": 11
   },
   "notExecutedByThisScript": [
     "Apple SDK compilation",
@@ -59,6 +59,16 @@
       "detail": "Tree-sitter parse only; no Apple SDK type checking"
     },
     {
+      "check": "Swift syntax: Tests/SaavnTests.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Tests/LiveSaavnTests.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
       "check": "Swift syntax: UITests/AppUITests.swift",
       "passed": true,
       "detail": "Tree-sitter parse only; no Apple SDK type checking"
@@ -70,6 +80,11 @@
     },
     {
       "check": "Swift syntax: UITests/GlassFooterUITests.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: UITests/SettingsUITests.swift",
       "passed": true,
       "detail": "Tree-sitter parse only; no Apple SDK type checking"
     },
@@ -180,6 +195,11 @@
     },
     {
       "check": "Swift syntax: Zuneviu/DownloadsView.swift",
+      "passed": true,
+      "detail": "Tree-sitter parse only; no Apple SDK type checking"
+    },
+    {
+      "check": "Swift syntax: Zuneviu/SaavnService.swift",
       "passed": true,
       "detail": "Tree-sitter parse only; no Apple SDK type checking"
     },
@@ -344,7 +364,7 @@
       "detail": ""
     },
     {
-      "check": "Reference 0A300DBF3250EDF7A3D43A3C.children",
+      "check": "Reference 3C3B0F03DC089F93B8457928.children",
       "passed": true,
       "detail": ""
     },
@@ -380,6 +400,26 @@
     },
     {
       "check": "Reference 0A300DBF3250EDF7A3D43A3C.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 0A300DBF3250EDF7A3D43A3C.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 0A300DBF3250EDF7A3D43A3C.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 0A300DBF3250EDF7A3D43A3C.children",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 0F2612BBE722F8B97292B1A7.children",
       "passed": true,
       "detail": ""
     },
@@ -504,6 +544,11 @@
       "detail": ""
     },
     {
+      "check": "Reference 5E0B36B96A759BF0158BFC9F.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "Reference B5E4E298C07D61205F8101FE.fileRef",
       "passed": true,
       "detail": ""
@@ -515,6 +560,11 @@
     },
     {
       "check": "Reference 6535BF67738FD0725D62B2DE.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 949D493B91791558E87BC5D7.files",
       "passed": true,
       "detail": ""
     },
@@ -754,6 +804,11 @@
       "detail": ""
     },
     {
+      "check": "Reference 2FB6B322211A1655DD01CCB1.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "Reference 3FEF676FF165E371172A215B.fileRef",
       "passed": true,
       "detail": ""
@@ -765,6 +820,21 @@
     },
     {
       "check": "Reference 000233D0637908C6CAA8C6F9.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 08BD1BAD9E3D280BA0244365.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 5DDB0E64CE5DBFEFCE957171.files",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 5DDB0E64CE5DBFEFCE957171.files",
       "passed": true,
       "detail": ""
     },
@@ -880,6 +950,16 @@
     },
     {
       "check": "Reference 9A5D90BEDB08DDFC91A3B7A2.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference 365C5CD28B768768469F8704.fileRef",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "Reference F9ACDEB529017EFC18F5E60A.files",
       "passed": true,
       "detail": ""
     },
@@ -1124,6 +1204,11 @@
       "detail": ""
     },
     {
+      "check": "File exists: Zuneviu/SaavnService.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "File exists: Zuneviu/SettingsView.swift",
       "passed": true,
       "detail": ""
@@ -1199,6 +1284,11 @@
       "detail": ""
     },
     {
+      "check": "File exists: Tests/LiveSaavnTests.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "File exists: Tests/ModelTests.swift",
       "passed": true,
       "detail": ""
@@ -1214,6 +1304,11 @@
       "detail": ""
     },
     {
+      "check": "File exists: Tests/SaavnTests.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
       "check": "File exists: UITests/AppUITests.swift",
       "passed": true,
       "detail": ""
@@ -1225,6 +1320,11 @@
     },
     {
       "check": "File exists: UITests/LiveCatalogUITests.swift",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "File exists: UITests/SettingsUITests.swift",
       "passed": true,
       "detail": ""
     },
@@ -1281,33 +1381,37 @@
     "Tests/CatalogTests.swift": "d31bbfe8b1c174d666e0578095f453f759fd0e1ccd64bd1504805bbe93178354",
     "Tests/LiveProviderTests.swift": "b5a694d01729f8f39b1d99444a7bbf508c0d36743c7b119383438d97ff137576",
     "Tests/OptimizationTests.swift": "917b67c60c2714688ee99948e862466696155f111b91dc923481849034855c37",
-    "Tests/DiscoveryTests.swift": "aeca0c31a3c25beba3288264fe2628dddfefef66452b9ce96578f1bc22667109",
+    "Tests/DiscoveryTests.swift": "1e58cb5d1c2a7ad9d241edf04b1aa81b49730a3b3e896aaf9060b71409ff5ac4",
     "Tests/DownloadTests.swift": "91eae5d0b75ae2645d6cab41fb446adac2b859dd411812c13201569205c68a19",
+    "Tests/SaavnTests.swift": "4b87a7137c3f02d27a5658228316414fa07f17dfd4bedaf6e389009628d7ab16",
+    "Tests/LiveSaavnTests.swift": "914a6de9d429523045344d32459415e5e61824ac156930a2eb603b2345386256",
     "UITests/AppUITests.swift": "5d4a329061cc3a8ba236655ee95d22c88708e26edded672784c512feb3ae692a",
     "UITests/LiveCatalogUITests.swift": "68ac50d8ea8128a37cbd06b05152a6b4ebf43b2f4d4e27a48c9935d580195b16",
     "UITests/GlassFooterUITests.swift": "19ed665ac69ff0534bc4acf835c097834162d779eed921fbd8ab3a36b7d3b459",
-    "Zuneviu/Components.swift": "271941fb62c469e6e44dbd05aa39d8e3b067e2b1503d32dd7a8eb9ef196713c8",
+    "UITests/SettingsUITests.swift": "1f08735ffda5c87e957c373b8fba6f5b6cce1e6d7e85da3cffe4afdbea0870a7",
+    "Zuneviu/Components.swift": "cbf8cdf718c43ab36005c4fd18567ef7946cb024162ee2b848ad1f9c4f43cda7",
     "Zuneviu/DebugFixture.swift": "a02c60619ac27a58b5b14365f495487af8d1afb88be5976c32ee46db92d7976c",
-    "Zuneviu/LibraryStore.swift": "8eabb092f229756f81646eaf6382d6cd4d1f1347f04e551292905511bb62201c",
+    "Zuneviu/LibraryStore.swift": "c91517c026788098d3d9d1ceb0813a7b8b971d72a1795630d4bf20d839608eee",
     "Zuneviu/LibraryView.swift": "65585066c68ec0ddb121f17dad54c6c92c247b44d54ab5085d2019fb8994ffd5",
-    "Zuneviu/Models.swift": "62ececcc8a2fb86fcd692111bd5df58d31499788db119e55455c7440ada8aa67",
-    "Zuneviu/NowPlayingView.swift": "a88a4a23d3e87f8ba8498ea24048dc47b6b1177d43fbb9d0253b87c93aab0c60",
-    "Zuneviu/PlaybackStore.swift": "4ce3081e889b87c3969792360b2f9fb87fc62ff50053c8b89c8ca5d5f86dab09",
+    "Zuneviu/Models.swift": "7ae0d04ecab941086bc13906489f0c139e803ed043290894e4452b837f116657",
+    "Zuneviu/NowPlayingView.swift": "d553f705e043a9a03c9f46ce23f4bb050771e3d3db6aa68f2991ed58303e11b5",
+    "Zuneviu/PlaybackStore.swift": "06d40b23e84be7405a317dc362f1ae361b9775d61326ff35c5dcb239893fca98",
     "Zuneviu/RootView.swift": "fc060ea84a08822f385a6da2d6b2769c87c8f7c9d9f7fd15ce69a2bd632bc7ef",
-    "Zuneviu/SettingsView.swift": "769efe7d7c8ccdf701b7128d8d6feaa9a169513720c81bd4e090086cdde2c644",
+    "Zuneviu/SettingsView.swift": "323534cdd68211cb270cbec1447c26a37d4a13c6554b3ea952ec244f7a07e078",
     "Zuneviu/ZuneviuApp.swift": "781b353209fefa59fee74a9dcc3ec8ab2e11d709211247287d833462837ae4b6",
     "Zuneviu/MusicCatalog.swift": "c1c3ca9a2dfb9092e22a78119aaefdf85a79f46ae7cdeec2d1068aa87d084ca0",
     "Zuneviu/StreamResolver.swift": "4bcc2354377ebe9a1392da7c968cc579945b4e786cbaf7aa3d023ffc0602225f",
-    "Zuneviu/OnlineViews.swift": "debbb3b90da71492ca8162f2d9063a3cf1c7db97318923050dd30ee0bee3797f",
+    "Zuneviu/OnlineViews.swift": "24bb0308d045d8374c1055aabffe8ce55d72626988d096eb2f05d1250e497bcf",
     "Zuneviu/GlassFooter.swift": "4997b15bd5318213d0487fc25059ab7cd8dabd4221bb9f97be1a2d5bfeeccb14",
     "Zuneviu/ArtworkLoader.swift": "10151fcb7d6434ee099dfdab7ace50efd1d7901f543ecc61f689725d52f4adb1",
     "Zuneviu/AppAccessibilitySettings.swift": "04530d2b3f2461c3e6040be9e75821e63fbbc33ca1035ac19818f3df97088c40",
     "Zuneviu/Compatibility.swift": "742f66e38f16c4e0b8148f5ecaa70eff9490ae47be3c8a883e38a322cf6ac18a",
-    "Zuneviu/Preferences.swift": "eb04f4ef6ca6d696643ad050614dd88cd0e9e34c44f4628223938f0287adaf93",
+    "Zuneviu/Preferences.swift": "0024c7cf5d076ea77dc6d8b9d76ecbcafc25783f5246fe34563d10602e7fdd8d",
     "Zuneviu/NetworkStatus.swift": "fa30d9124760015d167c618eb23bf4f6ff0413961d31434cf5f0e44f3da313c6",
     "Zuneviu/DiscoveryStore.swift": "9ee9e657b675cbfe29119a495cc54a6ca7205b8dccfaa70c4aec98572e957483",
-    "Zuneviu/DownloadManager.swift": "630a05fa664ed7c663983af03674c5a3ecdba805963123be8e636c8e06a4748f",
+    "Zuneviu/DownloadManager.swift": "16f5e4fdcb9d603df946bb176855f87bac4b597d9b7dd494ed2c0426b11d7d52",
     "Zuneviu/DownloadsView.swift": "f2cdd38726f12da57fe8764dca006f704a4489d25f29e37a336ae418507cfdd8",
+    "Zuneviu/SaavnService.swift": "c08357c719893e070b21c1d4a5d8deb8d5ec0364578192cbfa9c72ecab7d1868",
     "scripts/live-probe/Package.swift": "7c1b2f8f85cda645a596c8db72cc3b465ad4627e866fb3787f1f5999c5c74d19",
     "scripts/live-probe/Sources/LiveProbe/main.swift": "07b2fe8511df71e5f131c7af072af823eb44a0a6c1bd331756ea9159e805f344"
   }
