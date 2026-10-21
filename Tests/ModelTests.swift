@@ -2,6 +2,20 @@ import XCTest
 @testable import Zuneviu
 
 final class ModelTests: XCTestCase {
+    func testTrackSortingIsStableAndUsesDownloadDates() {
+        let now = Date()
+        let a = Track(id: UUID(), title: "Beta", artist: "", album: "", audioFile: "", duration: 1, importedAt: now, downloadedAt: now.addingTimeInterval(20))
+        var b = a; b.id = UUID(); b.title = "Alpha"; b.importedAt = now.addingTimeInterval(10); b.downloadedAt = now
+        let tracks = [a,b]
+        XCTAssertEqual(TrackOrdering.sorted(tracks, by: "title").map(\.id), [b.id,a.id])
+        XCTAssertEqual(TrackOrdering.sorted(tracks, by: "titleDescending").map(\.id), [a.id,b.id])
+        XCTAssertEqual(TrackOrdering.sorted(tracks, by: "newest").map(\.id), [b.id,a.id])
+        XCTAssertEqual(TrackOrdering.sorted(tracks, by: "newest", downloads: true).map(\.id), [a.id,b.id])
+        XCTAssertEqual(TrackOrdering.sorted(tracks, by: "oldest").map(\.id), [a.id,b.id])
+        b.title = a.title
+        XCTAssertEqual(TrackOrdering.sorted([b,a], by: "title").map(\.id), [b.id,a.id])
+        XCTAssertEqual(tracks.map(\.id), [a.id,b.id])
+    }
     func testLRCTimestampsAndOrdering() {
         let lines = LRCParser.parse("[01:02.34]Second\n[00:01.5][00:03.250]Repeat\n[ar:Artist]\n")
         XCTAssertEqual(lines.map(\.text), ["Repeat", "Repeat", "Second"])

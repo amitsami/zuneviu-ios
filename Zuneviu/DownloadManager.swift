@@ -121,6 +121,11 @@ final class DownloadTransfer: NSObject, URLSessionDownloadDelegate, @unchecked S
         jobs[index].state = .cancelled; jobs[index].message = "Cancelled"
         if active == id { task?.cancel() }; persist()
     }
+    @discardableResult func removeOfflineCopy(_ id: UUID) -> Bool {
+        guard library.removeDownload(id) else { return false }
+        jobs.removeAll { $0.id == id && $0.state == .completed }; persist()
+        return true
+    }
     func clearFinished() { jobs.removeAll { [.completed, .cancelled].contains($0.state) }; persist() }
     private func pump() {
         guard task == nil, storageReady, let index = jobs.firstIndex(where: { [.queued, .waitingForWifi].contains($0.state) }) else { return }
@@ -128,6 +133,9 @@ final class DownloadTransfer: NSObject, URLSessionDownloadDelegate, @unchecked S
         guard !wifiOnly || network.allowsWifiOnlyDownload else { jobs[index].state = .waitingForWifi; jobs[index].message = "Waiting for unmetered Wi-Fi or Ethernet"; persist(); return }
         guard network.kind != .offline else { jobs[index].state = .waitingForWifi; jobs[index].message = "Waiting for a connection"; return }
         let track = jobs[index].track, quality = preferences.values.downloadQuality
+        if track.saavnID != nil && !preferences.values.saavnEnabled {
+            jobs[index].state = .failed; jobs[index].message = "JioSaavn was disabled. Enable it in Sources before retrying."; persist(); pump(); return
+        }
         active = track.id; update(track.id, state: .resolving, message: "Requesting audio from the source…")
         task = Task { [weak self] in
             guard let self else { return }

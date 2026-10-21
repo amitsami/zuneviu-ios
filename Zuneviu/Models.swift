@@ -61,3 +61,23 @@ func clockText(_ seconds: Double) -> String {
     let total = seconds.isFinite ? max(0, Int(seconds)) : 0
     return String(format: "%d:%02d", total / 60, total % 60)
 }
+
+// Sorting returns a copy; changing a view never mutates playlist/queue order.
+enum TrackOrdering {
+    static func sorted(_ tracks: [Track], by order: String, downloads: Bool = false) -> [Track] {
+        if order == "original" { return tracks }
+        return tracks.enumerated().sorted { lhs, rhs in
+            let a = lhs.element, b = rhs.element
+            switch order {
+            case "title", "titleDescending":
+                let comparison = a.title.localizedCaseInsensitiveCompare(b.title)
+                if comparison != .orderedSame { return order == "title" ? comparison == .orderedAscending : comparison == .orderedDescending }
+            default:
+                let first = downloads ? (a.downloadedAt ?? a.importedAt) : a.importedAt
+                let second = downloads ? (b.downloadedAt ?? b.importedAt) : b.importedAt
+                if first != second { return order == "oldest" ? first < second : first > second }
+            }
+            return lhs.offset < rhs.offset
+        }.map(\.element)
+    }
+}

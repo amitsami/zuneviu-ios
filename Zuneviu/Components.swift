@@ -88,3 +88,15 @@ struct EmptyLibrary: View {
         }.padding(28).frame(maxWidth: .infinity)
     }
 }
+
+struct TrackSortPicker: View {
+    @Binding var selection: String
+    var body: some View {
+        Picker("Sort", selection: $selection) {
+            Text("Newest first").tag("newest")
+            Text("Oldest first").tag("oldest")
+            Text("Title A–Z").tag("title")
+            Text("Title Z–A").tag("titleDescending")
+        }
+    }
+}

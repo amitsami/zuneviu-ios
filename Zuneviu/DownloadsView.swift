@@ -4,6 +4,9 @@ struct DownloadsView: View {
     @EnvironmentObject private var downloads: DownloadManager
     @EnvironmentObject private var library: LibraryStore
     @EnvironmentObject private var playback: PlaybackStore
+    @State private var pendingRemoval: Track?
+    @AppStorage("downloadedMusicSort") private var sort = "newest"
+    private var sortedDownloads: [Track] { TrackOrdering.sorted(library.downloads, by: sort, downloads: true) }
     var body: some View {
         List {
             Section {
@@ -30,16 +33,29 @@ struct DownloadsView: View {
             }
             Section("Available offline") {
                 if library.downloads.isEmpty { Text("No source downloads yet. Imported Files audio is listed under On Device.").foregroundStyle(.secondary) }
-                ForEach(library.downloads) { track in TrackRow(track: track, context: library.downloads) }
+                ForEach(sortedDownloads) { track in TrackRow(track: track, context: library.downloads) }
                     .onDelete { offsets in
-                        let songs = library.downloads
+                        let songs = sortedDownloads
                         for index in offsets where songs.indices.contains(index) {
-                            if playback.current?.id == songs[index].id { playback.stop() }
-                            library.remove(songs[index].id)
+                            pendingRemoval = songs[index]
                         }
                     }
             }
         }.navigationTitle("Downloads")
-            .toolbar { Button("Clear finished") { downloads.clearFinished() }.disabled(downloads.jobs.isEmpty) }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu { TrackSortPicker(selection: $sort) } label: { Image(systemName: "arrow.up.arrow.down") }.accessibilityLabel("Sort downloads")
+                }
+                ToolbarItem(placement: .navigationBarTrailing) { Button("Clear finished") { downloads.clearFinished() }.disabled(downloads.jobs.isEmpty) }
+            }
+            .confirmationDialog("Remove downloaded audio?", isPresented: Binding(get: { pendingRemoval != nil }, set: { if !$0 { pendingRemoval = nil } }), titleVisibility: .visible) {
+                Button("Remove offline copy", role: .destructive) {
+                    if let track = pendingRemoval {
+                        if playback.current?.id == track.id { playback.stop() }
+                        downloads.removeOfflineCopy(track.id)
+                    }
+                    pendingRemoval = nil
+                }
+            } message: { Text("Likes, playlists and history are kept. Playing this song again will need its online source.") }
     }
 }

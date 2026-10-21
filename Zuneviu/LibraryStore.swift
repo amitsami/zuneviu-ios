@@ -72,6 +72,17 @@ import Combine
         committed = true
         var resource = destination; var values = URLResourceValues(); values.isExcludedFromBackup = true; try? resource.setResourceValues(values)
     }
+    // Removing a source download must not erase likes, playlist membership,
+    // history or imported lyrics. Imports use the separate remove-from-app flow.
+    @discardableResult func removeDownload(_ id: UUID) -> Bool {
+        guard storageReady, let index = snapshot.tracks.firstIndex(where: { $0.id == id }),
+              snapshot.tracks[index].downloadedAt != nil, snapshot.tracks[index].hasOnlineSource else { return false }
+        let previous = snapshot, filename = snapshot.tracks[index].audioFile
+        snapshot.tracks[index].audioFile = ""; snapshot.tracks[index].downloadedAt = nil
+        guard save() else { snapshot = previous; return false }
+        if !filename.isEmpty { try? FileManager.default.removeItem(at: file(filename)) }
+        return true
+    }
     func remember(_ track: Track) {
         guard storageReady, !snapshot.tracks.contains(where: { $0.id == track.id }) else { return }
         snapshot.tracks.append(track); save()

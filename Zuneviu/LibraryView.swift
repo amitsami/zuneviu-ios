@@ -7,9 +7,9 @@ struct LibraryView: View {
     @State private var newPlaylist = false
     @State private var playlistName = ""
     @State private var pendingRemoval: Track?
-    @AppStorage("librarySort") private var sort = "added"
+    @AppStorage("librarySort") private var sort = "newest"
     private var sorted: [Track] {
-        sort == "title" ? library.onDevice.sorted { $0.title.localizedCaseInsensitiveCompare($1.title) == .orderedAscending } : Array(library.onDevice.reversed())
+        TrackOrdering.sorted(library.onDevice, by: sort)
     }
     var body: some View {
         List {
@@ -48,11 +48,12 @@ struct LibraryView: View {
                     Text("On Device")
                     Spacer()
                     Menu {
-                        Picker("Sort", selection: $sort) { Text("Recently added").tag("added"); Text("Title").tag("title") }
+                        TrackSortPicker(selection: $sort)
                     } label: { Image(systemName: "arrow.up.arrow.down").frame(width: 44, height: 32) }.accessibilityLabel("Sort library")
                 }
             }
         }.listStyle(.insetGrouped).navigationTitle("Library")
+            .onAppear { if sort == "added" { sort = "newest" } }
             .sheet(isPresented: $newPlaylist) {
                 CompatibleNavigation {
                     Form { TextField("Playlist name", text: $playlistName).accessibilityIdentifier("playlist.name") }

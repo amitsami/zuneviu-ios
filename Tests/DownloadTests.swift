@@ -113,6 +113,39 @@ final class DownloadTests: XCTestCase {
         XCTAssertTrue(library.onDevice.isEmpty); XCTAssertTrue(FileManager.default.fileExists(atPath: source.path))
         XCTAssertFalse(try FileManager.default.contentsOfDirectory(atPath: root.path).contains { $0.hasPrefix("download-") }, "Failed validation must remove staged copies")
     }
+    @MainActor func testRemovingDownloadKeepsFavoritesPlaylistsHistoryAndLyrics() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let library = LibraryStore(root: root), track = song()
+        let source = try XCTUnwrap(Bundle.main.url(forResource: "TestTone", withExtension: "wav"))
+        try await library.installDownload(track, temporaryFile: source)
+        let filename = try XCTUnwrap(library.track(track.id)).audioFile
+        library.toggleFavorite(track.id); library.createPlaylist("Keep me")
+        let playlist = try XCTUnwrap(library.snapshot.playlists.first)
+        library.add(track.id, to: playlist.id); library.recordPlay(track.id)
+        library.setLyrics("[00:01]Preserved", for: track)
+        XCTAssertTrue(library.removeDownload(track.id))
+        let reopened = LibraryStore(root: root), online = try XCTUnwrap(reopened.track(track.id))
+        XCTAssertFalse(online.isLocal); XCTAssertNil(online.downloadedAt); XCTAssertTrue(online.hasOnlineSource)
+        XCTAssertTrue(reopened.snapshot.favorites.contains(track.id))
+        XCTAssertEqual(reopened.snapshot.playlists.first?.trackIDs, [track.id]); XCTAssertEqual(reopened.snapshot.history, [track.id])
+        XCTAssertEqual(reopened.lyricText(track.id), "[00:01]Preserved")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: library.file(filename).path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: source.path))
+    }
+    @MainActor func testQueuedSourceCannotStartAfterOptOut() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let preferences = prefs(), network = NetworkStatus(initial: .cellular, monitor: false)
+        preferences.values.saavnEnabled = true
+        var track = song(); track.videoID = nil; track.saavnID = "aRZbUYD7"
+        let manager = DownloadManager(library: LibraryStore(root: root), preferences: preferences, network: network,
+            resolver: { _, _ in XCTFail("Disabled source must not resolve a queued song"); throw MusicServiceError.noStream })
+        manager.enqueue(track); XCTAssertEqual(manager.jobs.first?.state, .waitingForWifi)
+        preferences.values.saavnEnabled = false; preferences.values.wifiOnlyDownloads = false
+        try await wait(manager, state: .failed)
+        XCTAssertTrue(manager.jobs.first?.message?.contains("disabled") == true)
+    }
     func testTransferRejectsInsecureURL() async {
         do { _ = try await DownloadTransfer(progress: { _, _ in }).fetch(URL(string: "http://example.invalid/audio")!, wifiOnly: true); XCTFail("HTTP must be rejected") } catch { }
     }

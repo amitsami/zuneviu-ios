@@ -144,7 +144,7 @@ struct SettingDetail: View {
                     Link("Original repository", destination: URL(string: "https://github.com/amitsami/zunevio-releases")!)
                 }
                 Section("Source, privacy & notices") {
-                    Text("No analytics or sign-in. Catalog queries, playback requests and artwork requests contact YouTube/Google directly. Optional remote extraction proxies are disabled. Imported music, favorites, playlists and history stay in this app. AirPlay and system sharing act only when selected. Files and iCloud providers may use their own network services.")
+                    Text("No analytics or sign-in. Catalog queries, playback requests and artwork requests contact YouTube/Google directly, or JioSaavn and its CDN when that optional source is enabled. Optional remote extraction proxies are disabled. Imported music, favorites, playlists and history stay in this app. AirPlay and system sharing act only when selected. Files and iCloud providers may use their own network services.")
                     RouteLink("Open-source notices") { ScrollView { Text(legalText).font(.footnote.monospaced()).textSelection(.enabled).padding() }.navigationTitle("Notices") }
                     Text("See LICENSE and UPSTREAM-NOTICE.md in the source archive. Required upstream attribution is retained. No warranty.")
                 }

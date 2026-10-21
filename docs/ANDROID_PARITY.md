@@ -9,7 +9,7 @@ Reference: Android source commit `4ba49d58de1b2699b9c948ec0d0c911e05ea0ab0`, `so
 - YouTube Music: guest catalog/search/browse; native extraction remains blocked in the previous live acceptance test. A server verification requirement is not bypassed.
 - JioSaavn: separately opt-in, source-labelled search/results/streaming/download path. Never silently maps YouTube IDs to covers or alternate recordings. Real acceptance results are recorded separately.
 - No spoofed geographic headers, account-cookie reuse, hosted extraction proxies or private addon execution.
-- Download queue supports complete progressive files, cancel/retry and validation before offline installation. No background-restorable sessions or HLS/DASH offline packaging yet.
+- Download queue supports complete progressive files, cancel/retry and validation before offline installation. Removing a source download keeps its likes, playlists, history and lyrics; this is separate from deleting an imported library entry. No background-restorable sessions or HLS/DASH offline packaging yet.
 - Local recommendations are not Google-account recommendations. JioSaavn artist-search candidates extend, rather than exactly reproduce, the Android YouTube-radio policy.
 - Minimum target iOS 15.0. Actual iOS 15 runtime and physical-device acceptance remain untested.
 
@@ -100,12 +100,12 @@ Reference: Android source commit `4ba49d58de1b2699b9c948ec0d0c911e05ea0ab0`, `so
 | `showCacheFolder` | Not ported. No fake functional switch is supplied. |
 | `replayGenres` | Not ported. No fake functional switch is supplied. |
 | `filterNonMusicAudio` | Not ported. No fake functional switch is supplied. |
-| `localMusicSort` | Partial: title or recently added in On Device. |
-| `downloadedMusicSort` | Partial: downloads appear in sortable On Device; no independent download-list sort. |
+| `localMusicSort` | Wired: On Device title A–Z/Z–A and newest/oldest import-date ordering. Android external file modification time is not retained. |
+| `downloadedMusicSort` | Wired: independent Downloads title A–Z/Z–A and newest/oldest download-date ordering. |
 | `localMusicViewType` | Not ported. No fake functional switch is supplied. |
 | `downloadedMusicViewType` | Not ported. No fake functional switch is supplied. |
 | `homeRecentsViewType` | Not ported. No fake functional switch is supplied. |
-| `librarySort` | Partial: on-device title/recent ordering only. |
+| `librarySort` | Partial: stable on-device title/date ordering; playlist ordering is unchanged. |
 | `detailSongSorts` | Not ported. No fake functional switch is supplied. |
 | `localMusicFolderUri` | Partial: Files document import with app-local copies; no folder watching. |
 | `webdavUrl` | Not ported. No fake functional switch is supplied. |
