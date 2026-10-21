@@ -29,8 +29,8 @@ struct CatalogHomeView: View {
                 }
                 if !explore {
                     if !library.recent.isEmpty { OnlineTrackShelf(title: "Listen again", subtitle: "From your listening", tracks: library.recent) }
-                    if preferences.values.localRecommendations, !discovery.suggestions.isEmpty {
-                        OnlineTrackShelf(title: "Made for you", subtitle: "From qualified listening on this device", tracks: discovery.suggestions)
+                    if preferences.values.localRecommendations, !discovery.visibleSuggestions.isEmpty {
+                        OnlineTrackShelf(title: "Made for you", subtitle: "From qualified listening on this device", tracks: discovery.visibleSuggestions)
                     }
                     if !library.favorites.isEmpty { OnlineTrackShelf(title: "Your favorites", subtitle: "Songs you love", tracks: library.favorites) }
                     if preferences.values.localRecommendations, let failure = discovery.failure { Text(failure).font(.footnote).foregroundStyle(.secondary).padding(.horizontal) }
@@ -46,7 +46,7 @@ struct CatalogHomeView: View {
         .navigationTitle(explore ? "Explore" : "Listen Now")
         .refreshable { await refresh() }
         .task { if shelves.isEmpty { await refresh() } }
-        .task(id: discovery.cacheKey + String(preferences.values.localRecommendations) + String(preferences.values.dontRepeatSuggestions)) {
+        .task(id: discovery.cacheKey + String(preferences.values.localRecommendations) + String(preferences.values.dontRepeatSuggestions) + String(preferences.values.saavnEnabled)) {
             if !explore { await discovery.refresh(excluding: preferences.values.dontRepeatSuggestions ? Set(library.snapshot.history) : []) }
         }
     }
@@ -160,6 +160,8 @@ struct CatalogBrowseView: View {
 }
 struct SearchView: View {
     var initialSource = "youtube"
+    @State private var initializedSource = false
+    @State private var searchRequestID = UUID()
     @EnvironmentObject var preferences: PreferenceStore
     @State private var source = "youtube"
     @EnvironmentObject var library: LibraryStore
@@ -196,7 +198,7 @@ struct SearchView: View {
             }
         }.listStyle(.plain).navigationTitle("Search")
             .searchable(text: $query, prompt: "Songs, artists, albums")
-            .onAppear { source = initialSource }
+            .onAppear { if !initializedSource { source = initialSource; initializedSource = true } }
             .onChange(of: preferences.values.saavnEnabled) { enabled in if !enabled { source = "youtube" } }
             .task(id: query + String(online) + source) {
                 guard online else { return }
@@ -209,8 +211,9 @@ struct SearchView: View {
         let term = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !term.isEmpty else { return }
         let selectedSource = source
+        searchRequestID = UUID(); let token = searchRequestID
         loading = true; failure = nil
-        defer { if source == selectedSource { loading = false } }
+        defer { if searchRequestID == token { loading = false } }
         do {
             let page: CatalogPage
             if selectedSource == "saavn" {
@@ -219,10 +222,10 @@ struct SearchView: View {
                 page = CatalogPage(items: tracks.map { CatalogItem(id: $0.id.uuidString, title: $0.title, subtitle: $0.artist, artwork: $0.artworkURL, track: $0) }, continuation: nil)
             } else { page = try await MusicCatalog.shared.search(term, continuation: more ? continuation : nil) }
             try Task.checkCancellation()
-            guard source == selectedSource, query.trimmingCharacters(in: .whitespacesAndNewlines) == term, online else { return }
+            guard searchRequestID == token, source == selectedSource, query.trimmingCharacters(in: .whitespacesAndNewlines) == term, online else { return }
             if more { let seen = Set(items.map(\.id)); items += page.items.filter { !seen.contains($0.id) } } else { items = page.items }
             continuation = page.continuation
-        } catch { if !Task.isCancelled && source == selectedSource && term == query.trimmingCharacters(in: .whitespacesAndNewlines) { failure = error.localizedDescription } }
+        } catch { if !Task.isCancelled && searchRequestID == token && source == selectedSource && term == query.trimmingCharacters(in: .whitespacesAndNewlines) { failure = error.localizedDescription } }
     }
 }
 

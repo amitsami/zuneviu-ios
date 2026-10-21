@@ -3,9 +3,14 @@ import Combine
 
 // Port of Android LocalDiscoveryPolicy: 20 seconds qualified listening, eight
 // device-local seeds, round-robin distinct results, never recommend the seeds.
+// Extended explicitly for opt-in JioSaavn artist-search suggestions on iOS.
 enum LocalDiscoveryPolicy {
     static let qualifyingSeconds: Double = 20
     static let maximumSeeds = 8
+    static func eligible(_ track: Track) -> Bool {
+        if let id = track.videoID, id.range(of: #"^[A-Za-z0-9_-]{11}$"#, options: .regularExpression) != nil { return true }
+        return track.saavnID?.range(of: #"^[A-Za-z0-9_-]{1,32}$"#, options: .regularExpression) != nil
+    }
     static func candidates(seeds: [Track], queues: [[Track]], excluded: Set<UUID> = []) -> [Track] {
         let heard = Set(seeds.map(\.id)).union(excluded)
         var seen = Set<UUID>(), result: [Track] = []
@@ -13,8 +18,7 @@ enum LocalDiscoveryPolicy {
             for queue in queues where index < queue.count {
                 let track = queue[index]
                 guard !heard.contains(track.id), !track.title.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-                      let id = track.videoID, id.range(of: #"^[A-Za-z0-9_-]{11}$"#, options: .regularExpression) != nil,
-                      seen.insert(track.id).inserted else { continue }
+                      eligible(track), seen.insert(track.id).inserted else { continue }
                 result.append(track)
                 if result.count == 20 { return result }
             }
@@ -40,8 +44,8 @@ enum LocalDiscoveryPolicy {
     var cacheKey: String { seeds.map { $0.id.uuidString }.joined(separator: ",") }
     func record(_ track: Track, seconds: Double) {
         guard preferences.values.localRecommendations, preferences.values.recordListeningHistory,
-              seconds.isFinite, seconds > 0, let videoID = track.videoID,
-              videoID.range(of: #"^[A-Za-z0-9_-]{11}$"#, options: .regularExpression) != nil else { return }
+              seconds.isFinite, seconds > 0, LocalDiscoveryPolicy.eligible(track),
+              track.saavnID == nil || preferences.values.saavnEnabled else { return }
         let before = listened[track.id] ?? 0
         guard before < LocalDiscoveryPolicy.qualifyingSeconds else { return }
         let total = min(20, before + min(5, seconds))
@@ -57,16 +61,18 @@ enum LocalDiscoveryPolicy {
         generation = UUID(); listened = [:]; listeningOrder = []; seeds = []; suggestions = []; failure = nil; loading = false
         for name in ["discovery-seeds.json", "discovery-cache.json"] { try? FileManager.default.removeItem(at: root.appendingPathComponent(name)) }
     }
-    func refresh(excluding: Set<UUID> = [], loader: @escaping @Sendable (String) async throws -> [Track] = { try await MusicCatalog.shared.radio($0) }) async {
+    var visibleSuggestions: [Track] { suggestions.filter { $0.saavnID == nil || preferences.values.saavnEnabled } }
+    func refresh(excluding: Set<UUID> = [], loader: @escaping @Sendable (Track) async throws -> [Track] = { track in
+        return try await SourceRecommendations.related(track)
+    }) async {
         guard preferences.values.localRecommendations, !seeds.isEmpty else { return }
-        generation = UUID(); let token = generation; let snapshot = seeds
+        generation = UUID(); let token = generation; let snapshot = seeds.filter { $0.saavnID == nil || preferences.values.saavnEnabled }
         loading = true; failure = nil
         defer { if generation == token { loading = false } }
         var queues = Array(repeating: [Track](), count: snapshot.count)
         await withTaskGroup(of: (Int, [Track]).self) { group in
             for (index, track) in snapshot.enumerated() {
-                guard let id = track.videoID else { continue }
-                group.addTask { (index, (try? await loader(id)) ?? []) }
+                group.addTask { (index, (try? await loader(track)) ?? []) }
             }
             for await (index, tracks) in group { queues[index] = tracks }
         }

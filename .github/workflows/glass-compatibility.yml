@@ -69,6 +69,10 @@ jobs:
             -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath DeviceDerivedData \
             CODE_SIGNING_ALLOWED=NO | tee TestResults/device-build.log
           /usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' DeviceDerivedData/Build/Products/Release-iphoneos/Zuneviu.app/Info.plist | tee TestResults/minimum-os.txt
+          mkdir -p DevicePackage/Payload
+          ditto DeviceDerivedData/Build/Products/Release-iphoneos/Zuneviu.app DevicePackage/Payload/Zuneviu.app
+          (cd DevicePackage && zip -qry ../TestResults/Zuneviu-unsigned.ipa Payload)
+          shasum -a 256 TestResults/Zuneviu-unsigned.ipa > TestResults/Zuneviu-unsigned.ipa.sha256
       - name: Export UI attachments
         if: always()
         run: |

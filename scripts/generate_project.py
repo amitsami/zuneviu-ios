@@ -43,7 +43,7 @@ for key,name,files,kind in [('app','Zuneviu',appFiles,'application'),('unit','Zu
     frameworkPhase=add(key+'-frameworks','PBXFrameworksBuildPhase',buildActionMask='2147483647',files=[add('youtubekit-framework','PBXBuildFile',productRef=packageProduct)] if key=='app' else [],runOnlyForDeploymentPostprocessing='0')
     resourceBuilds=[add(key+'-res-'+file,'PBXBuildFile',fileRef=file) for file in resources] if key=='app' else []
     resourcePhase=add(key+'-resources','PBXResourcesBuildPhase',buildActionMask='2147483647',files=resourceBuilds,runOnlyForDeploymentPostprocessing='0')
-    settings={'PRODUCT_BUNDLE_IDENTIFIER':'com.zuneviu.ios'+('' if key=='app' else '.'+key+'tests'),'PRODUCT_NAME':'$(TARGET_NAME)','TARGETED_DEVICE_FAMILY':'1','CODE_SIGN_STYLE':'Automatic','CURRENT_PROJECT_VERSION':'1','MARKETING_VERSION':'0.3.0','SUPPORTED_PLATFORMS':'iphoneos iphonesimulator','SUPPORTS_MACCATALYST':'NO','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks @loader_path/Frameworks'}
+    settings={'PRODUCT_BUNDLE_IDENTIFIER':'com.zuneviu.ios'+('' if key=='app' else '.'+key+'tests'),'PRODUCT_NAME':'$(TARGET_NAME)','TARGETED_DEVICE_FAMILY':'1','CODE_SIGN_STYLE':'Automatic','CURRENT_PROJECT_VERSION':'1','MARKETING_VERSION':'0.4.0','SUPPORTED_PLATFORMS':'iphoneos iphonesimulator','SUPPORTS_MACCATALYST':'NO','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks @loader_path/Frameworks'}
     dependencies=[]
     if key=='app': settings.update({'INFOPLIST_FILE':'Zuneviu/Info.plist','ASSETCATALOG_COMPILER_APPICON_NAME':'AppIcon','ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME':'AccentColor'})
     else:

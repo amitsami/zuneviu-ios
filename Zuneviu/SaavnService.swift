@@ -90,3 +90,13 @@ enum AudioSourceResolver {
         throw MusicServiceError.noStream
     }
 }
+
+// Source-specific suggestions retain track identity and are never played as an
+// implicit replacement for a selected recording from another provider.
+enum SourceRecommendations {
+    static func related(_ track: Track) async throws -> [Track] {
+        if let id = track.videoID { return try await MusicCatalog.shared.radio(id) }
+        if track.saavnID != nil, !track.artist.isEmpty { return try await SaavnService.shared.search(track.artist) }
+        return []
+    }
+}

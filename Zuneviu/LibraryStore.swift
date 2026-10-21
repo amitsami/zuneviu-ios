@@ -55,10 +55,10 @@ import Combine
         let prefix = try handle.read(upToCount: 16) ?? Data(); try handle.close()
         let magic = String(decoding: prefix, as: UTF8.self)
         let ext = magic.hasPrefix("RIFF") ? "wav" : magic.hasPrefix("fLaC") ? "flac" : magic.hasPrefix("ID3") ? "mp3" : "m4a"
-        let filename = "download-" + track.id.uuidString + "." + ext
+        let filename = "download-" + track.id.uuidString + "-" + UUID().uuidString + "." + ext
         let destination = file(filename)
         try FileManager.default.copyItem(at: temporaryFile, to: destination)
-        var downloaded = track; downloaded.audioFile = filename; downloaded.downloadedAt = Date(); downloaded.duration = seconds
+        var downloaded = self.track(track.id) ?? track; downloaded.audioFile = filename; downloaded.downloadedAt = Date(); downloaded.duration = seconds
         if let index = snapshot.tracks.firstIndex(where: { $0.id == track.id }) { snapshot.tracks[index] = downloaded }
         else { snapshot.tracks.append(downloaded) }
         guard save() else { snapshot = previous; try? FileManager.default.removeItem(at: destination); throw MusicServiceError.unavailable("Could not save this download. The original library was kept.") }

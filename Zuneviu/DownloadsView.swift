@@ -3,6 +3,7 @@ import SwiftUI
 struct DownloadsView: View {
     @EnvironmentObject private var downloads: DownloadManager
     @EnvironmentObject private var library: LibraryStore
+    @EnvironmentObject private var playback: PlaybackStore
     var body: some View {
         List {
             Section {
@@ -30,6 +31,13 @@ struct DownloadsView: View {
             Section("Available offline") {
                 if library.downloads.isEmpty { Text("No source downloads yet. Imported Files audio is listed under On Device.").foregroundStyle(.secondary) }
                 ForEach(library.downloads) { track in TrackRow(track: track, context: library.downloads) }
+                    .onDelete { offsets in
+                        let songs = library.downloads
+                        for index in offsets where songs.indices.contains(index) {
+                            if playback.current?.id == songs[index].id { playback.stop() }
+                            library.remove(songs[index].id)
+                        }
+                    }
             }
         }.navigationTitle("Downloads")
             .toolbar { Button("Clear finished") { downloads.clearFinished() }.disabled(downloads.jobs.isEmpty) }

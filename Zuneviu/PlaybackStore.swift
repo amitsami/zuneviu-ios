@@ -126,7 +126,8 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
     func retry() {
         guard let current else { return }
         if let id = current.videoID {
-            Task { await StreamResolver.shared.invalidate(id); load(current) }
+            let token = requestID
+            Task { await StreamResolver.shared.invalidate(id); guard requestID == token else { return }; load(current) }
         } else { load(current) }
     }
     private func start(_ track: Track, url: URL) {
@@ -201,11 +202,11 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
         if shuffle, queue.count > 1, let track = queue.filter({ $0.id != current.id }).randomElement() { load(track); return }
         if index + 1 < queue.count { load(queue[index + 1]) }
         else if repeatMode == .all { load(queue[0]) }
-        else if automatic && preferences.values.autoplay, let id = current.videoID {
+        else if automatic && preferences.values.autoplay, current.hasOnlineSource {
             autoplayTask?.cancel(); autoplayID = UUID(); let token = autoplayID
             autoplayTask = Task {
                 do {
-                    let candidates = try await MusicCatalog.shared.radio(id).filter { candidate in !queue.contains(where: { $0.id == candidate.id }) }
+                    let candidates = try await SourceRecommendations.related(current).filter { candidate in !queue.contains(where: { $0.id == candidate.id }) }
                     guard !Task.isCancelled, self.autoplayID == token, self.current?.id == current.id, preferences.values.autoplay else { return }
                     if let next = candidates.first { play(next, in: candidates) } else { pause(); seek(0) }
                 } catch { guard !Task.isCancelled, autoplayID == token else { return }; pause(); self.error = "Autoplay could not load more songs." }

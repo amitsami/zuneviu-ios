@@ -116,7 +116,7 @@ struct SettingDetail: View {
                     Toggle("Record listening history", isOn: $preferences.values.recordListeningHistory)
                     HStack { Text("Qualified discovery seeds"); Spacer(); Text("\(discovery.seeds.count) / 8") }
                 }
-                Section { Text("Like the Android local discovery policy, a song qualifies after 20 seconds of actual listening. Up to eight device-local seeds request related songs, interleaved and deduplicated. This is not Google-account personalization. A working online source is required for fresh suggestions.").font(.footnote) }
+                Section { Text("Like the Android local discovery policy, a song qualifies after 20 seconds of actual listening. Up to eight device-local seeds request related songs, interleaved and deduplicated. For JioSaavn seeds, related candidates come from artist search; this is an iOS extension of the local policy, not Android’s YouTube radio. This is not Google-account personalization. A working online source is required for fresh suggestions.").font(.footnote) }
                 Section {
                     Button("Reset local discovery & history", role: .destructive) { confirmReset = true }
                     Text("Favorites, playlists, imports and downloads are kept.").font(.footnote)

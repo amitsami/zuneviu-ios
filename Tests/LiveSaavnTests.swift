@@ -13,7 +13,9 @@ final class LiveSaavnTests: XCTestCase {
         defer { try? FileManager.default.removeItem(at: root) }
         let prefs = PreferenceStore(defaults: UserDefaults(suiteName: UUID().uuidString)!)
         prefs.values.saavnEnabled = true; prefs.values.wifiOnlyDownloads = false
-        let library = LibraryStore(root: root), engine = PlaybackStore(library: library, preferences: prefs)
+        let library = LibraryStore(root: root)
+        let discovery = DiscoveryStore(root: root, preferences: prefs)
+        let engine = PlaybackStore(library: library, preferences: prefs, discovery: discovery)
         defer { engine.stop() }
         engine.play(track, in: [track])
         for _ in 0..<160 { if engine.error != nil || engine.position > 1 { break }; try await Task.sleep(nanoseconds: 500_000_000) }
@@ -25,7 +27,13 @@ final class LiveSaavnTests: XCTestCase {
         engine.seek(15); try await Task.sleep(nanoseconds: 1_000_000_000)
         XCTAssertEqual(engine.position, 15, accuracy: 1)
         engine.resume(); try await Task.sleep(nanoseconds: 2_000_000_000)
-        XCTAssertGreaterThan(engine.position, 15.5); engine.stop()
+        XCTAssertGreaterThan(engine.position, 15.5)
+        for _ in 0..<100 { if !discovery.seeds.isEmpty { break }; try await Task.sleep(nanoseconds: 250_000_000) }
+        XCTAssertEqual(discovery.seeds.first?.id, track.id, "Only real listening, not seeking, should qualify discovery")
+        engine.stop()
+        await discovery.refresh()
+        XCTAssertFalse(discovery.suggestions.isEmpty, "Real qualified source should return local-taste suggestions")
+        XCTAssertFalse(discovery.suggestions.contains { $0.id == track.id })
         let manager = DownloadManager(library: library, preferences: prefs, network: NetworkStatus.shared)
         manager.enqueue(track)
         for _ in 0..<240 {
