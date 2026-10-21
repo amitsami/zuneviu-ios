@@ -29,7 +29,9 @@ final class LiveCatalogUITests: XCTestCase {
         }
         let enabled = XCTNSPredicateExpectation(predicate: NSPredicate(format: "value == %@", "1"), object: source)
         XCTAssertEqual(XCTWaiter.wait(for: [enabled], timeout: 5), .completed)
-        dismissSheet(app, title: "Sources")
+        app.navigationBars["Sources"].buttons.element(boundBy: 0).tap()
+        let closeSettings = app.buttons["Close settings"]
+        XCTAssertTrue(closeSettings.waitForExistence(timeout: 8)); closeSettings.tap()
         let searchMusic = app.buttons["Search music"]
         let visible = XCTNSPredicateExpectation(predicate: NSPredicate(format: "isHittable == true"), object: searchMusic)
         XCTAssertEqual(XCTWaiter.wait(for: [visible], timeout: 8), .completed); searchMusic.tap()

@@ -16,22 +16,26 @@ struct RootView: View {
                 ForEach(0..<3, id: \.self) { index in
                     if visitedTabs.contains(index) {
                         page(index)
-                            .opacity(tab == index ? 1 : 0)
-                            .allowsHitTesting(tab == index)
-                            .accessibilityHidden(tab != index)
+                            .opacity(tab == index && !showingSettings ? 1 : 0)
+                            .allowsHitTesting(tab == index && !showingSettings)
+                            .accessibilityHidden(tab != index || showingSettings)
                             .zIndex(tab == index ? 1 : 0)
                     }
                 }
+                if showingSettings {
+                    CompatibleNavigation { SettingsView(closeAction: { showingSettings = false }) }.zIndex(2)
+                }
             }
+            .environment(\.androidPageWidth, geometry.size.width)
+            .background(Color(uiColor: .systemBackground))
             .safeAreaInset(edge: .bottom, spacing: 0) {
                 GlassFooter(selection: $tab, select: { value in
-                    visitedTabs.insert(value); tab = value
+                    visitedTabs.insert(value); tab = value; showingSettings = false
                 }, openSearch: { showingSearch = true }, openPlayer: { showingPlayer = true })
                     .padding(.bottom, geometry.safeAreaInsets.bottom == 0 ? 6 : -DockLayout.bottomLift(safeArea: geometry.safeAreaInsets.bottom))
             }
         }
-        .sheet(isPresented: $showingPlayer) { NowPlayingView() }
-        .sheet(isPresented: $showingSettings) { CompatibleNavigation { SettingsView() } }
+        .fullScreenCover(isPresented: $showingPlayer) { NowPlayingView() }
         .sheet(isPresented: $showingSearch) { CompatibleNavigation { SearchView() } }
         .sheet(isPresented: $showWelcome) {
             VStack(alignment: .leading, spacing: 20) {
@@ -63,26 +67,8 @@ struct RootView: View {
             }
         }
     }
-    // Keep availability branching in ViewBuilder: ToolbarContentBuilder's
-    // conditional buildEither is itself iOS 16+, unlike ViewBuilder's.
-    @ViewBuilder private var homePage: some View {
-        #if compiler(>=6.2)
-        if #available(iOS 26.0, *) {
-            HomeView(importAction: { importing = true }).toolbar {
-                ToolbarItem(placement: .navigationBarLeading) { Brand() }
-                    .sharedBackgroundVisibility(.hidden)
-                settingsButton
-            }
-        } else { legacyHomePage }
-        #else
-        legacyHomePage
-        #endif
-    }
-    private var legacyHomePage: some View {
-        HomeView(importAction: { importing = true }).toolbar {
-            ToolbarItem(placement: .navigationBarLeading) { Brand() }
-            settingsButton
-        }
+    private var homePage: some View {
+        HomeView(importAction: { importing = true }).toolbar { settingsButton }
     }
     @ToolbarContentBuilder private var settingsButton: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
@@ -97,7 +83,8 @@ struct LocalHomeView: View {
     let importAction: () -> Void
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 28) {
+            VStack(alignment: .leading, spacing: 26) {
+                AndroidPageHeading(title: "Listen Now", branded: true)
                 if library.tracks.isEmpty { EmptyLibrary(importAction: importAction) }
                 else {
                     shelf("Made for you", subtitle: "From your on-device listening", tracks: library.recent.isEmpty ? Array(library.tracks.prefix(12)) : library.recent)
@@ -106,25 +93,9 @@ struct LocalHomeView: View {
                     IconButton("Import more music", systemImage: "plus") { importAction() }.buttonStyle(.bordered).padding(.horizontal)
                 }
             }.padding(.vertical, 18)
-        }.navigationTitle("Listen Now")
+        }.navigationTitle("").navigationBarTitleDisplayMode(.inline).background(Color(uiColor: .systemBackground))
     }
     private func shelf(_ title: String, subtitle: String, tracks: [Track]) -> some View {
-        VStack(alignment: .leading, spacing: 12) {
-            VStack(alignment: .leading, spacing: 3) { Text(title).font(.title2.bold()); Text(subtitle).font(.subheadline).foregroundStyle(.secondary) }.padding(.horizontal)
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(alignment: .top, spacing: 14) {
-                    ForEach(tracks) { track in
-                        Button { playback.play(track, in: tracks) } label: {
-                            VStack(alignment: .leading, spacing: 7) {
-                                Artwork(track: track).frame(width: title == "Made for you" ? 245 : 155, height: title == "Made for you" ? 285 : 155)
-                                Text(track.title).font(.headline).lineLimit(1)
-                                Text(track.artist).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
-                            }.frame(width: title == "Made for you" ? 245 : 155, alignment: .leading)
-                        }.buttonStyle(.plain)
-                    }
-                }.padding(.horizontal)
-            }
-        }
+        OnlineTrackShelf(title: title, subtitle: subtitle, tracks: tracks, hero: title == "Made for you")
     }
 }
-

@@ -3,7 +3,7 @@ import UIKit
 
 struct Brand: View {
     var body: some View {
-        (Text("Z").foregroundColor(.pink) + Text("unéviu").foregroundColor(.primary))
+        (Text("Z").foregroundColor(AndroidDesign.accent) + Text("unéviu").foregroundColor(.primary))
             .font(.system(size: 21, weight: .semibold))
             .fixedSize(horizontal: true, vertical: false)
             .accessibilityLabel("Zunéviu").accessibilityIdentifier("brand.name")
@@ -98,5 +98,83 @@ struct TrackSortPicker: View {
             Text("Title A–Z").tag("title")
             Text("Title Z–A").tag("titleDescending")
         }
+    }
+}
+
+// Direct visual tokens from Android sharedUi Common.kt and ui/theme/Theme.kt.
+private struct AndroidPageWidthKey: EnvironmentKey { static let defaultValue: CGFloat = 390 }
+extension EnvironmentValues {
+    var androidPageWidth: CGFloat {
+        get { self[AndroidPageWidthKey.self] }
+        set { self[AndroidPageWidthKey.self] = newValue }
+    }
+}
+enum AndroidDesign {
+    static let gutter: CGFloat = 16
+    static let cardWidth: CGFloat = 150
+    static let accent = Color(red: 250 / 255, green: 45 / 255, blue: 72 / 255)
+    static func heroWidth(_ width: CGFloat) -> CGFloat { min(width * 0.70, 320) }
+}
+struct AndroidPageHeading: View {
+    let title: String
+    var branded = false
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            if branded { Brand() }
+            Text(title).font(.system(size: 34, weight: .heavy)).tracking(-0.8)
+                .accessibilityAddTraits(.isHeader)
+        }.frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 16).padding(.vertical, 8)
+    }
+}
+struct AndroidSectionHeading: View {
+    let title: String
+    var subtitle: String? = nil
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title).font(.system(size: 22, weight: .bold)).tracking(-0.4)
+                .accessibilityAddTraits(.isHeader)
+            if let subtitle, !subtitle.isEmpty { Text(subtitle).font(.system(size: 14)).foregroundStyle(.secondary) }
+        }.frame(maxWidth: .infinity, alignment: .leading).padding(.horizontal, 16)
+    }
+}
+struct AndroidSettingsSurface: ViewModifier {
+    @Environment(\.colorScheme) private var scheme
+    func body(content: Content) -> some View {
+        content.background(
+            LinearGradient(colors: scheme == .dark ? [Color(white: 0.13), Color(white: 0.065)] : [Color(white: 0.98), Color(white: 0.94)], startPoint: .topLeading, endPoint: .bottomTrailing),
+            in: RoundedRectangle(cornerRadius: 28)
+        ).overlay(RoundedRectangle(cornerRadius: 28).strokeBorder(.primary.opacity(0.20), lineWidth: 0.65))
+    }
+}
+struct AndroidCanvas: ViewModifier {
+    @ViewBuilder func body(content: Content) -> some View {
+        if #available(iOS 16, *) { content.scrollContentBackground(.hidden).background(Color(uiColor: .systemBackground)) }
+        else { content.background(Color(uiColor: .systemBackground)) }
+    }
+}
+// Native UISearchTextField retains accessible search semantics;
+// its position is controlled by the Android page, not a large iOS navigation bar.
+struct AndroidSettingsSearch: UIViewRepresentable {
+    @Binding var text: String
+    func makeCoordinator() -> Coordinator { Coordinator(text: $text) }
+    func makeUIView(context: Context) -> UISearchTextField {
+        let field = UISearchTextField(frame: .zero)
+        field.placeholder = "Search settings"; field.accessibilityLabel = "Search settings"
+        field.font = .systemFont(ofSize: 16); field.returnKeyType = .search
+        field.autocorrectionType = .no; field.delegate = context.coordinator
+        field.addTarget(context.coordinator, action: #selector(Coordinator.changed(_:)), for: .editingChanged)
+        field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        return field
+    }
+    func updateUIView(_ field: UISearchTextField, context: Context) {
+        context.coordinator.text = $text
+        if field.text != text { field.text = text }
+    }
+    final class Coordinator: NSObject, UITextFieldDelegate {
+        var text: Binding<String>
+        init(text: Binding<String>) { self.text = text }
+        @objc func changed(_ field: UITextField) { text.wrappedValue = field.text ?? "" }
+        func textFieldShouldReturn(_ textField: UITextField) -> Bool { textField.resignFirstResponder(); return true }
     }
 }

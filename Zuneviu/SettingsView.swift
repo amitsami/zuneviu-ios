@@ -1,20 +1,54 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @EnvironmentObject var library: LibraryStore
+    var closeAction: (() -> Void)? = nil
+    @Environment(\.dismiss) private var dismiss
     @State private var search = ""
-    private let items: [(String, String)] = [
-        ("Account & integrations", "person.fill"), ("Sources", "antenna.radiowaves.left.and.right"), ("Audio quality", "headphones"), ("Video quality", "video.fill"),
-        ("Playback", "play.fill"), ("Appearance", "circle.lefthalf.filled"), ("Downloads", "arrow.down"),
-        ("Personalized discovery", "sparkles"), ("Performance", "bolt.fill"), ("Lyrics", "text.bubble"), ("About & licenses", "info.circle")]
+    private let groups: [[(String, String)]] = [
+        [("Account & integrations", "person.fill")],
+        [("Audio quality", "headphones"), ("Video quality", "video.fill"), ("Playback", "play.fill"), ("Appearance", "circle.lefthalf.filled")],
+        [("Downloads", "arrow.down"), ("Personalized discovery", "sparkles"), ("Performance", "bolt.fill"), ("Lyrics", "text.bubble")],
+        [("Sources", "antenna.radiowaves.left.and.right"), ("About & licenses", "info.circle")]
+    ]
     var body: some View {
-        List {
-            Section { Brand() }
-            ForEach(items.filter { search.isEmpty || $0.0.localizedCaseInsensitiveContains(search) }, id: \.0) { item in
-                RouteLink { SettingDetail(title: item.0) } label: { Label(item.0, systemImage: item.1).padding(.vertical, 9) }
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 20) {
+                AndroidPageHeading(title: "Settings", branded: true)
+                AndroidSettingsSearch(text: $search).frame(height: 50).padding(.horizontal, 16)
+                ForEach(groups.indices, id: \.self) { index in
+                    let filtered = groups[index].filter { search.isEmpty || $0.0.localizedCaseInsensitiveContains(search) }
+                    if !filtered.isEmpty {
+                        VStack(spacing: 0) {
+                            ForEach(filtered.indices, id: \.self) { row in
+                                let item = filtered[row]
+                                RouteLink { SettingDetail(title: item.0) } label: {
+                                    HStack(spacing: 18) {
+                                        Image(systemName: item.1).font(.system(size: 20, weight: .semibold)).frame(width: 26)
+                                        VStack(alignment: .leading, spacing: 3) {
+                                            if item.0 == "Account & integrations" { Brand() }
+                                            Text(item.0).font(.system(size: 16))
+                                            if item.0 == "Account & integrations" { Text("Not signed in").font(.system(size: 14)).foregroundStyle(.secondary) }
+                                        }
+                                        Spacer(minLength: 6)
+                                        Image(systemName: "chevron.right").font(.system(size: 12, weight: .semibold)).foregroundStyle(.secondary)
+                                    }.foregroundStyle(.primary).padding(.horizontal, 20).padding(.vertical, 20)
+                                        .frame(maxWidth: .infinity, minHeight: 64, alignment: .leading).contentShape(Rectangle())
+                                }.buttonStyle(.plain).accessibilityLabel(item.0)
+                                if row < filtered.count - 1 { Divider().padding(.leading, 64).opacity(0.35) }
+                            }
+                        }.modifier(AndroidSettingsSurface()).padding(.horizontal, 16)
+                    }
+                }
+                Text("Native iOS development port · Not full Android parity").font(.footnote).foregroundStyle(.secondary).padding(.horizontal, 20)
+            }.padding(.bottom, 24)
+        }.background(Color(uiColor: .systemBackground)).navigationTitle("").navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button { if let closeAction { closeAction() } else { dismiss() } } label: {
+                        Image(systemName: "arrow.left").frame(width: 44, height: 44)
+                    }.accessibilityLabel("Close settings").tint(.primary)
+                }
             }
-            Section { Text("Native iOS development port · Not full Android parity").font(.footnote).foregroundStyle(.secondary) }
-        }.navigationTitle("Settings").searchable(text: $search, prompt: "Search settings")
     }
 }
 struct SettingDetail: View {
@@ -149,7 +183,7 @@ struct SettingDetail: View {
                     Text("See LICENSE and UPSTREAM-NOTICE.md in the source archive. Required upstream attribution is retained. No warranty.")
                 }
             }
-        }.navigationTitle(title).navigationBarTitleDisplayMode(.inline)
+        }.modifier(AndroidCanvas()).tint(.primary).navigationTitle(title).navigationBarTitleDisplayMode(.inline)
         .confirmationDialog("Reset local discovery and history?", isPresented: $confirmReset, titleVisibility: .visible) {
             Button("Reset", role: .destructive) { discovery.clear(); library.clearHistory() }
         } message: { Text("This cannot be undone. Your audio, favorites and playlists will not be removed.") }

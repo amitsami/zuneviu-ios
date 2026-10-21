@@ -1,6 +1,6 @@
 {
   "sourceCommit": "5da51a8a6e575db9658e30b39fe46a9892ec8c94",
-  "status": "compact_player_final_retest_pending",
+  "status": "pre_restyle_baseline_passed",
   "notAndroidParity": true,
   "deploymentTarget": "15.0",
   "ios15RuntimeTested": false,
@@ -38,12 +38,12 @@
     "finalCompatibility": {
       "run": 39599408895,
       "source": "5da51a8a",
-      "result": "pending"
+      "result": "success"
     },
     "finalRealSourceUI": {
       "run": 39599406029,
       "source": "5da51a8a",
-      "result": "pending"
+      "result": "success"
     }
   },
   "remaining": [
@@ -53,5 +53,6 @@
     "Advanced integrations/private modules, migration and full Settings parity",
     "Background-restorable downloads and HLS/DASH packaging",
     "Physical iPhone and actual iOS 15 runtime acceptance"
-  ]
+  ],
+  "scope": "Results certify 5da51a8a only, not subsequent Android-reference restyle"
 }

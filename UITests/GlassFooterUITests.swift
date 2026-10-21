@@ -41,6 +41,11 @@ final class GlassFooterUITests: XCTestCase {
         capture(app, "Glass-03-Library-local-fixture")
         app.buttons["dock.tab.home"].tap()
         XCTAssertTrue(app.buttons["dock.tab.home"].isSelected)
+        app.buttons["Settings"].tap()
+        XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 5))
+        verifyLayout(app)
+        capture(app, "Android-style-Settings-root-with-persistent-dock")
+        app.buttons["Close settings"].tap()
         app.buttons["dock.search"].tap()
         XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 5))
     }
@@ -78,7 +83,9 @@ final class GlassFooterUITests: XCTestCase {
         let app = launch()
         app.buttons["dock.tab.library"].tap()
         let create = app.buttons["New playlist"]
-        XCTAssertTrue(create.waitForExistence(timeout: 5)); create.tap()
+        XCTAssertTrue(create.waitForExistence(timeout: 5))
+        for _ in 0..<3 { if create.isHittable { break }; app.swipeUp() }
+        XCTAssertTrue(create.isHittable); create.tap()
         let field = app.textFields["playlist.name"]
         XCTAssertTrue(field.waitForExistence(timeout: 5))
         field.tap(); field.typeText("Compatibility playlist")

@@ -25,54 +25,48 @@ struct NowPlayingView: View {
     var body: some View {
         GeometryReader { geometry in
             let compact = geometry.size.height < 700
-            let artworkSide = min(geometry.size.width - 48,
-                                  compact ? max(120, geometry.size.height - 450) : 380)
-            ZStack {
+            let artworkSide = min(geometry.size.width - 60,
+                                  compact ? max(100, geometry.size.height - 450) : 300)
+            let hasArtwork = playback.current?.artworkFile != nil || playback.current?.artworkURL != nil
+            let hero = preferences.values.fullBleedArtwork && hasArtwork
+            let heroHeight = min(geometry.size.height * (compact ? 0.45 : 0.55), 540)
+            ZStack(alignment: .top) {
                 if preferences.values.fullBleedArtwork && !preferences.values.reduceDynamicBlur {
                     Artwork(track: playback.current, radius: 0)
                         .frame(width: geometry.size.width, height: geometry.size.height)
                         .clipped().blur(radius: 65).overlay(Color.black.opacity(0.6)).ignoresSafeArea()
                 } else { Color.black.ignoresSafeArea() }
+                if hero {
+                    Artwork(track: playback.current, radius: 0)
+                        .frame(width: geometry.size.width, height: heroHeight)
+                        .clipped()
+                        .mask(LinearGradient(stops: [.init(color: .white, location: 0), .init(color: .white, location: 0.58), .init(color: .clear, location: 1)], startPoint: .top, endPoint: .bottom))
+                        .allowsHitTesting(false).accessibilityHidden(true)
+                }
                 ScrollView {
-                    VStack(spacing: compact ? 16 : 24) {
+                    VStack(spacing: compact ? 12 : 20) {
                         HStack {
                             Button { dismiss() } label: { Image(systemName: "chevron.down").frame(width: 44, height: 44) }.accessibilityLabel("Close player")
                             Spacer(); if !preferences.values.hideSongStatus { Text(playback.current?.isLocal == false ? "Playing from " + (playback.current?.sourceName ?? "online source") : "Playing from your library").font(.caption.weight(.semibold)) }; Spacer()
-                            Menu {
-                                if let track = playback.current {
-                                    IconButton("Import lyrics (.lrc / .txt)", systemImage: "text.bubble") { importingLyrics = true }
-                                    Menu("Add to playlist") {
-                                        ForEach(library.snapshot.playlists) { list in Button(list.name) { library.add(track.id, to: list.id) } }
-                                    }
-                                    if track.isLocal {
-                                        IconButton("Share audio file", systemImage: "square.and.arrow.up") { shareURL = library.file(track.audioFile) }
-                                    } else if track.hasOnlineSource {
-                                        IconButton("Download", systemImage: "arrow.down.circle") { downloads.enqueue(track) }
-                                        IconButton("Retry stream", systemImage: "arrow.clockwise") { playback.retry() }
-                                        if let id = track.videoID {
-                                            IconButton("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) }
-                                            IconButton("Share song", systemImage: "square.and.arrow.up") { shareURL = URL(string: "https://music.youtube.com/watch?v=" + id) }
-                                        }
-                                    }
-                                }
-                                Menu("Sleep timer") {
-                                    ForEach([15, 30, 45, 60], id: \.self) { minutes in Button("\(minutes) minutes") { playback.setSleep(minutes: minutes) } }
-                                    Button("Cancel timer") { playback.setSleep(minutes: nil) }
-                                }
-                            } label: { Image(systemName: "ellipsis").frame(width: 44, height: 44) }.accessibilityLabel("Track options")
+                            Color.clear.frame(width: 44, height: 44)
                         }
                         if let track = playback.current {
-                            Artwork(track: track, radius: 22)
-                                .frame(width: artworkSide, height: artworkSide)
+                            if hero {
+                                Color.clear.frame(height: max(0, heroHeight - (compact ? 105 : 115)))
+                            } else {
+                                Artwork(track: track, radius: 18)
+                                    .frame(width: artworkSide, height: artworkSide)
+                            }
                             HStack(spacing: 12) {
                                 VStack(alignment: .leading, spacing: 5) {
-                                    Text(track.title).font(.title2.bold()).lineLimit(2)
+                                    Text(track.title).font(.system(size: 22, weight: .bold)).tracking(-0.4).lineLimit(2)
                                     Text(track.artist).font(.title3).foregroundStyle(.white.opacity(0.65)).lineLimit(1)
                                 }
                                 Spacer()
                                 Button { library.toggleFavorite(track.id) } label: {
                                     Image(systemName: library.snapshot.favorites.contains(track.id) ? "heart.fill" : "heart").font(.title2).frame(width: 48, height: 48)
-                                }.foregroundStyle(library.snapshot.favorites.contains(track.id) ? Color.pink : .white).accessibilityLabel("Toggle favorite")
+                                }.foregroundStyle(library.snapshot.favorites.contains(track.id) ? AndroidDesign.accent : .white).accessibilityLabel("Toggle favorite")
+                                trackOptions
                             }
                             Button { showingLyrics = true } label: {
                                 HStack { Text(activeLyric).lineLimit(1).font(.subheadline.weight(.semibold)); Spacer(); Image(systemName: "chevron.right") }.frame(minHeight: 44)
@@ -85,7 +79,6 @@ struct NowPlayingView: View {
                                 HStack { Text(clockText(isSeeking ? scrub : clock.position)); Spacer(); Text("−" + clockText(max(0, clock.duration - (isSeeking ? scrub : clock.position)))) }.font(.caption).foregroundStyle(.white.opacity(0.6)).monospacedDigit()
                             }
                             HStack {
-                                Button { playback.shuffle.toggle() } label: { Image(systemName: "shuffle").frame(width: 44, height: 44).foregroundStyle(playback.shuffle ? Color.pink : .white.opacity(0.6)) }.accessibilityLabel("Shuffle").accessibilityValue(playback.shuffle ? "On" : "Off")
                                 Spacer()
                                 Button { playback.previous() } label: { Image(systemName: "backward.fill").font(.system(size: 30)).frame(width: 48, height: 60) }.accessibilityLabel("Previous track")
                                 Spacer()
@@ -95,9 +88,6 @@ struct NowPlayingView: View {
                                 Spacer()
                                 Button { playback.next() } label: { Image(systemName: "forward.fill").font(.system(size: 30)).frame(width: 48, height: 60) }.accessibilityLabel("Next track")
                                 Spacer()
-                                Button {
-                                    playback.repeatMode = playback.repeatMode == .off ? .all : (playback.repeatMode == .all ? .one : .off)
-                                } label: { Image(systemName: playback.repeatMode == .one ? "repeat.1" : "repeat").frame(width: 44, height: 44).foregroundStyle(playback.repeatMode != .off ? Color.pink : .white.opacity(0.6)) }.accessibilityLabel("Repeat").accessibilityValue(playback.repeatMode.rawValue)
                             }
                             if !preferences.values.hideVolumeBar { SystemVolumeSlider().frame(height: 34).accessibilityLabel("System volume") }
                             HStack {
@@ -107,13 +97,14 @@ struct NowPlayingView: View {
                                 Spacer()
                                 Button { showingQueue = true } label: { Image(systemName: "list.bullet").font(.title2).frame(width: 50, height: 44) }.accessibilityLabel("Play queue")
                             }
+                            Text("This phone").font(.system(size: 11)).foregroundStyle(.white.opacity(0.55))
                             if let deadline = playback.sleepDeadline { Text("Sleep timer · \(deadline, style: .relative)").font(.caption).foregroundStyle(.white.opacity(0.6)) }
                         } else { EmptyStateView("Nothing playing", systemImage: "music.note") }
                     }
                     // Remote artwork and UIKit route/volume views must never
                     // dictate an unbounded ideal width for the vertical scroll.
-                    .frame(width: max(0, geometry.size.width - 48))
-                    .padding(.horizontal, 24).padding(.bottom, 28)
+                    .frame(width: max(0, geometry.size.width - 60))
+                    .padding(.horizontal, 30).padding(.bottom, 20)
                 }
             }.frame(width: geometry.size.width, height: geometry.size.height)
                 .foregroundStyle(.white).preferredColorScheme(.dark)
@@ -138,6 +129,34 @@ struct NowPlayingView: View {
             Button("Retry") { playback.error = nil; playback.retry() }
             Button("OK", role: .cancel) { playback.error = nil }
         } message: { Text(playback.error ?? "") }
+    }
+    private var trackOptions: some View {
+        Menu {
+                                Button(playback.shuffle ? "Shuffle: On" : "Shuffle: Off") { playback.shuffle.toggle() }
+                                Button("Repeat: " + playback.repeatMode.rawValue) {
+                                    playback.repeatMode = playback.repeatMode == .off ? .all : (playback.repeatMode == .all ? .one : .off)
+                                }
+                                if let track = playback.current {
+                                    IconButton("Import lyrics (.lrc / .txt)", systemImage: "text.bubble") { importingLyrics = true }
+                                    Menu("Add to playlist") {
+                                        ForEach(library.snapshot.playlists) { list in Button(list.name) { library.add(track.id, to: list.id) } }
+                                    }
+                                    if track.isLocal {
+                                        IconButton("Share audio file", systemImage: "square.and.arrow.up") { shareURL = library.file(track.audioFile) }
+                                    } else if track.hasOnlineSource {
+                                        IconButton("Download", systemImage: "arrow.down.circle") { downloads.enqueue(track) }
+                                        IconButton("Retry stream", systemImage: "arrow.clockwise") { playback.retry() }
+                                        if let id = track.videoID {
+                                            IconButton("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) }
+                                            IconButton("Share song", systemImage: "square.and.arrow.up") { shareURL = URL(string: "https://music.youtube.com/watch?v=" + id) }
+                                        }
+                                    }
+                                }
+                                Menu("Sleep timer") {
+                                    ForEach([15, 30, 45, 60], id: \.self) { minutes in Button("\(minutes) minutes") { playback.setSleep(minutes: minutes) } }
+                                    Button("Cancel timer") { playback.setSleep(minutes: nil) }
+                                }
+                            } label: { Image(systemName: "ellipsis").frame(width: 44, height: 44) }.accessibilityLabel("Track options")
     }
     private func fetchLyricsIfNeeded() async {
         guard let track = playback.current, let videoID = track.videoID, library.lyricText(track.id).isEmpty else { return }
