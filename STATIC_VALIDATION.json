@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-21T07:02:40.744726+00:00",
+  "generatedAt": "2026-10-21T07:27:23.299405+00:00",
   "scope": "STATIC_ONLY",
   "summary": {
     "checks": 271,
@@ -1388,7 +1388,7 @@
     "UITests/AppUITests.swift": "5d4a329061cc3a8ba236655ee95d22c88708e26edded672784c512feb3ae692a",
     "UITests/LiveCatalogUITests.swift": "68ac50d8ea8128a37cbd06b05152a6b4ebf43b2f4d4e27a48c9935d580195b16",
     "UITests/GlassFooterUITests.swift": "19ed665ac69ff0534bc4acf835c097834162d779eed921fbd8ab3a36b7d3b459",
-    "UITests/SettingsUITests.swift": "1f08735ffda5c87e957c373b8fba6f5b6cce1e6d7e85da3cffe4afdbea0870a7",
+    "UITests/SettingsUITests.swift": "4cd2a8110ab6c5c353dccec8c5fefb6b49dd8c4da2d7835d4351be1cea85b949",
     "Zuneviu/Components.swift": "cbf8cdf718c43ab36005c4fd18567ef7946cb024162ee2b848ad1f9c4f43cda7",
     "Zuneviu/DebugFixture.swift": "a02c60619ac27a58b5b14365f495487af8d1afb88be5976c32ee46db92d7976c",
     "Zuneviu/LibraryStore.swift": "c1d14453cb47133c1a9d7e224b06513be5264d50a74bcb3d930506733179bd5e",
