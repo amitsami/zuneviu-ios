@@ -11,21 +11,16 @@ struct Artwork: View {
     @EnvironmentObject var library: LibraryStore
     var track: Track?
     var radius: CGFloat = 16
+    private var source: URL? {
+        if let file = track?.artworkFile { return library.file(file) }
+        return track?.artworkURL.flatMap(URL.init(string:))
+    }
     var body: some View {
-        ZStack {
-            if let file = track?.artworkFile, let image = UIImage(contentsOfFile: library.file(file).path) {
-                Image(uiImage: image).resizable().scaledToFill()
-            } else if let source = track?.artworkURL, let url = URL(string: source) {
-                AsyncImage(url: url) { image in image.resizable().scaledToFill() } placeholder: {
-                    Color(white: 0.12).overlay(Image(systemName: "music.note").foregroundStyle(.secondary))
-                }
-            } else {
-                LinearGradient(colors: [Color(white: 0.22), .black], startPoint: .topLeading, endPoint: .bottomTrailing)
-                Image(systemName: "music.note").font(.system(size: 38, weight: .medium)).foregroundStyle(.white.opacity(0.65))
-            }
-        }.clipped().clipShape(RoundedRectangle(cornerRadius: radius))
+        CachedArtwork(url: source)
+            .clipped().clipShape(RoundedRectangle(cornerRadius: radius))
     }
 }
+
 struct TrackRow: View {
     @EnvironmentObject var library: LibraryStore
     @EnvironmentObject var playback: PlaybackStore
@@ -45,12 +40,12 @@ struct TrackRow: View {
             }.buttonStyle(.plain)
             if library.snapshot.favorites.contains(track.id) { Image(systemName: "heart.fill").font(.caption).foregroundStyle(.pink) }
             Menu {
-                Button("Play next", systemImage: "text.line.first.and.arrowtriangle.forward") { playback.enqueue(track, next: true) }
-                Button("Add to queue", systemImage: "text.badge.plus") { playback.enqueue(track) }
-                Button(library.snapshot.favorites.contains(track.id) ? "Unlike" : "Like", systemImage: "heart") { library.remember(track); library.toggleFavorite(track.id) }
-                if track.videoID != nil { Button("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) } }
-                if let id = track.artistBrowseID { NavigationLink("Open artist") { CatalogBrowseView(id: id, title: track.artist) } }
-                if let id = track.albumBrowseID { NavigationLink("Open album") { CatalogBrowseView(id: id, title: track.album) } }
+                IconButton("Play next", systemImage: "text.line.first.and.arrowtriangle.forward") { playback.enqueue(track, next: true) }
+                IconButton("Add to queue", systemImage: "text.badge.plus") { playback.enqueue(track) }
+                IconButton(library.snapshot.favorites.contains(track.id) ? "Unlike" : "Like", systemImage: "heart") { library.remember(track); library.toggleFavorite(track.id) }
+                if track.videoID != nil { IconButton("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) } }
+                if let id = track.artistBrowseID { RouteLink("Open artist") { CatalogBrowseView(id: id, title: track.artist) } }
+                if let id = track.albumBrowseID { RouteLink("Open album") { CatalogBrowseView(id: id, title: track.album) } }
                 if !library.snapshot.playlists.isEmpty {
                     Menu("Add to playlist") {
                         ForEach(library.snapshot.playlists) { list in Button(list.name) { library.remember(track); library.add(track.id, to: list.id) } }
@@ -68,9 +63,9 @@ struct TrackCollection: View {
     var body: some View {
         List {
             if !tracks.isEmpty {
-                Button("Play all", systemImage: "play.fill") { playback.play(tracks[0], in: tracks) }
+                IconButton("Play all", systemImage: "play.fill") { playback.play(tracks[0], in: tracks) }
                 ForEach(tracks) { TrackRow(track: $0, context: tracks) }
-            } else { ContentUnavailableView("No music yet", systemImage: "music.note", description: Text("Import audio from Files to fill your library.")) }
+            } else { EmptyStateView("No music yet", systemImage: "music.note", description: Text("Import audio from Files to fill your library.")) }
         }.listStyle(.plain).navigationTitle(title).navigationBarTitleDisplayMode(.large)
     }
 }
@@ -82,7 +77,7 @@ struct EmptyLibrary: View {
             Text("Your music. Your flow.").font(.title2.bold())
             Text("Bring your own music from Files. Your library stays on your iPhone.")
                 .font(.body).foregroundStyle(.secondary).multilineTextAlignment(.center)
-            Button("Import music", systemImage: "plus") { importAction() }.buttonStyle(.borderedProminent)
+            IconButton("Import music", systemImage: "plus") { importAction() }.buttonStyle(.borderedProminent)
             Text("MP3 · M4A · WAV · FLAC, where supported by iOS. DRM-protected files are not supported.")
                 .font(.footnote).foregroundStyle(.secondary).multilineTextAlignment(.center)
         }.padding(28).frame(maxWidth: .infinity)

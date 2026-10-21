@@ -71,7 +71,7 @@ actor MusicCatalog {
     }
     private func post(_ endpoint: String, _ extras: [String: Any]) async throws -> [String: Any] {
         try await configure()
-        var client: [String: Any] = ["clientName": "WEB_REMIX", "clientVersion": version!, "hl": "en", "gl": Locale.current.region?.identifier ?? "US"]
+        var client: [String: Any] = ["clientName": "WEB_REMIX", "clientVersion": version!, "hl": "en", "gl": Locale.current.regionCode ?? "US"]
         if let visitor { client["visitorData"] = visitor }
         var body = extras
         body["context"] = ["client": client, "user": ["lockedSafetyMode": false], "request": ["useSsl": true]]

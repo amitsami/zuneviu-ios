@@ -6,7 +6,9 @@ import AVKit
 struct NowPlayingView: View {
     @EnvironmentObject var library: LibraryStore
     @EnvironmentObject var playback: PlaybackStore
+    @EnvironmentObject var clock: PlaybackClock
     @Environment(\.dismiss) private var dismiss
+    @State private var shareURL: URL?
     @State private var showingQueue = false
     @State private var showingLyrics = false
     @State private var importingLyrics = false
@@ -16,7 +18,7 @@ struct NowPlayingView: View {
     @State private var lines: [LyricLine] = []
     @AppStorage("lyricOffset") private var offset: Double = 0
     private var activeLyric: String {
-        lines.last { $0.time <= playback.position + offset }?.text ?? "Lyrics ›"
+        lines.last { $0.time <= clock.position + offset }?.text ?? "Lyrics ›"
     }
     var body: some View {
         GeometryReader { geometry in
@@ -29,16 +31,16 @@ struct NowPlayingView: View {
                             Spacer(); Text(playback.current?.isLocal == false ? "Playing from YouTube Music" : "Playing from your library").font(.caption.weight(.semibold)); Spacer()
                             Menu {
                                 if let track = playback.current {
-                                    Button("Import lyrics (.lrc / .txt)", systemImage: "text.bubble") { importingLyrics = true }
+                                    IconButton("Import lyrics (.lrc / .txt)", systemImage: "text.bubble") { importingLyrics = true }
                                     Menu("Add to playlist") {
                                         ForEach(library.snapshot.playlists) { list in Button(list.name) { library.add(track.id, to: list.id) } }
                                     }
                                     if track.isLocal {
-                                        ShareLink(item: library.file(track.audioFile)) { Label("Share audio file", systemImage: "square.and.arrow.up") }
+                                        IconButton("Share audio file", systemImage: "square.and.arrow.up") { shareURL = library.file(track.audioFile) }
                                     } else if let id = track.videoID {
-                                        Button("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) }
-                                        Button("Retry stream", systemImage: "arrow.clockwise") { playback.retry() }
-                                        ShareLink(item: URL(string: "https://music.youtube.com/watch?v=" + id)!) { Label("Share song", systemImage: "square.and.arrow.up") }
+                                        IconButton("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) }
+                                        IconButton("Retry stream", systemImage: "arrow.clockwise") { playback.retry() }
+                                        IconButton("Share song", systemImage: "square.and.arrow.up") { shareURL = URL(string: "https://music.youtube.com/watch?v=" + id) }
                                     }
                                 }
                                 Menu("Sleep timer") {
@@ -64,11 +66,11 @@ struct NowPlayingView: View {
                                 HStack { Text(activeLyric).lineLimit(1).font(.subheadline.weight(.semibold)); Spacer(); Image(systemName: "chevron.right") }.frame(minHeight: 44)
                             }.buttonStyle(.plain)
                             VStack(spacing: 4) {
-                                Slider(value: Binding(get: { isSeeking ? scrub : min(playback.position, max(playback.duration, 1)) }, set: { scrub = $0 }), in: 0...max(playback.duration, 1)) { editing in
-                                    if editing { scrub = playback.position; isSeeking = true }
+                                Slider(value: Binding(get: { isSeeking ? scrub : min(clock.position, max(clock.duration, 1)) }, set: { scrub = $0 }), in: 0...max(clock.duration, 1)) { editing in
+                                    if editing { scrub = clock.position; isSeeking = true }
                                     else { playback.seek(scrub); isSeeking = false }
                                 }.tint(.white).accessibilityLabel("Playback position")
-                                HStack { Text(clockText(isSeeking ? scrub : playback.position)); Spacer(); Text("−" + clockText(max(0, playback.duration - (isSeeking ? scrub : playback.position)))) }.font(.caption).foregroundStyle(.white.opacity(0.6)).monospacedDigit()
+                                HStack { Text(clockText(isSeeking ? scrub : clock.position)); Spacer(); Text("−" + clockText(max(0, clock.duration - (isSeeking ? scrub : clock.position)))) }.font(.caption).foregroundStyle(.white.opacity(0.6)).monospacedDigit()
                             }
                             HStack {
                                 Button { playback.shuffle.toggle() } label: { Image(systemName: "shuffle").frame(width: 44, height: 44).foregroundStyle(playback.shuffle ? Color.pink : .white.opacity(0.6)) }.accessibilityLabel("Shuffle").accessibilityValue(playback.shuffle ? "On" : "Off")
@@ -94,17 +96,18 @@ struct NowPlayingView: View {
                                 Button { showingQueue = true } label: { Image(systemName: "list.bullet").font(.title2).frame(width: 50, height: 44) }.accessibilityLabel("Play queue")
                             }
                             if let deadline = playback.sleepDeadline { Text("Sleep timer · \(deadline, style: .relative)").font(.caption).foregroundStyle(.white.opacity(0.6)) }
-                        } else { ContentUnavailableView("Nothing playing", systemImage: "music.note") }
+                        } else { EmptyStateView("Nothing playing", systemImage: "music.note") }
                     }.padding(.horizontal, 24).padding(.bottom, 28)
                 }
             }.foregroundStyle(.white).preferredColorScheme(.dark)
         }
         .task(id: playback.current?.id) { await fetchLyricsIfNeeded(); refreshLyrics() }
-        .onChange(of: library.tracks) { _, _ in refreshLyrics() }
-        .sheet(isPresented: $showingQueue) { NavigationStack { QueueView() } }
+        .sheet(isPresented: Binding(get: { shareURL != nil }, set: { if !$0 { shareURL = nil } })) { if let shareURL { ActivitySheet(items: [shareURL]) } }
+        .onChange(of: library.tracks) { _ in refreshLyrics() }
+        .sheet(isPresented: $showingQueue) { CompatibleNavigation { QueueView() } }
         .sheet(isPresented: $showingLyrics, onDismiss: {
             if pendingLyricsImport { pendingLyricsImport = false; importingLyrics = true }
-        }) { NavigationStack { LyricsView(importAction: { pendingLyricsImport = true; showingLyrics = false }) } }
+        }) { CompatibleNavigation { LyricsView(importAction: { pendingLyricsImport = true; showingLyrics = false }) } }
         .fileImporter(isPresented: $importingLyrics, allowedContentTypes: [UTType(filenameExtension: "lrc") ?? .plainText, .plainText]) { result in
             switch result {
             case .success(let url): if let id = playback.current?.id {
@@ -134,6 +137,7 @@ struct NowPlayingView: View {
 }
 struct QueueView: View {
     @EnvironmentObject var playback: PlaybackStore
+    @EnvironmentObject var clock: PlaybackClock
     var body: some View {
         List {
             ForEach(Array(playback.queue.enumerated()), id: \.offset) { _, track in
@@ -147,17 +151,18 @@ struct QueueView: View {
 struct LyricsView: View {
     @EnvironmentObject var library: LibraryStore
     @EnvironmentObject var playback: PlaybackStore
+    @EnvironmentObject var clock: PlaybackClock
     let importAction: () -> Void
     @AppStorage("lyricOffset") private var offset: Double = 0
     @State private var text = ""
     @State private var lines: [LyricLine] = []
-    private var activeID: Int? { lines.last { $0.time <= playback.position + offset }?.id }
+    private var activeID: Int? { lines.last { $0.time <= clock.position + offset }?.id }
     var body: some View {
         ScrollViewReader { proxy in
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     if text.isEmpty {
-                        ContentUnavailableView("Bring your lyrics", systemImage: "text.bubble", description: Text("Import a UTF-8 .lrc file for synced lyrics, or .txt for plain lyrics."))
+                        EmptyStateView("Bring your lyrics", systemImage: "text.bubble", description: Text("Import a UTF-8 .lrc file for synced lyrics, or .txt for plain lyrics."))
                         Button("Import lyrics", action: importAction).buttonStyle(.borderedProminent)
                     } else if lines.isEmpty { Text(text).font(.title2.weight(.semibold)).textSelection(.enabled) }
                     else {
@@ -168,7 +173,7 @@ struct LyricsView: View {
                         }
                     }
                 }.padding(24)
-            }.onChange(of: activeID) { _, id in if let id { withAnimation { proxy.scrollTo(id, anchor: .center) } } }
+            }.onChange(of: activeID) { id in if let id { withAnimation { proxy.scrollTo(id, anchor: .center) } } }
         }.navigationTitle("Lyrics").toolbar { Button("Import", action: importAction) }
             .task(id: playback.current?.id) {
                 if let track = playback.current {

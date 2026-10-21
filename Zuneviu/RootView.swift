@@ -3,40 +3,36 @@ import UniformTypeIdentifiers
 
 struct RootView: View {
     @EnvironmentObject var library: LibraryStore
-    @EnvironmentObject var playback: PlaybackStore
     @State private var tab = 0
+    @State private var visitedTabs: Set<Int> = [0]
     @State private var importing = false
     @State private var showingPlayer = false
     @State private var showingSettings = false
     @State private var showingSearch = false
     @State private var showWelcome = !UserDefaults.standard.bool(forKey: "hasSeenPortNotice")
     var body: some View {
-        Group {
-            switch tab {
-            case 1: NavigationStack { ExploreView().toolbar { settingsButton } }
-            case 2: NavigationStack { LibraryView(importAction: { importing = true }).toolbar { settingsButton } }
-            default: NavigationStack {
-                HomeView(importAction: { importing = true })
-                    .toolbar { ToolbarItem(placement: .topBarLeading) { Brand() }; settingsButton }
+        GeometryReader { geometry in
+            ZStack {
+                ForEach(0..<3, id: \.self) { index in
+                    if visitedTabs.contains(index) {
+                        page(index)
+                            .opacity(tab == index ? 1 : 0)
+                            .allowsHitTesting(tab == index)
+                            .accessibilityHidden(tab != index)
+                            .zIndex(tab == index ? 1 : 0)
+                    }
+                }
             }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                GlassFooter(selection: $tab, select: { value in
+                    visitedTabs.insert(value); tab = value
+                }, openSearch: { showingSearch = true }, openPlayer: { showingPlayer = true })
+                    .padding(.bottom, geometry.safeAreaInsets.bottom == 0 ? 6 : -DockLayout.bottomLift(safeArea: geometry.safeAreaInsets.bottom))
             }
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            VStack(spacing: 9) {
-                if let track = playback.current { miniPlayer(track) }
-                HStack(spacing: 6) {
-                    tabButton("Home", icon: "house.fill", value: 0)
-                    tabButton("Explore", icon: "safari", value: 1)
-                    tabButton("Library", icon: "square.stack.fill", value: 2)
-                    Button { showingSearch = true } label: { Image(systemName: "magnifyingglass").font(.title2).frame(width: 56, height: 54) }
-                        .accessibilityLabel("Search music")
-                }.padding(5).background(.ultraThinMaterial, in: Capsule())
-                    .overlay(Capsule().stroke(.primary.opacity(0.18), lineWidth: 0.5))
-            }.padding(.horizontal, 16).padding(.vertical, 8).background(.bar)
         }
         .sheet(isPresented: $showingPlayer) { NowPlayingView() }
-        .sheet(isPresented: $showingSettings) { NavigationStack { SettingsView() } }
-        .sheet(isPresented: $showingSearch) { NavigationStack { SearchView() } }
+        .sheet(isPresented: $showingSettings) { CompatibleNavigation { SettingsView() } }
+        .sheet(isPresented: $showingSearch) { CompatibleNavigation { SearchView() } }
         .sheet(isPresented: $showWelcome) {
             VStack(alignment: .leading, spacing: 20) {
                 Brand()
@@ -47,7 +43,7 @@ struct RootView: View {
                 Button("Continue") {
                     UserDefaults.standard.set(true, forKey: "hasSeenPortNotice"); showWelcome = false
                 }.buttonStyle(.borderedProminent)
-            }.padding(28).presentationDetents([.large]).interactiveDismissDisabled()
+            }.padding(28).interactiveDismissDisabled()
         }
         .fileImporter(isPresented: $importing, allowedContentTypes: [.audio], allowsMultipleSelection: true) { result in
             switch result {
@@ -56,43 +52,22 @@ struct RootView: View {
             }
         }
         .overlay { if library.isImporting { ProgressView("Importing music…").padding(24).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20)) } }
-        .alert("Something needs attention", isPresented: Binding(get: { library.error != nil || playback.error != nil }, set: { if !$0 { library.error = nil; playback.error = nil } })) {
-            Button("Retry playback") { library.error = nil; playback.error = nil; playback.retry() }
-            Button("OK", role: .cancel) { library.error = nil; playback.error = nil }
-        } message: { Text(library.error ?? playback.error ?? "") }
     }
-    @ToolbarContentBuilder private var settingsButton: some ToolbarContent {
-        ToolbarItem(placement: .topBarTrailing) {
-            Button { showingSettings = true } label: { Image(systemName: "gearshape.fill").frame(width: 44, height: 44) }.accessibilityLabel("Settings")
+    @ViewBuilder private func page(_ index: Int) -> some View {
+        CompatibleNavigation {
+            switch index {
+            case 1: ExploreView().toolbar { settingsButton }
+            case 2: LibraryView(importAction: { importing = true }).toolbar { settingsButton }
+            default:
+                HomeView(importAction: { importing = true })
+                    .toolbar { ToolbarItem(placement: .navigationBarLeading) { Brand() }; settingsButton }
+            }
         }
     }
-    private func tabButton(_ title: String, icon: String, value: Int) -> some View {
-        Button { tab = value } label: {
-            VStack(spacing: 3) { Image(systemName: icon).font(.title3); Text(title).font(.caption) }
-                .frame(maxWidth: .infinity).frame(height: 54)
-                .foregroundStyle(tab == value ? Color.primary : Color.secondary)
-                .background { if tab == value { Capsule().fill(.primary.opacity(0.08)) } }
-        }.buttonStyle(.plain).accessibilityAddTraits(tab == value ? [.isSelected] : [])
-    }
-    private func miniPlayer(_ track: Track) -> some View {
-        HStack(spacing: 8) {
-            Button { showingPlayer = true } label: {
-                HStack(spacing: 10) {
-                    Artwork(track: track, radius: 8).frame(width: 43, height: 43)
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text(track.title).font(.subheadline.bold()).lineLimit(1)
-                        Text(track.artist).font(.caption).foregroundStyle(.secondary).lineLimit(1)
-                    }
-                    Spacer(minLength: 0)
-                }
-            }.buttonStyle(.plain).accessibilityLabel("Now playing: \(track.title)")
-            Button { playback.toggle() } label: {
-                Group { if playback.isLoading { ProgressView() } else { Image(systemName: playback.isPlaying ? "pause.fill" : "play.fill") } }.frame(width: 44, height: 44)
-            }
-                .accessibilityLabel(playback.isPlaying ? "Pause" : "Play")
-            Button { playback.next() } label: { Image(systemName: "forward.fill").frame(width: 44, height: 44) }.accessibilityLabel("Next track")
-        }.padding(7).background(.regularMaterial, in: Capsule())
-            .overlay(Capsule().stroke(.primary.opacity(0.2), lineWidth: 0.5))
+    @ToolbarContentBuilder private var settingsButton: some ToolbarContent {
+        ToolbarItem(placement: .navigationBarTrailing) {
+            Button { showingSettings = true } label: { Image(systemName: "gearshape.fill").frame(width: 44, height: 44) }.accessibilityLabel("Settings")
+        }
     }
 }
 
@@ -108,7 +83,7 @@ struct LocalHomeView: View {
                     shelf("Made for you", subtitle: "From your on-device listening", tracks: library.recent.isEmpty ? Array(library.tracks.prefix(12)) : library.recent)
                     if !library.favorites.isEmpty { shelf("Your favorites", subtitle: "Songs you love", tracks: library.favorites) }
                     shelf("Recently added", subtitle: "On this device", tracks: Array(library.tracks.reversed().prefix(12)))
-                    Button("Import more music", systemImage: "plus") { importAction() }.buttonStyle(.bordered).padding(.horizontal)
+                    IconButton("Import more music", systemImage: "plus") { importAction() }.buttonStyle(.bordered).padding(.horizontal)
                 }
             }.padding(.vertical, 18)
         }.navigationTitle("Listen Now")
@@ -117,7 +92,7 @@ struct LocalHomeView: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 3) { Text(title).font(.title2.bold()); Text(subtitle).font(.subheadline).foregroundStyle(.secondary) }.padding(.horizontal)
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top, spacing: 14) {
+                LazyHStack(alignment: .top, spacing: 14) {
                     ForEach(tracks) { track in
                         Button { playback.play(track, in: tracks) } label: {
                             VStack(alignment: .leading, spacing: 7) {

@@ -8,7 +8,10 @@ struct HomeView: View {
     }
 }
 struct ExploreView: View {
-    var body: some View { CatalogHomeView(explore: true) }
+    var body: some View {
+        if ProcessInfo.processInfo.arguments.contains("--ui-testing") { LocalExploreView() }
+        else { CatalogHomeView(explore: true) }
+    }
 }
 struct CatalogHomeView: View {
     let explore: Bool
@@ -18,7 +21,7 @@ struct CatalogHomeView: View {
     @State private var failure: String?
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 26) {
+            LazyVStack(alignment: .leading, spacing: 26) {
                 if !explore {
                     if !library.recent.isEmpty { OnlineTrackShelf(title: "Listen again", subtitle: "From your listening", tracks: library.recent) }
                     if !library.favorites.isEmpty { OnlineTrackShelf(title: "Made for you", subtitle: "Songs you love", tracks: library.favorites) }
@@ -27,7 +30,7 @@ struct CatalogHomeView: View {
                 if let failure { ServiceFailure(message: failure) { Task { await refresh() } } }
                 ForEach(shelves) { shelf in CatalogShelfView(shelf: shelf) }
                 if !loading && shelves.isEmpty && failure == nil {
-                    ContentUnavailableView("No music returned", systemImage: "music.note", description: Text("Pull down to retry or search for a song."))
+                    EmptyStateView("No music returned", systemImage: "music.note", description: Text("Pull down to retry or search for a song."))
                 }
             }.padding(.vertical, 18)
         }
@@ -59,8 +62,9 @@ struct CatalogShelfView: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(shelf.title.isEmpty ? "Discover" : shelf.title).font(.title2.bold()).padding(.horizontal)
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top, spacing: 14) {
-                    ForEach(shelf.items) { item in CatalogCard(item: item, context: shelf.items.compactMap(\.track)) }
+                LazyHStack(alignment: .top, spacing: 14) {
+                    let queue = shelf.items.compactMap(\.track)
+                    ForEach(shelf.items) { item in CatalogCard(item: item, context: queue) }
                 }.padding(.horizontal)
             }
         }
@@ -74,7 +78,7 @@ struct OnlineTrackShelf: View {
         VStack(alignment: .leading, spacing: 12) {
             VStack(alignment: .leading, spacing: 3) { Text(title).font(.title2.bold()); Text(subtitle).foregroundStyle(.secondary).font(.subheadline) }.padding(.horizontal)
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(alignment: .top, spacing: 14) {
+                LazyHStack(alignment: .top, spacing: 14) {
                     ForEach(tracks.prefix(15)) { track in
                         CatalogCard(item: CatalogItem(id: track.id.uuidString, title: track.title, subtitle: track.artist, artwork: track.artworkURL, track: track), context: tracks)
                     }
@@ -90,14 +94,14 @@ struct CatalogCard: View {
     var body: some View {
         Group {
             if let track = item.track { Button { playback.play(track, in: context) } label: { card }.buttonStyle(.plain).accessibilityLabel("Play \(track.title) by \(track.artist)") }
-            else if let id = item.browseID { NavigationLink { CatalogBrowseView(id: id, title: item.title, params: item.params) } label: { card }.buttonStyle(.plain) }
+            else if let id = item.browseID { RouteLink { CatalogBrowseView(id: id, title: item.title, params: item.params) } label: { card }.buttonStyle(.plain) }
         }
     }
     private var card: some View {
         VStack(alignment: .leading, spacing: 7) {
             Group {
                 if let track = item.track { Artwork(track: track) }
-                else { AsyncImage(url: item.artwork.flatMap(URL.init(string:))) { image in image.resizable().scaledToFill() } placeholder: { Color(white: 0.12).overlay(Image(systemName: "music.note.list")) } }
+                else { CachedArtwork(url: item.artwork.flatMap(URL.init(string:))) }
             }.frame(width: 158, height: 158).clipped().clipShape(RoundedRectangle(cornerRadius: 15))
             Text(item.title).font(.headline).lineLimit(1)
             Text(item.track?.artist ?? item.subtitle).font(.subheadline).foregroundStyle(.secondary).lineLimit(1)
@@ -116,13 +120,13 @@ struct CatalogBrowseView: View {
     private var tracks: [Track] { items.compactMap(\.track) }
     var body: some View {
         List {
-            if !tracks.isEmpty { Button("Play all", systemImage: "play.fill") { playback.play(tracks[0], in: tracks) } }
+            if !tracks.isEmpty { IconButton("Play all", systemImage: "play.fill") { playback.play(tracks[0], in: tracks) } }
             if loading && items.isEmpty { ProgressView("Loading…") }
             if let failure { ServiceFailure(message: failure) { Task { await load(more: false) } } }
             ForEach(items) { item in
                 if let track = item.track { TrackRow(track: track, context: tracks) }
                 else if let nextID = item.browseID, nextID != id {
-                    NavigationLink { CatalogBrowseView(id: nextID, title: item.title, params: item.params) } label: { Label(item.title, systemImage: "square.stack") }
+                    RouteLink { CatalogBrowseView(id: nextID, title: item.title, params: item.params) } label: { Label(item.title, systemImage: "square.stack") }
                 }
             }
             if continuation != nil { Button(loading ? "Loading…" : "Load more") { Task { await load(more: true) } }.disabled(loading) }
@@ -163,11 +167,11 @@ struct SearchView: View {
                 }
                 if continuation != nil { Button("Load more results") { Task { await search(more: true) } }.disabled(loading) }
                 if !loading && items.isEmpty && failure == nil {
-                    ContentUnavailableView(query.isEmpty ? "Find your next favorite" : "No results", systemImage: "magnifyingglass", description: Text(query.isEmpty ? "Search the online music catalog." : "Try another song or artist."))
+                    EmptyStateView(query.isEmpty ? "Find your next favorite" : "No results", systemImage: "magnifyingglass", description: Text(query.isEmpty ? "Search the online music catalog." : "Try another song or artist."))
                 }
             } else {
                 ForEach(localResults) { TrackRow(track: $0, context: localResults) }
-                if localResults.isEmpty { ContentUnavailableView.search(text: query) }
+                if localResults.isEmpty { EmptyStateView.search(text: query) }
             }
         }.listStyle(.plain).navigationTitle("Search")
             .searchable(text: $query, prompt: "Songs, artists, albums")
@@ -175,7 +179,7 @@ struct SearchView: View {
                 guard online else { return }
                 items = []; continuation = nil; failure = nil
                 guard !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
-                do { try await Task.sleep(for: .milliseconds(450)); try Task.checkCancellation(); await search(more: false) } catch { }
+                do { try await Task.sleep(nanoseconds: 450000000); try Task.checkCancellation(); await search(more: false) } catch { }
             }
     }
     @MainActor private func search(more: Bool) async {
@@ -190,5 +194,24 @@ struct SearchView: View {
             if more { let seen = Set(items.map(\.id)); items += page.items.filter { !seen.contains($0.id) } } else { items = page.items }
             continuation = page.continuation
         } catch { if !Task.isCancelled && term == query.trimmingCharacters(in: .whitespacesAndNewlines) { failure = error.localizedDescription } }
+    }
+}
+
+// Deterministic LOCAL test route. Live catalog coverage stays in its own suite.
+private struct LocalExploreView: View {
+    @EnvironmentObject var library: LibraryStore
+    var body: some View {
+        List {
+            Section("Artists") {
+                ForEach(Array(Set(library.tracks.map(\.artist))).sorted(), id: \.self) { artist in
+                    RouteLink { TrackCollection(title: artist, tracks: library.tracks.filter { $0.artist == artist }) } label: { Label(artist, systemImage: "person.crop.circle") }
+                }
+            }
+            Section("Albums") {
+                ForEach(Array(Set(library.tracks.map(\.album))).sorted(), id: \.self) { album in
+                    RouteLink { TrackCollection(title: album, tracks: library.tracks.filter { $0.album == album }) } label: { Label(album, systemImage: "square.stack") }
+                }
+            }
+        }.navigationTitle("Explore")
     }
 }

@@ -7,6 +7,7 @@ import Combine
     @Published var error: String?
     @Published var isImporting = false
     private(set) var storageReady = true
+    private var uncommittedListening: Double = 0
     let root: URL
     var tracks: [Track] { snapshot.tracks }
     var favorites: [Track] { tracks.filter { snapshot.favorites.contains($0.id) } }
@@ -24,7 +25,13 @@ import Combine
     func file(_ name: String) -> URL { root.appendingPathComponent(name) }
     @discardableResult func save() -> Bool {
         guard storageReady else { return false }
-        do { try JSONEncoder().encode(snapshot).write(to: file("library.json"), options: .atomic); return true }
+        do {
+            var persisted = snapshot
+            persisted.listenedSeconds += uncommittedListening
+            try JSONEncoder().encode(persisted).write(to: file("library.json"), options: .atomic)
+            if uncommittedListening > 0 { snapshot = persisted; uncommittedListening = 0 }
+            return true
+        }
         catch { self.error = "Could not save library: \(error.localizedDescription)"; return false }
     }
     var onDevice: [Track] { tracks.filter(\.isLocal) }
@@ -51,7 +58,10 @@ import Combine
         snapshot.history.removeAll { $0 == id }; snapshot.history.insert(id, at: 0)
         snapshot.history = Array(snapshot.history.prefix(100)); save()
     }
-    func addListening(_ seconds: Double) { snapshot.listenedSeconds += max(0, seconds) }
+    func addListening(_ seconds: Double) {
+        guard storageReady, seconds.isFinite, seconds > 0 else { return }
+        uncommittedListening += seconds
+    }
     func createPlaylist(_ name: String) {
         let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }

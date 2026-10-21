@@ -11,7 +11,7 @@ struct SettingsView: View {
         List {
             Section { Brand() }
             ForEach(items.filter { search.isEmpty || $0.0.localizedCaseInsensitiveContains(search) }, id: \.0) { item in
-                NavigationLink { SettingDetail(title: item.0) } label: { Label(item.0, systemImage: item.1).padding(.vertical, 9) }
+                RouteLink { SettingDetail(title: item.0) } label: { Label(item.0, systemImage: item.1).padding(.vertical, 9) }
             }
             Section { Text("Native iOS development port · Not full Android parity").font(.footnote).foregroundStyle(.secondary) }
         }.navigationTitle("Settings").searchable(text: $search, prompt: "Search settings")
@@ -31,7 +31,7 @@ struct SettingDetail: View {
                 Section("Speed") {
                     Picker("Playback speed", selection: $rate) {
                         Text("0.75×").tag(0.75); Text("Normal").tag(1.0); Text("1.25×").tag(1.25); Text("1.5×").tag(1.5); Text("2×").tag(2.0)
-                    }.onChange(of: rate) { _, _ in if playback.isPlaying { playback.resume() } }
+                    }.onChange(of: rate) { _ in if playback.isPlaying { playback.resume() } }
                 }
                 Section("Sleep timer") {
                     ForEach([15, 30, 45, 60], id: \.self) { value in Button("\(value) minutes") { playback.setSleep(minutes: value) } }
@@ -57,7 +57,7 @@ struct SettingDetail: View {
                 Label("Not connected", systemImage: "person.crop.circle.badge.questionmark")
                 Text("Google, YouTube Music and Spotify authentication/sync are not implemented in this build. Android credentials are not reused or requested.")
             case "Downloads":
-                LabeledContent("On-device songs", value: "\(library.tracks.count)")
+                HStack { Text("On-device songs"); Spacer(); Text("\(library.onDevice.count)").foregroundStyle(.secondary) }
                 Text("Imported music is copied into the app's Application Support folder and plays offline. Provider downloads are not available. Removing a song removes only the app's copy. Deleting the app removes its library.")
             case "Personalized discovery":
                 Text("Listen Now shows guest YouTube Music shelves plus your locally recorded history and favorites. Account-personalized recommendations require sign-in, which is not implemented yet.")
@@ -72,7 +72,7 @@ struct SettingDetail: View {
                 }
                 Section("Source, privacy & notices") {
                     Text("No analytics or sign-in. Catalog queries, playback requests and artwork requests contact YouTube/Google directly. Optional remote extraction proxies are disabled. Imported music, favorites, playlists and history stay in this app. AirPlay and system sharing act only when selected. Files and iCloud providers may use their own network services.")
-                    NavigationLink("Open-source notices") { ScrollView { Text(legalText).font(.footnote.monospaced()).textSelection(.enabled).padding() }.navigationTitle("Notices") }
+                    RouteLink("Open-source notices") { ScrollView { Text(legalText).font(.footnote.monospaced()).textSelection(.enabled).padding() }.navigationTitle("Notices") }
                     Text("See LICENSE and UPSTREAM-NOTICE.md in the source archive. Required upstream attribution is retained. No warranty.")
                 }
             }

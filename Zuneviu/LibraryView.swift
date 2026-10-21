@@ -22,18 +22,18 @@ struct LibraryView: View {
                 }.padding(18).frame(maxWidth: .infinity, alignment: .leading)
                     .background(LinearGradient(colors: [.pink.opacity(0.18), .gray.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 24))
                     .listRowInsets(EdgeInsets()).listRowBackground(Color.clear)
-                Button("Import from Files", systemImage: "square.and.arrow.down") { importAction() }.disabled(library.isImporting)
-                NavigationLink { TrackCollection(title: "Saved online songs", tracks: library.tracks.filter { !$0.isLocal }) } label: { Label("Saved online songs", systemImage: "cloud") }
-                NavigationLink { FavoritesView() } label: { Label("Liked songs · \(library.favorites.count)", systemImage: "heart.fill").foregroundStyle(.pink) }
-                NavigationLink { TrackCollection(title: "Recently played", tracks: library.recent) } label: { Label("Recently played", systemImage: "clock.arrow.circlepath") }
+                IconButton("Import from Files", systemImage: "square.and.arrow.down") { importAction() }.disabled(library.isImporting)
+                RouteLink { TrackCollection(title: "Saved online songs", tracks: library.tracks.filter { !$0.isLocal }) } label: { Label("Saved online songs", systemImage: "cloud") }
+                RouteLink { FavoritesView() } label: { Label("Liked songs · \(library.favorites.count)", systemImage: "heart.fill").foregroundStyle(.pink) }
+                RouteLink { TrackCollection(title: "Recently played", tracks: library.recent) } label: { Label("Recently played", systemImage: "clock.arrow.circlepath") }
             }
             Section {
                 ForEach(library.snapshot.playlists) { playlist in
-                    NavigationLink { PlaylistView(id: playlist.id) } label: {
+                    RouteLink { PlaylistView(id: playlist.id) } label: {
                         HStack { Label(playlist.name, systemImage: "music.note.list"); Spacer(); Text("\(playlist.trackIDs.count)").foregroundStyle(.secondary) }
                     }.swipeActions { Button("Delete", role: .destructive) { library.deletePlaylist(playlist.id) } }
                 }
-                Button("New playlist", systemImage: "plus") { newPlaylist = true }
+                IconButton("New playlist", systemImage: "plus") { newPlaylist = true }
             } header: { Text("Playlists") }
             Section {
                 if library.onDevice.isEmpty { EmptyLibrary(importAction: importAction).listRowBackground(Color.clear) }
@@ -52,10 +52,18 @@ struct LibraryView: View {
                 }
             }
         }.listStyle(.insetGrouped).navigationTitle("Library")
-            .alert("New playlist", isPresented: $newPlaylist) {
-                TextField("Playlist name", text: $playlistName)
-                Button("Create") { library.createPlaylist(playlistName); playlistName = "" }
-                Button("Cancel", role: .cancel) { playlistName = "" }
+            .sheet(isPresented: $newPlaylist) {
+                CompatibleNavigation {
+                    Form { TextField("Playlist name", text: $playlistName).accessibilityIdentifier("playlist.name") }
+                        .navigationTitle("New playlist")
+                        .toolbar {
+                            ToolbarItem(placement: .cancellationAction) { Button("Cancel") { newPlaylist = false; playlistName = "" } }
+                            ToolbarItem(placement: .confirmationAction) {
+                                Button("Create") { library.createPlaylist(playlistName); playlistName = ""; newPlaylist = false }
+                                    .disabled(playlistName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                            }
+                        }
+                }
             }
             .confirmationDialog("Remove this imported song?", isPresented: Binding(get: { pendingRemoval != nil }, set: { if !$0 { pendingRemoval = nil } }), titleVisibility: .visible) {
                 Button("Remove from this app", role: .destructive) {

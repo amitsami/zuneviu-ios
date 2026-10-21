@@ -25,21 +25,21 @@ final class LiveProviderTests: XCTestCase {
         engine.play(first, in: songs)
         for _ in 0..<180 {
             if engine.error != nil || engine.position > 1 { break }
-            try await Task.sleep(for: .milliseconds(500))
+            try await Task.sleep(nanoseconds: 500000000)
         }
         XCTAssertNil(engine.error, "Real online stream failed, not a fixture failure")
         XCTAssertTrue(engine.isPlaying); XCTAssertGreaterThan(engine.position, 1)
         guard engine.isPlaying else { XCTFail("Online playback never started"); return }
-        engine.pause(); try await Task.sleep(for: .milliseconds(300))
+        engine.pause(); try await Task.sleep(nanoseconds: 300000000)
         let paused = engine.position
-        try await Task.sleep(for: .milliseconds(800))
+        try await Task.sleep(nanoseconds: 800000000)
         XCTAssertEqual(engine.position, paused, accuracy: 0.2)
-        engine.seek(15); try await Task.sleep(for: .seconds(2))
+        engine.seek(15); try await Task.sleep(nanoseconds: 2000000000)
         XCTAssertEqual(engine.position, 15, accuracy: 1)
         engine.next()
         for _ in 0..<180 {
             if engine.error != nil || (engine.current?.id == songs[1].id && engine.position > 0.5) { break }
-            try await Task.sleep(for: .milliseconds(500))
+            try await Task.sleep(nanoseconds: 500000000)
         }
         XCTAssertNil(engine.error); XCTAssertEqual(engine.current?.id, songs[1].id)
         XCTAssertGreaterThan(engine.position, 0.5)

@@ -4,6 +4,14 @@ import AVFoundation
 import MediaPlayer
 import UIKit
 
+// High-frequency clock changes are isolated from the library/navigation graph.
+@MainActor final class PlaybackClock: ObservableObject {
+    @Published private(set) var position: Double = 0
+    @Published private(set) var duration: Double = 0
+    func setPosition(_ value: Double) { if abs(position - value) > 0.001 { position = value } }
+    func setDuration(_ value: Double) { if abs(duration - value) > 0.01 { duration = value } }
+}
+
 enum RepeatMode: String, CaseIterable { case off, all, one }
 
 @MainActor final class PlaybackStore: ObservableObject {
@@ -11,8 +19,9 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
     @Published private(set) var queue: [Track] = []
     @Published private(set) var isPlaying = false
     @Published private(set) var isLoading = false
-    @Published private(set) var position: Double = 0
-    @Published private(set) var duration: Double = 0
+    let clock = PlaybackClock()
+    var position: Double { get { clock.position } set { clock.setPosition(newValue) } }
+    var duration: Double { get { clock.duration } set { clock.setDuration(newValue) } }
     @Published private(set) var sleepDeadline: Date?
     @Published var error: String?
     @Published var shuffle = false
@@ -28,6 +37,7 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
     private var itemSubscription: AnyCancellable?
     private var sleepTask: Task<Void, Never>?
     private var pendingSave: Double = 0
+    private var lastNowPlayingSecond: Int = -1
     private var resumeAfterInterruption = false
     private var nowPlayingArtwork: MPMediaItemArtwork?
 
@@ -36,9 +46,12 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
         player.automaticallyWaitsToMinimizeStalling = true
         player.publisher(for: \.timeControlStatus).receive(on: DispatchQueue.main).sink { [weak self] status in
             Task { @MainActor in
-                self?.isPlaying = status == .playing
-                self?.isLoading = self?.isResolving == true || status == .waitingToPlayAtSpecifiedRate
-                self?.updateNowPlaying()
+                guard let self else { return }
+                let playing = status == .playing
+                let loading = self.isResolving || status == .waitingToPlayAtSpecifiedRate
+                if self.isPlaying != playing { self.isPlaying = playing }
+                if self.isLoading != loading { self.isLoading = loading }
+                self.updateNowPlaying()
             }
         }.store(in: &subscriptions)
         tick = player.addPeriodicTimeObserver(forInterval: CMTime(seconds: 0.5, preferredTimescale: 600), queue: .main) { [weak self] time in
@@ -98,7 +111,12 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
             }
         } else { current = nil; error = "This song has no audio source." }
     }
-    func retry() { if let current { load(current) } }
+    func retry() {
+        guard let current else { return }
+        if let id = current.videoID {
+            Task { await StreamResolver.shared.invalidate(id); load(current) }
+        } else { load(current) }
+    }
     private func start(_ track: Track, url: URL) {
         do {
             try AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
@@ -208,7 +226,8 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
         }
         position = max(0, value)
         if let measured = player.currentItem?.duration.seconds, measured.isFinite, measured > 0 { duration = measured }
-        updateNowPlaying()
+        let second = Int(position)
+        if second != lastNowPlayingSecond { lastNowPlayingSecond = second; updateNowPlaying() }
     }
     private func interruption(type: UInt?, options: UInt) {
         if type == AVAudioSession.InterruptionType.began.rawValue {

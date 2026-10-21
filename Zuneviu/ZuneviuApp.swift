@@ -22,9 +22,10 @@ import SwiftUI
     }
     var body: some Scene {
         WindowGroup {
-            RootView().environmentObject(library).environmentObject(playback)
+            RootView().environmentObject(library).environmentObject(playback).environmentObject(playback.clock)
+                .modifier(AppAccessibilitySettings())
                 .tint(.pink).preferredColorScheme(theme == "system" ? nil : (theme == "light" ? .light : .dark))
-                .onChange(of: phase) { _, newPhase in if newPhase != .active { library.save() } }
+                .onChange(of: phase) { newPhase in if newPhase != .active { library.save() } }
         }
     }
 }
