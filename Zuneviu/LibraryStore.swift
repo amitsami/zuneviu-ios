@@ -40,7 +40,21 @@ import Combine
     func installDownload(_ track: Track, temporaryFile: URL) async throws {
         guard storageReady else { throw MusicServiceError.unavailable("The library cannot be saved.") }
         if self.track(track.id)?.isLocal == true { return }
-        let asset = AVURLAsset(url: temporaryFile)
+        // URLSession temporary paths have no media extension. AVFoundation can
+        // reject a valid AAC/MP4 file at such a URL. Stage a typed app-owned
+        // copy first, then validate that exact file before committing metadata.
+        let handle = try FileHandle(forReadingFrom: temporaryFile)
+        let prefix = try handle.read(upToCount: 16) ?? Data(); try handle.close()
+        let magic = String(decoding: prefix, as: UTF8.self)
+        let adts = prefix.count >= 2 && prefix[0] == 0xff && (prefix[1] & 0xf6) == 0xf0
+        let mpeg = prefix.count >= 2 && prefix[0] == 0xff && (prefix[1] & 0xe0) == 0xe0
+        let ext = magic.hasPrefix("RIFF") ? "wav" : magic.hasPrefix("fLaC") ? "flac" : magic.hasPrefix("ID3") ? "mp3" : adts ? "aac" : mpeg ? "mp3" : "m4a"
+        let filename = "download-" + track.id.uuidString + "-" + UUID().uuidString + "." + ext
+        let destination = file(filename)
+        try FileManager.default.copyItem(at: temporaryFile, to: destination)
+        var committed = false
+        defer { if !committed { try? FileManager.default.removeItem(at: destination) } }
+        let asset = AVURLAsset(url: destination)
         guard try await asset.load(.isPlayable) else { throw MusicServiceError.unavailable("The downloaded file is not playable audio.") }
         let audioTracks = try await asset.loadTracks(withMediaType: .audio)
         guard !audioTracks.isEmpty else { throw MusicServiceError.unavailable("The source returned no audio track.") }
@@ -51,17 +65,11 @@ import Combine
         }
         try Task.checkCancellation()
         let previous = snapshot
-        let handle = try FileHandle(forReadingFrom: temporaryFile)
-        let prefix = try handle.read(upToCount: 16) ?? Data(); try handle.close()
-        let magic = String(decoding: prefix, as: UTF8.self)
-        let ext = magic.hasPrefix("RIFF") ? "wav" : magic.hasPrefix("fLaC") ? "flac" : magic.hasPrefix("ID3") ? "mp3" : "m4a"
-        let filename = "download-" + track.id.uuidString + "-" + UUID().uuidString + "." + ext
-        let destination = file(filename)
-        try FileManager.default.copyItem(at: temporaryFile, to: destination)
         var downloaded = self.track(track.id) ?? track; downloaded.audioFile = filename; downloaded.downloadedAt = Date(); downloaded.duration = seconds
         if let index = snapshot.tracks.firstIndex(where: { $0.id == track.id }) { snapshot.tracks[index] = downloaded }
         else { snapshot.tracks.append(downloaded) }
         guard save() else { snapshot = previous; try? FileManager.default.removeItem(at: destination); throw MusicServiceError.unavailable("Could not save this download. The original library was kept.") }
+        committed = true
         var resource = destination; var values = URLResourceValues(); values.isExcludedFromBackup = true; try? resource.setResourceValues(values)
     }
     func remember(_ track: Track) {

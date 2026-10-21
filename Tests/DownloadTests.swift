@@ -1,4 +1,5 @@
 import XCTest
+@preconcurrency import AVFoundation
 @testable import Zuneviu
 
 final class DownloadTests: XCTestCase {
@@ -19,7 +20,7 @@ final class DownloadTests: XCTestCase {
         let library = LibraryStore(root: root), preferences = prefs()
         let source = try XCTUnwrap(Bundle.main.url(forResource: "TestTone", withExtension: "wav"))
         let manager = DownloadManager(library: library, preferences: preferences, network: NetworkStatus(initial: .wifi, monitor: false), resolver: { _, _ in URL(string: "https://example.invalid/fixture-only")! }, fetcher: { _, _, progress in
-            let temporary = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString + ".wav")
+            let temporary = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
             try FileManager.default.copyItem(at: source, to: temporary)
             progress(100, 100); return temporary
         })
@@ -37,6 +38,29 @@ final class DownloadTests: XCTestCase {
         manager.enqueue(track); XCTAssertEqual(manager.jobs.count, 1)
         let json = try String(contentsOf: library.file("download-queue.json"), encoding: .utf8)
         XCTAssertFalse(json.contains("example.invalid"), "Resolved media URLs must never be persisted")
+    }
+    @MainActor func testExtensionlessAACDownloadValidatesAndPlaysPersistedCopy() async throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let library = LibraryStore(root: root)
+        let source = try XCTUnwrap(Bundle.main.url(forResource: "TestTone", withExtension: "wav"))
+        let encoded = library.file("fixture.m4a")
+        let export = try XCTUnwrap(AVAssetExportSession(asset: AVURLAsset(url: source), presetName: AVAssetExportPresetAppleM4A))
+        export.outputURL = encoded; export.outputFileType = .m4a
+        await withCheckedContinuation { continuation in export.exportAsynchronously { continuation.resume() } }
+        XCTAssertEqual(export.status, .completed, export.error?.localizedDescription ?? "AAC fixture export failed")
+        let temporary = library.file("extensionless-transfer")
+        try FileManager.default.moveItem(at: encoded, to: temporary)
+        let track = song()
+        try await library.installDownload(track, temporaryFile: temporary)
+        let saved = try XCTUnwrap(LibraryStore(root: root).track(track.id))
+        XCTAssertTrue(saved.audioFile.hasSuffix(".m4a")); XCTAssertNotNil(saved.downloadedAt)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: temporary.path), "Never consume caller's original file")
+        let engine = PlaybackStore(library: library, preferences: prefs())
+        defer { engine.stop() }
+        engine.play(saved, in: [saved])
+        for _ in 0..<60 { if engine.position > 0.5 { break }; try await Task.sleep(nanoseconds: 100_000_000) }
+        XCTAssertNil(engine.error); XCTAssertGreaterThan(engine.position, 0.5)
     }
     @MainActor func testWifiOnlyWaitsWithoutCallingResolver() {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -87,6 +111,7 @@ final class DownloadTests: XCTestCase {
         let invalid = library.file("invalid.m4a"); try Data("not audio".utf8).write(to: invalid)
         do { try await library.installDownload(song(), temporaryFile: invalid); XCTFail("Invalid audio must be rejected") } catch { }
         XCTAssertTrue(library.onDevice.isEmpty); XCTAssertTrue(FileManager.default.fileExists(atPath: source.path))
+        XCTAssertFalse(try FileManager.default.contentsOfDirectory(atPath: root.path).contains { $0.hasPrefix("download-") }, "Failed validation must remove staged copies")
     }
     func testTransferRejectsInsecureURL() async {
         do { _ = try await DownloadTransfer(progress: { _, _ in }).fetch(URL(string: "http://example.invalid/audio")!, wifiOnly: true); XCTFail("HTTP must be rejected") } catch { }

@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-10-21T07:27:23.299405+00:00",
+  "generatedAt": "2026-10-21T07:32:50.141392+00:00",
   "scope": "STATIC_ONLY",
   "summary": {
     "checks": 271,
     "passed": 271,
     "failed": 0,
     "swiftFiles": 39,
-    "unitTestsWritten": 48,
+    "unitTestsWritten": 49,
     "uiTestsWritten": 11
   },
   "notExecutedByThisScript": [
@@ -1382,7 +1382,7 @@
     "Tests/LiveProviderTests.swift": "b5a694d01729f8f39b1d99444a7bbf508c0d36743c7b119383438d97ff137576",
     "Tests/OptimizationTests.swift": "917b67c60c2714688ee99948e862466696155f111b91dc923481849034855c37",
     "Tests/DiscoveryTests.swift": "1e58cb5d1c2a7ad9d241edf04b1aa81b49730a3b3e896aaf9060b71409ff5ac4",
-    "Tests/DownloadTests.swift": "91eae5d0b75ae2645d6cab41fb446adac2b859dd411812c13201569205c68a19",
+    "Tests/DownloadTests.swift": "bf9b4016eec0b568b2f8efe41b375109f2988647e77dd47537f4c56504890485",
     "Tests/SaavnTests.swift": "4b87a7137c3f02d27a5658228316414fa07f17dfd4bedaf6e389009628d7ab16",
     "Tests/LiveSaavnTests.swift": "93e2fb536afb86a996528958eb1badeb169e78064b6ff3b6920e48babdfb99b0",
     "UITests/AppUITests.swift": "5d4a329061cc3a8ba236655ee95d22c88708e26edded672784c512feb3ae692a",
@@ -1391,7 +1391,7 @@
     "UITests/SettingsUITests.swift": "4cd2a8110ab6c5c353dccec8c5fefb6b49dd8c4da2d7835d4351be1cea85b949",
     "Zuneviu/Components.swift": "cbf8cdf718c43ab36005c4fd18567ef7946cb024162ee2b848ad1f9c4f43cda7",
     "Zuneviu/DebugFixture.swift": "a02c60619ac27a58b5b14365f495487af8d1afb88be5976c32ee46db92d7976c",
-    "Zuneviu/LibraryStore.swift": "c1d14453cb47133c1a9d7e224b06513be5264d50a74bcb3d930506733179bd5e",
+    "Zuneviu/LibraryStore.swift": "d09ae06be2c695b72a80f24e8aa0d04cfb6755f9577b5618ac3cddc0b8f72238",
     "Zuneviu/LibraryView.swift": "65585066c68ec0ddb121f17dad54c6c92c247b44d54ab5085d2019fb8994ffd5",
     "Zuneviu/Models.swift": "7ae0d04ecab941086bc13906489f0c139e803ed043290894e4452b837f116657",
     "Zuneviu/NowPlayingView.swift": "d553f705e043a9a03c9f46ce23f4bb050771e3d3db6aa68f2991ed58303e11b5",
