@@ -22,6 +22,7 @@ struct LibraryView: View {
                 }.padding(18).frame(maxWidth: .infinity, alignment: .leading)
                     .background(LinearGradient(colors: [.pink.opacity(0.18), .gray.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 24))
                     .listRowInsets(EdgeInsets()).listRowBackground(Color.clear)
+                RouteLink { DownloadsView() } label: { Label("Downloads · \(library.downloads.count)", systemImage: "arrow.down.circle") }
                 IconButton("Import from Files", systemImage: "square.and.arrow.down") { importAction() }.disabled(library.isImporting)
                 RouteLink { TrackCollection(title: "Saved online songs", tracks: library.tracks.filter { !$0.isLocal }) } label: { Label("Saved online songs", systemImage: "cloud") }
                 RouteLink { FavoritesView() } label: { Label("Liked songs · \(library.favorites.count)", systemImage: "heart.fill").foregroundStyle(.pink) }

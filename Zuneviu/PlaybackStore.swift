@@ -28,7 +28,11 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
     @Published var repeatMode: RepeatMode = .off
     let player = AVPlayer()
     private let library: LibraryStore
+    private let preferences: PreferenceStore
+    private let discovery: DiscoveryStore?
     private var resolveTask: Task<Void, Never>?
+    private var autoplayTask: Task<Void, Never>?
+    private var autoplayID = UUID()
     private var requestID = UUID()
     private var isResolving = false
     private var tick: Any?
@@ -41,7 +45,9 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
     private var resumeAfterInterruption = false
     private var nowPlayingArtwork: MPMediaItemArtwork?
 
-    init(library: LibraryStore) {
+    init(library: LibraryStore, preferences: PreferenceStore? = nil, discovery: DiscoveryStore? = nil) {
+        self.preferences = preferences ?? PreferenceStore.shared
+        self.discovery = discovery
         self.library = library
         player.automaticallyWaitsToMinimizeStalling = true
         player.publisher(for: \.timeControlStatus).receive(on: DispatchQueue.main).sink { [weak self] status in
@@ -83,6 +89,7 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
         load(track)
     }
     private func load(_ requestedTrack: Track) {
+        autoplayTask?.cancel(); autoplayID = UUID()
         resolveTask?.cancel(); requestID = UUID()
         let token = requestID
         let track = library.track(requestedTrack.id) ?? requestedTrack
@@ -99,9 +106,13 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
             isResolving = true; isLoading = true
             resolveTask = Task { [weak self] in
                 do {
-                    let url = try await StreamResolver.shared.resolve(videoID)
+                    guard let self else { return }
+                    let network = NetworkStatus.shared
+                    guard network.kind != .cellular || self.preferences.values.cellularStreamingAllowed else { throw MusicServiceError.unavailable("Cellular streaming is disabled in Audio quality settings.") }
+                    let quality = (network.kind == .wifi || network.kind == .wired) ? self.preferences.values.audioQualityWifi : self.preferences.values.audioQualityCellular
+                    let url = try await StreamResolver.shared.resolve(videoID, quality: quality)
                     try Task.checkCancellation()
-                    guard let self, self.requestID == token else { return }
+                    guard self.requestID == token else { return }
                     self.isResolving = false; self.start(track, url: url)
                 } catch {
                     guard !Task.isCancelled, let self, self.requestID == token else { return }
@@ -138,7 +149,7 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
                 }
             }
             player.replaceCurrentItem(with: item)
-            library.remember(track); library.recordPlay(track.id)
+            library.remember(track); if preferences.values.recordListeningHistory { library.recordPlay(track.id) }
             resume(); updateNowPlaying()
         } catch { self.error = "Playback failed: \(error.localizedDescription)"; isLoading = false }
     }
@@ -167,6 +178,7 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
         } catch { self.error = error.localizedDescription }
     }
     func pause() {
+        autoplayTask?.cancel(); autoplayID = UUID()
         if isResolving { resolveTask?.cancel(); requestID = UUID(); isResolving = false; isLoading = false }
         player.pause(); library.save(); updateNowPlaying()
     }
@@ -188,7 +200,16 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
         if shuffle, queue.count > 1, let track = queue.filter({ $0.id != current.id }).randomElement() { load(track); return }
         if index + 1 < queue.count { load(queue[index + 1]) }
         else if repeatMode == .all { load(queue[0]) }
-        else { pause(); seek(0) }
+        else if automatic && preferences.values.autoplay, let id = current.videoID {
+            autoplayTask?.cancel(); autoplayID = UUID(); let token = autoplayID
+            autoplayTask = Task {
+                do {
+                    let candidates = try await MusicCatalog.shared.radio(id).filter { candidate in !queue.contains(where: { $0.id == candidate.id }) }
+                    guard !Task.isCancelled, self.autoplayID == token, self.current?.id == current.id, preferences.values.autoplay else { return }
+                    if let next = candidates.first { play(next, in: candidates) } else { pause(); seek(0) }
+                } catch { guard !Task.isCancelled, autoplayID == token else { return }; pause(); self.error = "Autoplay could not load more songs." }
+            }
+        } else { pause(); seek(0) }
     }
     func previous() {
         if position > 3 { seek(0); return }
@@ -221,7 +242,7 @@ enum RepeatMode: String, CaseIterable { case off, all, one }
         guard value.isFinite else { return }
         let elapsed = value - position
         if isPlaying && elapsed > 0 && elapsed < 1.5 {
-            library.addListening(elapsed); pendingSave += elapsed
+            library.addListening(elapsed); if let current { discovery?.record(current, seconds: elapsed) }; pendingSave += elapsed
             if pendingSave >= 15 { library.save(); pendingSave = 0 }
         }
         position = max(0, value)

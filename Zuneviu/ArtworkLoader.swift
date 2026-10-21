@@ -56,7 +56,8 @@ actor ArtworkLoader {
         }
         return image
     }
-    func clear() { cache.removeAllObjects() }
+    func setMemoryBudget(_ mib: Int) { cache.totalCostLimit = max(8, min(128, mib)) * 1024 * 1024 }
+    func clear() { cache.removeAllObjects(); session.configuration.urlCache?.removeAllCachedResponses() }
 }
 
 struct CachedArtwork: View {

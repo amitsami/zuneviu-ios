@@ -14,6 +14,7 @@ struct Track: Identifiable, Codable, Equatable {
     var artworkURL: String?
     var artistBrowseID: String?
     var albumBrowseID: String?
+    var downloadedAt: Date?
     var isLocal: Bool { !audioFile.isEmpty }
 }
 struct Playlist: Identifiable, Codable, Equatable {

@@ -17,9 +17,10 @@ struct GlassFooter: View {
     var openPlayer: () -> Void
     @EnvironmentObject private var playback: PlaybackStore
     @EnvironmentObject private var library: LibraryStore
+    @EnvironmentObject private var preferences: PreferenceStore
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     @Environment(\.testReduceMotion) private var testReduceMotion
-    private var reduceMotion: Bool { systemReduceMotion || testReduceMotion }
+    private var reduceMotion: Bool { systemReduceMotion || testReduceMotion || preferences.values.reduceAnimation }
     @Environment(\.colorScheme) private var colorScheme
     @Namespace private var selectionNamespace
     @ScaledMetric(relativeTo: .body) private var scaledHeight = DockLayout.baseHeight
@@ -135,9 +136,10 @@ struct GlassMiniPlayer: View {
 
 struct CapsuleGlass: ViewModifier {
     var interactive = false
+    @EnvironmentObject private var preferences: PreferenceStore
     @Environment(\.accessibilityReduceTransparency) private var systemReduceTransparency
     @Environment(\.testReduceTransparency) private var testReduceTransparency
-    private var reduceTransparency: Bool { systemReduceTransparency || testReduceTransparency }
+    private var reduceTransparency: Bool { systemReduceTransparency || testReduceTransparency || !preferences.values.liquidGlass || preferences.values.reduceDynamicBlur }
     @Environment(\.colorScheme) private var scheme
     @ViewBuilder func body(content: Content) -> some View {
         if reduceTransparency {
@@ -163,9 +165,10 @@ struct CapsuleGlass: ViewModifier {
     }
 }
 struct GlassPressStyle: ButtonStyle {
+    @EnvironmentObject private var preferences: PreferenceStore
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     @Environment(\.testReduceMotion) private var testReduceMotion
-    private var reduceMotion: Bool { systemReduceMotion || testReduceMotion }
+    private var reduceMotion: Bool { systemReduceMotion || testReduceMotion || preferences.values.reduceAnimation }
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .opacity(configuration.isPressed ? 0.75 : 1)

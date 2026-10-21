@@ -35,6 +35,29 @@ import Combine
         catch { self.error = "Could not save library: \(error.localizedDescription)"; return false }
     }
     var onDevice: [Track] { tracks.filter(\.isLocal) }
+    var downloads: [Track] { tracks.filter { $0.downloadedAt != nil && $0.isLocal } }
+    func clearHistory() { snapshot.history = []; save() }
+    func installDownload(_ track: Track, temporaryFile: URL) async throws {
+        guard storageReady else { throw MusicServiceError.unavailable("The library cannot be saved.") }
+        if self.track(track.id)?.isLocal == true { return }
+        let asset = AVURLAsset(url: temporaryFile)
+        guard try await asset.load(.isPlayable) else { throw MusicServiceError.unavailable("The downloaded file is not playable audio.") }
+        let seconds = try await asset.load(.duration).seconds
+        guard seconds.isFinite, seconds > 0,
+              track.duration <= 0 || seconds >= track.duration - max(3, track.duration * 0.05) else {
+            throw MusicServiceError.unavailable("The downloaded audio appears incomplete. No library entry was added.")
+        }
+        try Task.checkCancellation()
+        let previous = snapshot
+        let filename = "download-" + track.id.uuidString + ".m4a"
+        let destination = file(filename)
+        try FileManager.default.copyItem(at: temporaryFile, to: destination)
+        var downloaded = track; downloaded.audioFile = filename; downloaded.downloadedAt = Date(); downloaded.duration = seconds
+        if let index = snapshot.tracks.firstIndex(where: { $0.id == track.id }) { snapshot.tracks[index] = downloaded }
+        else { snapshot.tracks.append(downloaded) }
+        guard save() else { snapshot = previous; try? FileManager.default.removeItem(at: destination); throw MusicServiceError.unavailable("Could not save this download. The original library was kept.") }
+        var resource = destination; var values = URLResourceValues(); values.isExcludedFromBackup = true; try? resource.setResourceValues(values)
+    }
     func remember(_ track: Track) {
         guard storageReady, !snapshot.tracks.contains(where: { $0.id == track.id }) else { return }
         snapshot.tracks.append(track); save()

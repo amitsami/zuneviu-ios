@@ -24,6 +24,7 @@ struct Artwork: View {
 }
 
 struct TrackRow: View {
+    @EnvironmentObject private var downloads: DownloadManager
     @EnvironmentObject var library: LibraryStore
     @EnvironmentObject var playback: PlaybackStore
     let track: Track
@@ -45,6 +46,7 @@ struct TrackRow: View {
                 IconButton("Play next", systemImage: "text.line.first.and.arrowtriangle.forward") { playback.enqueue(track, next: true) }
                 IconButton("Add to queue", systemImage: "text.badge.plus") { playback.enqueue(track) }
                 IconButton(library.snapshot.favorites.contains(track.id) ? "Unlike" : "Like", systemImage: "heart") { library.remember(track); library.toggleFavorite(track.id) }
+                if !track.isLocal, track.videoID != nil { IconButton("Download", systemImage: "arrow.down.circle") { downloads.enqueue(track) } }
                 if track.videoID != nil { IconButton("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) } }
                 if let id = track.artistBrowseID { RouteLink("Open artist") { CatalogBrowseView(id: id, title: track.artist) } }
                 if let id = track.albumBrowseID { RouteLink("Open album") { CatalogBrowseView(id: id, title: track.album) } }

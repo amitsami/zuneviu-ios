@@ -14,6 +14,8 @@ struct ExploreView: View {
     }
 }
 struct CatalogHomeView: View {
+    @EnvironmentObject private var discovery: DiscoveryStore
+    @EnvironmentObject private var preferences: PreferenceStore
     let explore: Bool
     @EnvironmentObject var library: LibraryStore
     @State private var shelves: [CatalogShelf] = []
@@ -24,7 +26,11 @@ struct CatalogHomeView: View {
             LazyVStack(alignment: .leading, spacing: 26) {
                 if !explore {
                     if !library.recent.isEmpty { OnlineTrackShelf(title: "Listen again", subtitle: "From your listening", tracks: library.recent) }
-                    if !library.favorites.isEmpty { OnlineTrackShelf(title: "Made for you", subtitle: "Songs you love", tracks: library.favorites) }
+                    if preferences.values.localRecommendations, !discovery.suggestions.isEmpty {
+                        OnlineTrackShelf(title: "Made for you", subtitle: "From qualified listening on this device", tracks: discovery.suggestions)
+                    }
+                    if !library.favorites.isEmpty { OnlineTrackShelf(title: "Your favorites", subtitle: "Songs you love", tracks: library.favorites) }
+                    if preferences.values.localRecommendations, let failure = discovery.failure { Text(failure).font(.footnote).foregroundStyle(.secondary).padding(.horizontal) }
                 }
                 if loading && shelves.isEmpty { ProgressView("Loading music…").frame(maxWidth: .infinity).padding(50) }
                 if let failure { ServiceFailure(message: failure) { Task { await refresh() } } }
@@ -37,6 +43,9 @@ struct CatalogHomeView: View {
         .navigationTitle(explore ? "Explore" : "Listen Now")
         .refreshable { await refresh() }
         .task { if shelves.isEmpty { await refresh() } }
+        .task(id: discovery.cacheKey + String(preferences.values.localRecommendations) + String(preferences.values.dontRepeatSuggestions)) {
+            if !explore { await discovery.refresh(excluding: preferences.values.dontRepeatSuggestions ? Set(library.snapshot.history) : []) }
+        }
     }
     @MainActor private func refresh() async {
         guard !loading else { return }; loading = true; failure = nil
@@ -88,12 +97,14 @@ struct OnlineTrackShelf: View {
     }
 }
 struct CatalogCard: View {
+    @EnvironmentObject private var downloads: DownloadManager
     let item: CatalogItem
     let context: [Track]
     @EnvironmentObject var playback: PlaybackStore
     var body: some View {
         Group {
-            if let track = item.track { Button { playback.play(track, in: context) } label: { card }.buttonStyle(.plain).accessibilityLabel("Play \(track.title) by \(track.artist)") }
+            if let track = item.track { Button { playback.play(track, in: context) } label: { card }.buttonStyle(.plain).accessibilityLabel("Play \(track.title) by \(track.artist)")
+                .contextMenu { if !track.isLocal { IconButton("Download", systemImage: "arrow.down.circle") { downloads.enqueue(track) } } } }
             else if let id = item.browseID { RouteLink { CatalogBrowseView(id: id, title: item.title, params: item.params) } label: { card }.buttonStyle(.plain) }
         }
     }

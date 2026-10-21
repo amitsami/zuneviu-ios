@@ -6,19 +6,20 @@ import YouTubeKit
 actor StreamResolver {
     static let shared = StreamResolver()
     private var cache: [String: (URL, Date)] = [:]
-    func invalidate(_ id: String) { cache[id] = nil }
-    func resolve(_ id: String) async throws -> URL {
+    func invalidate(_ id: String) { cache = cache.filter { !$0.key.hasPrefix(id + "|") } }
+    func resolve(_ id: String, quality: AudioQuality = .best) async throws -> URL {
         guard id.range(of: #"^[A-Za-z0-9_-]{11}$"#, options: .regularExpression) != nil else { throw MusicServiceError.invalidResponse }
-        if let (url, date) = cache[id], Date().timeIntervalSince(date) < 120 { return url }
+        let key = id + "|" + quality.rawValue
+        if let (url, date) = cache[key], Date().timeIntervalSince(date) < 120 { return url }
         let streams = try await YouTube(videoID: id, methods: [.local]).streams
-        let candidates = streams.filter { $0.includesAudioTrack && $0.isNativelyPlayable }.sorted {
+        let candidates = streams.filter { $0.includesAudioTrack && $0.isNativelyPlayable && (quality == .best || ($0.averageBitrate ?? $0.bitrate ?? Int.max) <= quality.ceiling) }.sorted {
             if $0.includesVideoTrack != $1.includesVideoTrack { return !$0.includesVideoTrack }
             return ($0.averageBitrate ?? $0.bitrate ?? 0) > ($1.averageBitrate ?? $1.bitrate ?? 0)
         }
         for stream in candidates.prefix(4) {
             try Task.checkCancellation()
             if try await probe(stream.url) {
-                cache[id] = (stream.url, Date()); return stream.url
+                cache[key] = (stream.url, Date()); return stream.url
             }
         }
         throw MusicServiceError.noStream

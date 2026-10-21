@@ -4,6 +4,8 @@ import MediaPlayer
 import AVKit
 
 struct NowPlayingView: View {
+    @EnvironmentObject private var downloads: DownloadManager
+    @EnvironmentObject private var preferences: PreferenceStore
     @EnvironmentObject var library: LibraryStore
     @EnvironmentObject var playback: PlaybackStore
     @EnvironmentObject var clock: PlaybackClock
@@ -18,17 +20,19 @@ struct NowPlayingView: View {
     @State private var lines: [LyricLine] = []
     @AppStorage("lyricOffset") private var offset: Double = 0
     private var activeLyric: String {
-        lines.last { $0.time <= clock.position + offset }?.text ?? "Lyrics ›"
+        preferences.values.syncedLyrics ? (lines.last { $0.time <= clock.position + offset }?.text ?? "Lyrics ›") : (lines.first?.text ?? "Lyrics ›")
     }
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                Artwork(track: playback.current, radius: 0).blur(radius: 65).overlay(Color.black.opacity(0.6)).ignoresSafeArea()
+                if preferences.values.fullBleedArtwork && !preferences.values.reduceDynamicBlur {
+                    Artwork(track: playback.current, radius: 0).blur(radius: 65).overlay(Color.black.opacity(0.6)).ignoresSafeArea()
+                } else { Color.black.ignoresSafeArea() }
                 ScrollView {
                     VStack(spacing: 24) {
                         HStack {
                             Button { dismiss() } label: { Image(systemName: "chevron.down").frame(width: 44, height: 44) }.accessibilityLabel("Close player")
-                            Spacer(); Text(playback.current?.isLocal == false ? "Playing from YouTube Music" : "Playing from your library").font(.caption.weight(.semibold)); Spacer()
+                            Spacer(); if !preferences.values.hideSongStatus { Text(playback.current?.isLocal == false ? "Playing from YouTube Music" : "Playing from your library").font(.caption.weight(.semibold)) }; Spacer()
                             Menu {
                                 if let track = playback.current {
                                     IconButton("Import lyrics (.lrc / .txt)", systemImage: "text.bubble") { importingLyrics = true }
@@ -38,6 +42,7 @@ struct NowPlayingView: View {
                                     if track.isLocal {
                                         IconButton("Share audio file", systemImage: "square.and.arrow.up") { shareURL = library.file(track.audioFile) }
                                     } else if let id = track.videoID {
+                                        IconButton("Download", systemImage: "arrow.down.circle") { downloads.enqueue(track) }
                                         IconButton("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) }
                                         IconButton("Retry stream", systemImage: "arrow.clockwise") { playback.retry() }
                                         IconButton("Share song", systemImage: "square.and.arrow.up") { shareURL = URL(string: "https://music.youtube.com/watch?v=" + id) }
@@ -87,7 +92,7 @@ struct NowPlayingView: View {
                                     playback.repeatMode = playback.repeatMode == .off ? .all : (playback.repeatMode == .all ? .one : .off)
                                 } label: { Image(systemName: playback.repeatMode == .one ? "repeat.1" : "repeat").frame(width: 44, height: 44).foregroundStyle(playback.repeatMode != .off ? Color.pink : .white.opacity(0.6)) }.accessibilityLabel("Repeat").accessibilityValue(playback.repeatMode.rawValue)
                             }
-                            SystemVolumeSlider().frame(height: 34).accessibilityLabel("System volume")
+                            if !preferences.values.hideVolumeBar { SystemVolumeSlider().frame(height: 34).accessibilityLabel("System volume") }
                             HStack {
                                 Button { showingLyrics = true } label: { Image(systemName: "text.bubble").font(.title2).frame(width: 50, height: 44) }.accessibilityLabel("Lyrics")
                                 Spacer()
@@ -149,6 +154,7 @@ struct QueueView: View {
     }
 }
 struct LyricsView: View {
+    @EnvironmentObject private var preferences: PreferenceStore
     @EnvironmentObject var library: LibraryStore
     @EnvironmentObject var playback: PlaybackStore
     @EnvironmentObject var clock: PlaybackClock
@@ -168,12 +174,12 @@ struct LyricsView: View {
                     else {
                         ForEach(lines) { line in
                             Button { playback.seek(max(0, line.time - offset)) } label: {
-                                Text(line.text.isEmpty ? "♪" : line.text).font(.title2.bold()).foregroundStyle(activeID == line.id ? Color.primary : Color.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 6)
+                                Text(line.text.isEmpty ? "♪" : line.text).font(.title2.bold()).foregroundStyle(!preferences.values.syncedLyrics || activeID == line.id ? Color.primary : Color.secondary).frame(maxWidth: .infinity, alignment: .leading).padding(.vertical, 6).blur(radius: preferences.values.lyricsBlur && preferences.values.syncedLyrics && activeID != line.id ? 1.5 : 0)
                             }.buttonStyle(.plain).id(line.id)
                         }
                     }
                 }.padding(24)
-            }.onChange(of: activeID) { id in if let id { withAnimation { proxy.scrollTo(id, anchor: .center) } } }
+            }.onChange(of: activeID) { id in if preferences.values.syncedLyrics, let id { withAnimation { proxy.scrollTo(id, anchor: .center) } } }
         }.navigationTitle("Lyrics").toolbar { Button("Import", action: importAction) }
             .task(id: playback.current?.id) {
                 if let track = playback.current {
