@@ -61,3 +61,25 @@ Guest catalog/search/shelves, native extraction, radio and plain lyric requests 
 ## Evidence needed before calling it tested
 
 Record commit/hash, Xcode version, simulator/device model and OS, test command, full `.xcresult`, failures/fixes/retest logs, and device acceptance outcomes. A screenshot or static syntax report is insufficient.
+
+## Version 0.3: glass dock / minimum iOS 15
+
+- Compile with `IPHONEOS_DEPLOYMENT_TARGET=15.0` in both the Xcode 16.4
+  fallback and Xcode 26.2 native-glass toolchains. Build an arm64 device Release
+  and inspect `MinimumOSVersion` independently of Simulator results.
+- iOS 26.2 / iPhone 16 Pro: native `.glassEffect(.clear)` surfaces.
+- iOS 18.5 / iPhone SE 3: material fallback, small screen, no home indicator.
+- Footer UI tests check every tab/search action, minimum 44pt controls, separate
+  search surface, low safe-area position, mini-player separation and opening.
+- DEBUG-only custom environment keys exercise reduced motion, solid fallback
+  and accessibility text size without mutating read-only system preferences.
+- Regression tests verify actual local AVPlayer clock movement does not publish
+  playback/library changes every tick, batched listening time persists exactly,
+  and 1600px artwork is decoded at 128px then reused from cache.
+- Scroll wall-time/CPU/memory are measured without asserting an invented FPS or
+  percentage speedup. No before/after performance baseline has been collected.
+- Export and visually inspect actual Simulator attachments, not HTML mockups.
+- iOS 15 actual runtime/device execution is still REQUIRED. Compiling a target
+  of 15.0 and executing on 18.5 do not establish iOS 15 runtime coverage.
+- Native live-provider audio acceptance remains a separate release gate. Offline
+  footer/optimization success cannot override the version 0.2 streaming failure.

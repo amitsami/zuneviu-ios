@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-21T05:53:57.949104+00:00",
+  "generatedAt": "2026-10-21T06:06:53.113824+00:00",
   "scope": "STATIC_ONLY",
   "summary": {
     "checks": 216,
@@ -7,7 +7,7 @@
     "failed": 0,
     "swiftFiles": 28,
     "unitTestsWritten": 30,
-    "uiTestsWritten": 7
+    "uiTestsWritten": 8
   },
   "notExecutedByThisScript": [
     "Apple SDK compilation",
@@ -1108,21 +1108,21 @@
     "Tests/OptimizationTests.swift": "917b67c60c2714688ee99948e862466696155f111b91dc923481849034855c37",
     "UITests/AppUITests.swift": "5d4a329061cc3a8ba236655ee95d22c88708e26edded672784c512feb3ae692a",
     "UITests/LiveCatalogUITests.swift": "68ac50d8ea8128a37cbd06b05152a6b4ebf43b2f4d4e27a48c9935d580195b16",
-    "UITests/GlassFooterUITests.swift": "849ca09e38fb2bcf5721f9ba0b132cbb37fdc72c5c9d522be4090ed3afb600f1",
-    "Zuneviu/Components.swift": "8d3fc22dae16a9c36e837ddafeddbb213e05f2c34ce2fe6d1e64d4b73d827536",
+    "UITests/GlassFooterUITests.swift": "2a352eab84754b50219b6dee5d6b1b31046ce39c485e3a189946decf20fb70f6",
+    "Zuneviu/Components.swift": "2b31184b74eaf86416932837022ce4ed3b29f0ab4e94f94f2efefc5a0b166a21",
     "Zuneviu/DebugFixture.swift": "a02c60619ac27a58b5b14365f495487af8d1afb88be5976c32ee46db92d7976c",
     "Zuneviu/LibraryStore.swift": "c6a59062cf7daaa2ba1c657f5e5d3754c022fa0a7c9176a2edbbf60fbaa97de3",
     "Zuneviu/LibraryView.swift": "e4190939ed70ddce93a051ee266942ab85326cc9e810b81d0991aff03b7ca4b9",
     "Zuneviu/Models.swift": "74e5623f2dad2211266ee8919b7824005264117d1c8f75fb71f489ae0c68010b",
     "Zuneviu/NowPlayingView.swift": "8a606ccd42ce68c6125573276f69e94706a062b66cf46db1d242a221c83a393e",
     "Zuneviu/PlaybackStore.swift": "1de1cbdc650b52f6d18ca9f360e66950dd288833c60750971a2af23003b87420",
-    "Zuneviu/RootView.swift": "5cc3aa69073a7d72e339ca3e74c3273d8b5f0f0c6ce910c05a19dcd87d72a352",
+    "Zuneviu/RootView.swift": "da13668e68aa83647ed362c90a616e14a7b295ff926904a00f030ef18a9381b7",
     "Zuneviu/SettingsView.swift": "54e3f3334c322dae435089a915b5008791531baa99fc271aca7cb856264233bb",
     "Zuneviu/ZuneviuApp.swift": "73cf9cd3b830d90705d71d472b0459470cc1811b898b6e6afdc1d39b26cfa1f8",
     "Zuneviu/MusicCatalog.swift": "c1c3ca9a2dfb9092e22a78119aaefdf85a79f46ae7cdeec2d1068aa87d084ca0",
     "Zuneviu/StreamResolver.swift": "9716b0390e7a4d2a75d95235014b5c17770f22ca2d443e86d4383c1038e360e7",
     "Zuneviu/OnlineViews.swift": "7e461817631b2633c496ec67fc7ed2cf9327d2ba0cc23d5eda7d8b89a425ea89",
-    "Zuneviu/GlassFooter.swift": "c125f8db1b4a943da5f21dc94876ecfc36470d29ec71e3b069b87f743c88f354",
+    "Zuneviu/GlassFooter.swift": "a9a9529ffeca82f7228f7d62293b6db971015314f6dfad60697c142348452af8",
     "Zuneviu/ArtworkLoader.swift": "1025024a22c3d128732e0b0a24c000e0b8536fd2964c176b56b317771dc14270",
     "Zuneviu/AppAccessibilitySettings.swift": "04530d2b3f2461c3e6040be9e75821e63fbbc33ca1035ac19818f3df97088c40",
     "Zuneviu/Compatibility.swift": "742f66e38f16c4e0b8148f5ecaa70eff9490ae47be3c8a883e38a322cf6ac18a",

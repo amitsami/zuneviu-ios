@@ -60,13 +60,23 @@ struct RootView: View {
             case 2: LibraryView(importAction: { importing = true }).toolbar { settingsButton }
             default:
                 HomeView(importAction: { importing = true })
-                    .toolbar { ToolbarItem(placement: .navigationBarLeading) { Brand() }; settingsButton }
+                    .toolbar { brandItem; settingsButton }
             }
         }
     }
+    @ToolbarContentBuilder private var brandItem: some ToolbarContent {
+        #if compiler(>=6.2)
+        if #available(iOS 26.0, *) {
+            ToolbarItem(placement: .navigationBarLeading) { Brand() }
+                .sharedBackgroundVisibility(.hidden)
+        } else { ToolbarItem(placement: .navigationBarLeading) { Brand() } }
+        #else
+        ToolbarItem(placement: .navigationBarLeading) { Brand() }
+        #endif
+    }
     @ToolbarContentBuilder private var settingsButton: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {
-            Button { showingSettings = true } label: { Image(systemName: "gearshape.fill").frame(width: 44, height: 44) }.accessibilityLabel("Settings")
+            Button { showingSettings = true } label: { Image(systemName: "gearshape.fill").frame(width: 44, height: 44) }.tint(.primary).accessibilityLabel("Settings")
         }
     }
 }

@@ -5,6 +5,8 @@ struct Brand: View {
     var body: some View {
         (Text("Z").foregroundColor(.pink) + Text("unéviu").foregroundColor(.primary))
             .font(.system(size: 21, weight: .semibold))
+            .fixedSize(horizontal: true, vertical: false)
+            .accessibilityLabel("Zunéviu").accessibilityIdentifier("brand.name")
     }
 }
 struct Artwork: View {

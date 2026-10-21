@@ -20,6 +20,7 @@ struct GlassFooter: View {
     @Environment(\.accessibilityReduceMotion) private var systemReduceMotion
     @Environment(\.testReduceMotion) private var testReduceMotion
     private var reduceMotion: Bool { systemReduceMotion || testReduceMotion }
+    @Environment(\.colorScheme) private var colorScheme
     @Namespace private var selectionNamespace
     @ScaledMetric(relativeTo: .body) private var scaledHeight = DockLayout.baseHeight
     private var height: CGFloat { min(96, max(DockLayout.baseHeight, scaledHeight)) }
@@ -79,7 +80,7 @@ struct GlassFooter: View {
             .foregroundStyle(selection == value ? Color.primary : Color.primary.opacity(0.56))
             .background {
                 if selection == value {
-                    Capsule().fill(Color.primary.opacity(0.10))
+                    Capsule().fill(colorScheme == .dark ? Color.black.opacity(0.46) : Color.white.opacity(0.55))
                         .overlay(alignment: .top) {
                             Capsule().fill(.white.opacity(0.055)).frame(height: 1).padding(.horizontal, 15)
                         }
@@ -154,7 +155,7 @@ struct CapsuleGlass: ViewModifier {
     }
     private func fallback(_ content: Content) -> some View {
         content
-            .background { Capsule().fill(.ultraThinMaterial).opacity(scheme == .dark ? 0.68 : 0.86) }
+            .background { Capsule().fill(.ultraThinMaterial) }
             .background { Capsule().fill(.black.opacity(scheme == .dark ? 0.10 : 0.025)) }
             .overlay(Capsule().strokeBorder(LinearGradient(colors: [.white.opacity(0.28), .white.opacity(0.06), .white.opacity(0.18)], startPoint: .topLeading, endPoint: .bottomTrailing), lineWidth: 0.6))
             .shadow(color: .black.opacity(0.12), radius: 8, x: 0, y: 3)

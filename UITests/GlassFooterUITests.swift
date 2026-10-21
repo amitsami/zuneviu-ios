@@ -26,7 +26,11 @@ final class GlassFooterUITests: XCTestCase {
         let attachment = XCTAttachment(screenshot: app.screenshot()); attachment.name = name; attachment.lifetime = .keepAlways; add(attachment)
     }
     func testFooterGeometryAndEveryNavigationAction() {
-        let app = launch(); verifyLayout(app); capture(app, "Glass-01-Home-local-fixture")
+        let app = launch(); verifyLayout(app)
+        let brand = app.staticTexts["brand.name"]
+        XCTAssertTrue(brand.waitForExistence(timeout: 5))
+        XCTAssertGreaterThanOrEqual(brand.frame.width, 80, "Brand must not collapse into a truncated circular toolbar item")
+        capture(app, "Glass-01-Home-local-fixture")
         app.buttons["dock.tab.explore"].tap()
         XCTAssertTrue(app.buttons["dock.tab.explore"].isSelected)
         capture(app, "Glass-02-Explore-local-fixture")
@@ -60,13 +64,24 @@ final class GlassFooterUITests: XCTestCase {
         app.buttons["dock.search"].tap()
         XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 5))
     }
+    func testPlaylistCreationSheetWorksWithLegacyCompatibleControls() {
+        let app = launch()
+        app.buttons["dock.tab.library"].tap()
+        let create = app.buttons["New playlist"]
+        XCTAssertTrue(create.waitForExistence(timeout: 5)); create.tap()
+        let field = app.textFields["playlist.name"]
+        XCTAssertTrue(field.waitForExistence(timeout: 5))
+        field.tap(); field.typeText("Compatibility playlist")
+        app.buttons["Create"].tap()
+        XCTAssertTrue(app.staticTexts["Compatibility playlist"].waitForExistence(timeout: 5))
+    }
     func testScrollInteractionMetrics() {
         let app = launch()
         XCTAssertTrue(app.buttons["dock.tab.home"].waitForExistence(timeout: 15))
         let options = XCTMeasureOptions(); options.iterationCount = 3
         // Reports actual CPU/memory/wall time for this interaction. No claimed
         // FPS or percentage improvement is inferred without a before baseline.
-        measure(metrics: [XCTClockMetric(), XCTCPUMetric(), XCTMemoryMetric()], options: options) {
+        measure(metrics: [XCTClockMetric(), XCTCPUMetric(application: app), XCTMemoryMetric(application: app)], options: options) {
             app.swipeUp(velocity: .fast); app.swipeDown(velocity: .fast)
         }
         verifyLayout(app)
