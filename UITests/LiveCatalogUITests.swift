@@ -54,7 +54,7 @@ final class LiveCatalogUITests: XCTestCase {
         XCTAssertTrue(advancing.waitForExistence(timeout: 15), "Real playback position did not advance in UI")
         capture(app, "Real-JioSaavn-Now-Playing-native-AVPlayer")
         let transport = app.buttons["player.transport"]
-        for control in [transport, app.buttons["Next track"], app.buttons["Previous track"], app.buttons["Track options"]] {
+        for control in [transport, app.scrollViews.buttons["Next track"], app.scrollViews.buttons["Previous track"], app.scrollViews.buttons["Track options"]] {
             XCTAssertTrue(control.isHittable)
             XCTAssertGreaterThanOrEqual(control.frame.minX, app.frame.minX)
             XCTAssertLessThanOrEqual(control.frame.maxX, app.frame.maxX)

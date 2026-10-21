@@ -57,7 +57,7 @@ final class GlassFooterUITests: XCTestCase {
         XCTAssertTrue(app.buttons["Close player"].waitForExistence(timeout: 5))
         let transport = app.buttons["player.transport"]
         XCTAssertTrue(transport.waitForExistence(timeout: 5))
-        for control in [transport, app.buttons["Next track"], app.buttons["Previous track"], app.buttons["Track options"]] {
+        for control in [transport, app.scrollViews.buttons["Next track"], app.scrollViews.buttons["Previous track"], app.scrollViews.buttons["Track options"]] {
             XCTAssertTrue(control.isHittable)
             XCTAssertGreaterThanOrEqual(control.frame.minX, app.frame.minX)
             XCTAssertLessThanOrEqual(control.frame.maxX, app.frame.maxX)
