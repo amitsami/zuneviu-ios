@@ -48,13 +48,14 @@ final class LiveCatalogUITests: XCTestCase {
         dismissSheet(app, title: "Search")
         let nowPlaying = app.buttons["Now playing: Tum Hi Ho"]
         XCTAssertTrue(nowPlaying.waitForExistence(timeout: 12)); nowPlaying.tap()
-        XCTAssertTrue(app.buttons["Pause"].waitForExistence(timeout: 50), "Native real-source playback did not reach playing")
+        XCTAssertTrue(app.scrollViews.buttons["Pause"].waitForExistence(timeout: 50), "Native real-source playback did not reach playing")
         XCTAssertTrue(app.staticTexts["Playing from JioSaavn"].exists)
         let advancing = app.staticTexts.matching(NSPredicate(format: "label MATCHES %@", "0:(0[2-9]|[1-5][0-9])")).firstMatch
         XCTAssertTrue(advancing.waitForExistence(timeout: 15), "Real playback position did not advance in UI")
         capture(app, "Real-JioSaavn-Now-Playing-native-AVPlayer")
-        app.buttons["Pause"].tap()
-        XCTAssertTrue(app.buttons["Play"].waitForExistence(timeout: 5))
+        // Scope to the presented player; the underlying dock also has Pause.
+        app.scrollViews.buttons["Pause"].tap()
+        XCTAssertTrue(app.scrollViews.buttons["Play"].waitForExistence(timeout: 5))
     }
 
     func testRealOnlineSearchUI() throws {
