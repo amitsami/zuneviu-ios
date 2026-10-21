@@ -59,20 +59,30 @@ struct RootView: View {
             case 1: ExploreView().toolbar { settingsButton }
             case 2: LibraryView(importAction: { importing = true }).toolbar { settingsButton }
             default:
-                HomeView(importAction: { importing = true })
-                    .toolbar { brandItem; settingsButton }
+                homePage
             }
         }
     }
-    @ToolbarContentBuilder private var brandItem: some ToolbarContent {
+    // Keep availability branching in ViewBuilder: ToolbarContentBuilder's
+    // conditional buildEither is itself iOS 16+, unlike ViewBuilder's.
+    @ViewBuilder private var homePage: some View {
         #if compiler(>=6.2)
         if #available(iOS 26.0, *) {
-            ToolbarItem(placement: .navigationBarLeading) { Brand() }
-                .sharedBackgroundVisibility(.hidden)
-        } else { ToolbarItem(placement: .navigationBarLeading) { Brand() } }
+            HomeView(importAction: { importing = true }).toolbar {
+                ToolbarItem(placement: .navigationBarLeading) { Brand() }
+                    .sharedBackgroundVisibility(.hidden)
+                settingsButton
+            }
+        } else { legacyHomePage }
         #else
-        ToolbarItem(placement: .navigationBarLeading) { Brand() }
+        legacyHomePage
         #endif
+    }
+    private var legacyHomePage: some View {
+        HomeView(importAction: { importing = true }).toolbar {
+            ToolbarItem(placement: .navigationBarLeading) { Brand() }
+            settingsButton
+        }
     }
     @ToolbarContentBuilder private var settingsButton: some ToolbarContent {
         ToolbarItem(placement: .navigationBarTrailing) {

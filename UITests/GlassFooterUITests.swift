@@ -1,4 +1,5 @@
 import XCTest
+import UIKit
 
 final class GlassFooterUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
@@ -29,7 +30,8 @@ final class GlassFooterUITests: XCTestCase {
         let app = launch(); verifyLayout(app)
         let brand = app.staticTexts["brand.name"]
         XCTAssertTrue(brand.waitForExistence(timeout: 5))
-        XCTAssertGreaterThanOrEqual(brand.frame.width, 80, "Brand must not collapse into a truncated circular toolbar item")
+        let expectedWidth = ("Zunéviu" as NSString).size(withAttributes: [.font: UIFont.systemFont(ofSize: 21, weight: .semibold)]).width
+        XCTAssertGreaterThanOrEqual(brand.frame.width, expectedWidth - 1, "Brand must retain its complete intrinsic text width")
         capture(app, "Glass-01-Home-local-fixture")
         app.buttons["dock.tab.explore"].tap()
         XCTAssertTrue(app.buttons["dock.tab.explore"].isSelected)

@@ -76,6 +76,7 @@ struct GlassFooter: View {
                 Image(systemName: icon).font(.system(size: 21, weight: selection == value ? .semibold : .regular))
                 Text(title).font(.caption.weight(selection == value ? .semibold : .medium)).lineLimit(1).minimumScaleFactor(0.65)
             }
+            .padding(.horizontal, 4)
             .frame(maxWidth: .infinity).frame(height: height - 8)
             .foregroundStyle(selection == value ? Color.primary : Color.primary.opacity(0.56))
             .background {
