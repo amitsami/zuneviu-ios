@@ -2,23 +2,21 @@
 
 **Status: incomplete native port, NOT a working Android-equivalent release.**
 
-Version 0.3 targets **iOS 15.0+** and adds the Android-shaped split floating
-dock: Home/Explore/Library capsule, separate round Search and a mini-player above.
-iOS 26 uses native Liquid Glass; older systems use a translucent material fallback.
-The full-width opaque footer background is removed. Playback clock notifications,
-listening-time persistence and decoded artwork are optimized without an invented
-FPS or percentage-speedup claim.
+Version 0.4 development targets **iOS 15.0+**. It retains the Android-shaped split floating dock, native iOS 26 Liquid Glass and an earlier-iOS translucent material fallback.
 
-**Verified:** 28 offline unit/integration + 7 fixture UI methods passed on **each**
-of iOS 26.2 (iPhone 16 Pro) and iOS 18.5 (iPhone SE 3). The unsigned iPhone Release
-also compiled with `MinimumOSVersion=15.0`. iOS 15 actual runtime and physical
-phone tests have **not** run. See `VALIDATION_0_3.json` and `BUILD_STATUS.md`.
+New implementation in 0.4 (runtime results are recorded in `BUILD_STATUS.md`):
 
-**Not fixed:** real online audio acceptance previously FAILED, and this footer
-workflow does not rerun or override that failure. Google/Spotify sign-in/sync,
-provider downloads/video and Android effects remain incomplete. No new working-
-equivalent IPA is released. Catalog images and fixture playback are not proof
-of provider audio playback.
+- Explicit opt-in **JioSaavn** source ported from Android: separate source-labelled search, direct native audio resolution, no silent substitution of a YouTube recording.
+- Real progressive-file download queue: Wi-Fi policy, progress, cancellation/retry, full playable-audio/duration validation, transactional library installation and local playback. No persisted signed media URLs.
+- Device-local discovery: 20-second qualified listening, eight seeds, round-robin dedup/exclusions, persisted metadata and reset. JioSaavn uses artist-search candidates; YouTube uses radio candidates. Neither is account-personalized recommendation.
+- Functional audio-quality, download, playback, appearance, motion/blur/cache, lyrics, source and privacy controls instead of placeholder-only Settings sections.
+- Separate fixture/offline regression and real-provider playback/download/offline acceptance tests.
+
+**Not a 100% Android-equivalent release.** YouTube native audio remains blocked in its previous live acceptance test. Google/Spotify sign-in/sync, video, DSP/equalizer/smart transitions, advanced integrations and private modules are not ported. Downloading requires a source that actually supplies a full progressive file; background completion and HLS/DASH offline packaging are not implemented.
+
+Actual iOS 15 runtime and physical iPhone acceptance have **not** run. An unsigned IPA requires Apple signing/provisioning before installation. Source or a successful build is not the same as a signed App Store/TestFlight release.
+
+See [Android declaration-level coverage](docs/ANDROID_PARITY.md), `BUILD_STATUS.md` and the versioned validation records for exact scope, tested commit and limitations. Version 0.3’s verified results below remain historical, not proof for modified 0.4 code.
 
 The owner requested an iOS version retaining the Android app's design. This archive contains an initial SwiftUI/AVPlayer implementation and an Xcode project, with test code and a macOS CI workflow. Xcode Simulator runtime evidence is linked in `BUILD_STATUS.md`; the earlier static checks remain in `STATIC_VALIDATION.json`.
 
@@ -74,13 +72,19 @@ not produce a signed release or bypass live-provider acceptance.
 ## Not implemented / not equivalent to Android
 
 - Google/YouTube Music and Spotify authentication, sessions, library sync and acceptance flows.
-- Reliable, validated online streaming. Catalog and a native extractor are now integrated, but the live extraction gate is failing. Provider downloads are not implemented.
+- Reliable YouTube native audio: its previous live extraction gate is failing. JioSaavn has a separate explicit source path and acceptance gate. Background-restorable downloads and manifest packaging are not implemented.
 - Music video and Genius/timed online lyric parity. Radio, provider search, plain lyric and artwork requests are implemented but must be validated separately.
 - Android equalizer/DSP, PCM output controls, smart transitions/crossfade, stem separation.
 - Listen-together/party, WebDAV, provider integrations and Android APK update machinery.
 - Full settings parity, localization, Android library migration and pixel-identical visual certification.
 
 Unavailable features are identified as such in Settings. No decorative switches pretend to implement them.
+
+## Optional JioSaavn source
+
+In **Settings → Sources**, enable **JioSaavn catalog** (off by default, as in Android). Open Search, choose Online and select JioSaavn. Search results retain their own catalog identity and are not used to silently replace YouTube selections. Long-press/Options → Download queues a song; Library → Downloads shows actual completion or failure. Only completed, validated files become on-device audio.
+
+Requests go directly to JioSaavn and its CDN. Android’s location-spoofing headers are deliberately not copied. No private account configuration, remote plugin, geographic bypass, shared cookies or extraction proxy is used. Availability and distribution remain subject to provider rules and regional restrictions.
 
 ## Open and run on a Mac
 

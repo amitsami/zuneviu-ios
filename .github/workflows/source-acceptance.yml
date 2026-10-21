@@ -1,0 +1,61 @@
+name: Native source and offline audio acceptance
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: macos-15
+    timeout-minutes: 25
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v4
+      - name: Select iOS simulator
+        run: |
+          mkdir -p TestResults
+          git rev-parse HEAD | tee TestResults/source-commit.txt
+          xcodebuild -version | tee TestResults/toolchain.txt
+          xcrun simctl list devices available -j > /tmp/devices.json
+          UDID=$(python3 -c 'import json; d=json.load(open("/tmp/devices.json")); print(next(v["udid"] for k,vs in d["devices"].items() if "iOS-26-2" in k for v in vs if v["name"] == "iPhone 16 Pro"))')
+          echo "SIMULATOR_ID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+      - name: Offline unit and integration regression (no UI automation)
+        run: |
+          set -o pipefail
+          xcodebuild test -project Zuneviu.xcodeproj -scheme Zuneviu \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -only-testing:ZuneviuTests \
+            -skip-testing:ZuneviuTests/LiveProviderTests \
+            -skip-testing:ZuneviuTests/LiveSaavnTests \
+            -parallel-testing-enabled NO -derivedDataPath DerivedData \
+            -resultBundlePath TestResults/Offline.xcresult CODE_SIGNING_ALLOWED=NO \
+            | tee TestResults/offline.log
+      - name: Real JioSaavn search, playback, discovery, download and local-file playback
+        run: |
+          set -o pipefail
+          xcodebuild test -project Zuneviu.xcodeproj -scheme Zuneviu \
+            -destination "platform=iOS Simulator,id=$SIMULATOR_ID" \
+            -only-testing:ZuneviuTests/LiveSaavnTests \
+            -parallel-testing-enabled NO -derivedDataPath DerivedData \
+            -resultBundlePath TestResults/LiveSaavn.xcresult CODE_SIGNING_ALLOWED=NO \
+            | tee TestResults/live-saavn.log
+      - name: Build unsigned iPhone app (not installable without signing)
+        run: |
+          set -o pipefail
+          xcodebuild build -project Zuneviu.xcodeproj -scheme Zuneviu \
+            -configuration Release -sdk iphoneos -destination 'generic/platform=iOS' \
+            -derivedDataPath DeviceDerivedData CODE_SIGNING_ALLOWED=NO \
+            | tee TestResults/device-build.log
+          /usr/libexec/PlistBuddy -c 'Print :MinimumOSVersion' DeviceDerivedData/Build/Products/Release-iphoneos/Zuneviu.app/Info.plist | tee TestResults/minimum-os.txt
+          mkdir -p DevicePackage/Payload
+          ditto DeviceDerivedData/Build/Products/Release-iphoneos/Zuneviu.app DevicePackage/Payload/Zuneviu.app
+          (cd DevicePackage && zip -qry ../TestResults/Zuneviu-unsigned.ipa Payload)
+          shasum -a 256 TestResults/Zuneviu-unsigned.ipa > TestResults/Zuneviu-unsigned.ipa.sha256
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-source-acceptance-evidence
+          path: TestResults/
+          retention-days: 1
