@@ -1,0 +1,57 @@
+{
+  "sourceCommit": "5da51a8a6e575db9658e30b39fe46a9892ec8c94",
+  "status": "compact_player_final_retest_pending",
+  "notAndroidParity": true,
+  "deploymentTarget": "15.0",
+  "ios15RuntimeTested": false,
+  "physicalIPhoneTested": false,
+  "unsignedOnly": true,
+  "gates": {
+    "sourceAcceptance": {
+      "run": 39563210602,
+      "source": "7b0eada8",
+      "result": "success",
+      "offlineMethods": 49,
+      "realSourceMethods": 1
+    },
+    "earlierDualCompatibility": {
+      "run": 39565266711,
+      "source": "22479004",
+      "result": "success",
+      "offlineMethodsPerEnvironment": 49,
+      "fixtureUIMethodsPerEnvironment": 10,
+      "realSourceMethodsPerEnvironment": 1
+    },
+    "realSourceUI": {
+      "run": 39571506930,
+      "source": "0dff2329",
+      "result": "success"
+    },
+    "priorCompactFailure": {
+      "run": 39571509421,
+      "source": "0dff2329",
+      "result": "failure",
+      "native": "success",
+      "fallback": "failure",
+      "reason": "Small-screen player transport below initial viewport"
+    },
+    "finalCompatibility": {
+      "run": 39599408895,
+      "source": "5da51a8a",
+      "result": "pending"
+    },
+    "finalRealSourceUI": {
+      "run": 39599406029,
+      "source": "5da51a8a",
+      "result": "pending"
+    }
+  },
+  "remaining": [
+    "Reliable YouTube native audio",
+    "Google/Spotify login and sync",
+    "Video, DSP/EQ and smart transitions",
+    "Advanced integrations/private modules, migration and full Settings parity",
+    "Background-restorable downloads and HLS/DASH packaging",
+    "Physical iPhone and actual iOS 15 runtime acceptance"
+  ]
+}

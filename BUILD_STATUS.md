@@ -1,6 +1,20 @@
 # Validation status
 
-## Current version 0.3 — glass/compatibility regression passed; streaming NOT fixed
+## Current version 0.4 — optional-source audio verified; full Android parity incomplete
+
+- Real-source acceptance run [39563210602](https://github.com/amitsami/zuneviu-ios/actions/runs/39563210602), source `7b0eada8`, passed 49 offline unit/integration methods and one real JioSaavn acceptance method, then built an unsigned arm64 iPhone app targeting iOS 15.0.
+- Real acceptance verified exact full Tum Hi Ho recording search, native playback clock advancement, pause, seek/resume, actual listening qualification, source-specific suggestion candidates, complete progressive-file download, library reload and native playback from the persisted file URL with the online source disabled. This is not an all-song/region/codec guarantee or physical audible-output test.
+- Earlier full compatibility run [39565266711](https://github.com/amitsami/zuneviu-ios/actions/runs/39565266711), source `22479004`, passed **49 offline + 10 fixture UI + 1 real JioSaavn method in each environment**: iOS 18.5 / iPhone SE 3 / Xcode 16.4 and iOS 26.2 / iPhone 16 Pro / Xcode 26.2.
+- Real-source UI run [39571506930](https://github.com/amitsami/zuneviu-ios/actions/runs/39571506930), source `0dff2329`, PASSED: explicit source opt-in, real search, native playback clock in Now Playing, on-screen transport bounds and Pause-to-Play state change.
+- Visual QA caught remote artwork expanding the player beyond the screen; explicit background/content width constraints fixed it. UI selectors now distinguish the presented player from the underlying dock.
+- Compatibility run [39571509421](https://github.com/amitsami/zuneviu-ios/actions/runs/39571509421) PASSED its native-glass job but FAILED the small-screen fixture UI test: the transport required vertical scrolling below oversized artwork. The failure is retained; it is not a full-suite pass.
+- Latest source `5da51a8a` adapts artwork size/spacing for compact-height iPhones. Its final [compatibility/build run](https://github.com/amitsami/zuneviu-ios/actions/runs/39599408895) and [real-source UI run](https://github.com/amitsami/zuneviu-ios/actions/runs/39599406029) are pending at this documentation snapshot.
+- Earlier failed UI runs remain visible: source switch tap (`39563212734`), active-search dismissal (`39565268727`), ambiguous Pause (`39567030806`) and duplicate dock Next selectors (`39568853762`). A passed subset never changes a failed overall run into a pass.
+- Extensionless progressive downloads are validated using typed app-owned staging files; failed copies are removed without deleting the caller's original. Removing a downloaded copy retains favorites/playlists/history/lyrics. Independent stable library/download title/date sorting is implemented.
+- **Not full Android parity:** YouTube native extraction remains blocked in its previous acceptance. JioSaavn success does not fix or substitute for YouTube. Google/Spotify login-sync, video, DSP/EQ/smart transitions, advanced integrations/private modules, migration and full Settings parity remain missing. Background-restorable downloads and HLS/DASH offline packaging are not implemented.
+- **Unsigned development builds require Apple signing/provisioning.** Physical iPhone and actual iOS 15 runtime acceptance have NOT run. See `docs/ANDROID_PARITY.md` for declaration-level scope and `VALIDATION_0_4.json` for gate references.
+
+## Historical version 0.3 — glass/compatibility regression passed; streaming NOT fixed
 
 - Final application source: `23ca6ad`; final run: https://github.com/amitsami/zuneviu-ios/actions/runs/39554273435
 - Both Simulator environments passed **28 offline unit/integration + 7 fixture UI methods** each, zero failures (35 unique methods, 70 executions).

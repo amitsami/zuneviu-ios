@@ -1,4 +1,4 @@
-# Zunéviu for iOS — development source, not a tested release
+# Zunéviu for iOS — tested development subset, not full Android parity
 
 **Status: incomplete native port, NOT a working Android-equivalent release.**
 
@@ -16,9 +16,15 @@ New implementation in 0.4 (runtime results are recorded in `BUILD_STATUS.md`):
 
 Actual iOS 15 runtime and physical iPhone acceptance have **not** run. An unsigned IPA requires Apple signing/provisioning before installation. Source or a successful build is not the same as a signed App Store/TestFlight release.
 
-See [Android declaration-level coverage](docs/ANDROID_PARITY.md), `BUILD_STATUS.md` and the versioned validation records for exact scope, tested commit and limitations. Version 0.3’s verified results below remain historical, not proof for modified 0.4 code.
+See [Android declaration-level coverage](docs/ANDROID_PARITY.md), `BUILD_STATUS.md` and the versioned validation records for exact scope, tested commit and limitations. Version 0.3’s verified results below remain historical; current 0.4 results are provider- and test-specific.
 
 The owner requested an iOS version retaining the Android app's design. This archive contains an initial SwiftUI/AVPlayer implementation and an Xcode project, with test code and a macOS CI workflow. Xcode Simulator runtime evidence is linked in `BUILD_STATUS.md`; the earlier static checks remain in `STATIC_VALIDATION.json`.
+
+## Version 0.4 verification
+
+Real optional-source playback/download/local-file acceptance passed in run [39563210602](https://github.com/amitsami/zuneviu-ios/actions/runs/39563210602). Full compatibility run [39565266711](https://github.com/amitsami/zuneviu-ios/actions/runs/39565266711) passed 49 offline + 10 fixture UI + 1 real-source method in each environment. Later source-labelled real playback UI passed [39571506930](https://github.com/amitsami/zuneviu-ios/actions/runs/39571506930).
+
+The latest compact-player fix is under full retest; do not apply earlier passes to untested later changes. `BUILD_STATUS.md` retains failed attempts, tested commits, current pending runs and package limitations.
 
 ## Reference
 
