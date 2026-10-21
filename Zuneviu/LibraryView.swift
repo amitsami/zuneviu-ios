@@ -45,7 +45,7 @@ struct LibraryView: View {
                             Text("MINUTES LISTENED").font(.system(size: 11, weight: .semibold)).tracking(1.2).foregroundStyle(.secondary)
                             Spacer()
                             Text("Zunéviu LISTENER").font(.system(size: 14, weight: .semibold, design: .monospaced))
-                        }.padding(20).frame(width: min(pageWidth * 0.82, 340), height: 190)
+                        }.foregroundStyle(.white).padding(20).frame(width: min(pageWidth * 0.82, 340), height: 190)
                             .background(LinearGradient(colors: [Color(red: 0.20, green: 0.13, blue: 0.15), Color(red: 0.07, green: 0.07, blue: 0.09)], startPoint: .topLeading, endPoint: .bottomTrailing), in: RoundedRectangle(cornerRadius: 24))
                     }.padding(.horizontal, 16)
                 }
@@ -99,7 +99,7 @@ struct LibraryView: View {
                     RouteLink { TrackCollection(title: "Saved online songs", tracks: library.tracks.filter { !$0.isLocal }) } label: { libraryRow("Saved online songs", icon: "cloud") }
                 }.padding(.horizontal, 16)
             }.padding(.bottom, 24)
-        }.background(Color(uiColor: .systemBackground)).navigationTitle("").navigationBarTitleDisplayMode(.inline)
+        }.background(Color(uiColor: .systemBackground)).tint(.primary).navigationTitle("").navigationBarTitleDisplayMode(.inline)
             .onAppear { if sort == "added" { sort = "newest" } }
             .sheet(isPresented: $newPlaylist) {
                 CompatibleNavigation {

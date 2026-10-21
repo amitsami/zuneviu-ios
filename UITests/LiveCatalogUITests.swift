@@ -15,7 +15,7 @@ final class LiveCatalogUITests: XCTestCase {
         let app = XCUIApplication(); app.launchArguments = ["--live-ui-testing"]; app.launch()
         let settings = app.buttons["Settings"]
         XCTAssertTrue(settings.waitForExistence(timeout: 20)); settings.tap()
-        let settingsSearch = app.searchFields.firstMatch
+        let settingsSearch = app.textFields["Search settings"]
         XCTAssertTrue(settingsSearch.waitForExistence(timeout: 10)); settingsSearch.tap(); settingsSearch.typeText("Sources")
         app.buttons.matching(NSPredicate(format: "label CONTAINS %@", "Sources")).firstMatch.tap()
         let source = app.switches["sources.saavn"]
@@ -65,6 +65,11 @@ final class LiveCatalogUITests: XCTestCase {
         transport.tap()
         let paused = XCTNSPredicateExpectation(predicate: NSPredicate(format: "label == %@", "Play"), object: transport)
         XCTAssertEqual(XCTWaiter.wait(for: [paused], timeout: 5), .completed)
+        app.scrollViews.buttons["Track options"].tap()
+        XCTAssertTrue(app.buttons["Close track controls"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Download"].exists)
+        capture(app, "Android-style-real-source-track-controls-sheet")
+        app.buttons["Close track controls"].tap()
     }
 
     func testRealOnlineSearchUI() throws {

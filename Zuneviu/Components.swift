@@ -162,6 +162,7 @@ struct AndroidSettingsSearch: UIViewRepresentable {
         let field = UISearchTextField(frame: .zero)
         field.placeholder = "Search settings"; field.accessibilityLabel = "Search settings"
         field.font = .systemFont(ofSize: 16); field.returnKeyType = .search
+        field.attributedPlaceholder = NSAttributedString(string: "Search settings", attributes: [.foregroundColor: UIColor.secondaryLabel])
         field.autocorrectionType = .no; field.delegate = context.coordinator
         field.addTarget(context.coordinator, action: #selector(Coordinator.changed(_:)), for: .editingChanged)
         field.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)

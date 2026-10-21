@@ -1,6 +1,10 @@
 # Validation status
 
-## Android-reference UI restyle — validation pending
+## Android-reference UI restyle — corrective validation pending
+
+- First restyle runs `39605307374` and `39605310470` compiled, but UI suites failed because the embedded native Settings search is exposed as a TextField, not a SearchField. Both environments passed 49 offline methods and local-player/playlist/compact transport tests; the overall runs remain failures.
+- Exported native hierarchy confirmed the visible field label Search settings. Corrective tests target that exact TextField; no checks were removed. Visual review caught pink Library navigation links; neutral tint restores the Android reference. Track controls now use a bounded artwork-backed action sheet.
+- Interrupted workspace restoration launched two stale-source duplicates, `39620119737` and `39620122584`; both were cancelled rather than presented as new validation.
 
 - Read-only reference: Android repository source `1e590ed2e5f7bb5f170ec353443490970020c574`, shared UI/Common/Theme/Settings and owner-supplied Discover/Listen/Settings gallery.
 - Reworked feed headings, 70%-width hero cards, 150-point shelves, Library listening card and collection tiles, grouped Settings with a persistent dock, and immersive player artwork with three primary transport actions.

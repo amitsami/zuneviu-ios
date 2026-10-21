@@ -42,7 +42,7 @@ final class GlassFooterUITests: XCTestCase {
         app.buttons["dock.tab.home"].tap()
         XCTAssertTrue(app.buttons["dock.tab.home"].isSelected)
         app.buttons["Settings"].tap()
-        XCTAssertTrue(app.searchFields.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertTrue(app.textFields["Search settings"].waitForExistence(timeout: 5))
         verifyLayout(app)
         capture(app, "Android-style-Settings-root-with-persistent-dock")
         app.buttons["Close settings"].tap()

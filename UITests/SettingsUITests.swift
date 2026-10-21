@@ -6,7 +6,7 @@ final class SettingsUITests: XCTestCase {
         let app = XCUIApplication(); app.launchArguments = ["--ui-testing"]; app.launch()
         let settings = app.buttons["Settings"]
         XCTAssertTrue(settings.waitForExistence(timeout: 15)); settings.tap()
-        let search = app.searchFields.firstMatch
+        let search = app.textFields["Search settings"]
         XCTAssertTrue(search.waitForExistence(timeout: 8)); search.tap(); search.typeText(title)
         app.buttons.matching(NSPredicate(format: "label CONTAINS %@", title)).firstMatch.tap()
         return app

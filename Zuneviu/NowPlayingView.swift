@@ -11,6 +11,8 @@ struct NowPlayingView: View {
     @EnvironmentObject var clock: PlaybackClock
     @Environment(\.dismiss) private var dismiss
     @State private var shareURL: URL?
+    @State private var showingTrackOptions = false
+    @State private var deferredTrackAction: (() -> Void)?
     @State private var showingQueue = false
     @State private var showingLyrics = false
     @State private var importingLyrics = false
@@ -112,6 +114,13 @@ struct NowPlayingView: View {
         .task(id: playback.current?.id) { await fetchLyricsIfNeeded(); refreshLyrics() }
         .sheet(isPresented: Binding(get: { shareURL != nil }, set: { if !$0 { shareURL = nil } })) { if let shareURL { ActivitySheet(items: [shareURL]) } }
         .onChange(of: library.tracks) { _ in refreshLyrics() }
+        .sheet(isPresented: $showingTrackOptions, onDismiss: {
+            let action = deferredTrackAction; deferredTrackAction = nil; action?()
+        }) {
+            CompatibleNavigation {
+                PlayerTrackControls(importAction: { afterTrackControls { importingLyrics = true } }, shareAction: { url in afterTrackControls { shareURL = url } })
+            }
+        }
         .sheet(isPresented: $showingQueue) { CompatibleNavigation { QueueView() } }
         .sheet(isPresented: $showingLyrics, onDismiss: {
             if pendingLyricsImport { pendingLyricsImport = false; importingLyrics = true }
@@ -131,32 +140,13 @@ struct NowPlayingView: View {
         } message: { Text(playback.error ?? "") }
     }
     private var trackOptions: some View {
-        Menu {
-                                Button(playback.shuffle ? "Shuffle: On" : "Shuffle: Off") { playback.shuffle.toggle() }
-                                Button("Repeat: " + playback.repeatMode.rawValue) {
-                                    playback.repeatMode = playback.repeatMode == .off ? .all : (playback.repeatMode == .all ? .one : .off)
-                                }
-                                if let track = playback.current {
-                                    IconButton("Import lyrics (.lrc / .txt)", systemImage: "text.bubble") { importingLyrics = true }
-                                    Menu("Add to playlist") {
-                                        ForEach(library.snapshot.playlists) { list in Button(list.name) { library.add(track.id, to: list.id) } }
-                                    }
-                                    if track.isLocal {
-                                        IconButton("Share audio file", systemImage: "square.and.arrow.up") { shareURL = library.file(track.audioFile) }
-                                    } else if track.hasOnlineSource {
-                                        IconButton("Download", systemImage: "arrow.down.circle") { downloads.enqueue(track) }
-                                        IconButton("Retry stream", systemImage: "arrow.clockwise") { playback.retry() }
-                                        if let id = track.videoID {
-                                            IconButton("Start radio", systemImage: "dot.radiowaves.left.and.right") { playback.startRadio(track) }
-                                            IconButton("Share song", systemImage: "square.and.arrow.up") { shareURL = URL(string: "https://music.youtube.com/watch?v=" + id) }
-                                        }
-                                    }
-                                }
-                                Menu("Sleep timer") {
-                                    ForEach([15, 30, 45, 60], id: \.self) { minutes in Button("\(minutes) minutes") { playback.setSleep(minutes: minutes) } }
-                                    Button("Cancel timer") { playback.setSleep(minutes: nil) }
-                                }
-                            } label: { Image(systemName: "ellipsis").frame(width: 44, height: 44) }.accessibilityLabel("Track options")
+        Button { showingTrackOptions = true } label: {
+            Image(systemName: "ellipsis").frame(width: 44, height: 44)
+                .background(.white.opacity(0.13), in: Circle())
+        }.accessibilityLabel("Track options")
+    }
+    private func afterTrackControls(_ action: @escaping () -> Void) {
+        deferredTrackAction = action; showingTrackOptions = false
     }
     private func fetchLyricsIfNeeded() async {
         guard let track = playback.current, let videoID = track.videoID, library.lyricText(track.id).isEmpty else { return }
@@ -169,6 +159,93 @@ struct NowPlayingView: View {
     private func refreshLyrics() {
         guard let id = playback.current?.id else { lines = []; return }
         lines = LRCParser.parse(library.lyricText(id))
+    }
+}
+// Bounded artwork-backed sheet, matching the Android track-actions layout.
+// Only implemented capabilities are exposed; no pretend video/DSP/account controls.
+struct PlayerTrackControls: View {
+    @EnvironmentObject private var preferences: PreferenceStore
+    @EnvironmentObject private var downloads: DownloadManager
+    @EnvironmentObject private var playback: PlaybackStore
+    @EnvironmentObject private var library: LibraryStore
+    @Environment(\.dismiss) private var dismiss
+    let importAction: () -> Void
+    let shareAction: (URL) -> Void
+    private func row(_ title: String, _ icon: String) -> some View {
+        HStack(spacing: 18) {
+            Image(systemName: icon).font(.system(size: 20)).frame(width: 26)
+            Text(title).font(.system(size: 16))
+            Spacer(minLength: 0)
+        }.frame(maxWidth: .infinity, minHeight: 56, alignment: .leading).contentShape(Rectangle())
+    }
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack(alignment: .top) {
+                Color.black.ignoresSafeArea()
+                if !preferences.values.reduceDynamicBlur {
+                    Artwork(track: playback.current, radius: 0)
+                        .frame(width: geometry.size.width, height: geometry.size.height).clipped()
+                        .blur(radius: 55).overlay(Color.black.opacity(0.78)).ignoresSafeArea()
+                }
+                ScrollView {
+                    VStack(spacing: 0) {
+                        Capsule().fill(.white.opacity(0.35)).frame(width: 36, height: 4).padding(.top, 10).padding(.bottom, 16)
+                        if let track = playback.current {
+                            HStack(spacing: 14) {
+                                Artwork(track: track, radius: 8).frame(width: 56, height: 56)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(track.title).font(.system(size: 16, weight: .semibold)).lineLimit(2)
+                                    Text(track.artist).font(.system(size: 14)).foregroundStyle(.white.opacity(0.65)).lineLimit(1)
+                                }
+                                Spacer(minLength: 0)
+                                Button { dismiss() } label: { Image(systemName: "xmark").frame(width: 44, height: 44) }.accessibilityLabel("Close track controls")
+                            }.padding(.bottom, 16)
+                            Divider().overlay(Color.white.opacity(0.08))
+                            sourceActions(track)
+                            queueActions(track)
+                            playbackActions
+                            RouteLink { SettingDetail(title: "Lyrics").navigationBarHidden(false) } label: { row("Lyrics offset", "slider.horizontal.3") }
+                            Button(action: importAction) { row("Import lyrics (.lrc / .txt)", "text.bubble") }
+                            if track.isLocal, let url = library.file(track.audioFile) {
+                                Button { shareAction(url) } label: { row("Share audio file", "square.and.arrow.up") }
+                            } else if let id = track.videoID, let url = URL(string: "https://music.youtube.com/watch?v=" + id) {
+                                Button { shareAction(url) } label: { row("Share song", "square.and.arrow.up") }
+                            }
+                        }
+                    }.frame(width: max(0, geometry.size.width - 48)).padding(.horizontal, 24).padding(.bottom, 24)
+                }
+            }.frame(width: geometry.size.width, height: geometry.size.height)
+        }.foregroundStyle(.white).tint(.white).preferredColorScheme(.dark).navigationBarHidden(true)
+    }
+    @ViewBuilder private func sourceActions(_ track: Track) -> some View {
+        if !track.isLocal, track.hasOnlineSource {
+            Button { downloads.enqueue(track); dismiss() } label: { row("Download", "arrow.down.to.line") }
+            Button { playback.retry(); dismiss() } label: { row("Retry stream", "arrow.clockwise") }
+        }
+        if track.videoID != nil {
+            Button { playback.startRadio(track); dismiss() } label: { row("Start radio", "dot.radiowaves.left.and.right") }
+        }
+    }
+    @ViewBuilder private func queueActions(_ track: Track) -> some View {
+        Button { playback.enqueue(track, next: true); dismiss() } label: { row("Play next", "text.line.first.and.arrowtriangle.forward") }
+        Button { playback.enqueue(track); dismiss() } label: { row("Add to queue", "text.badge.plus") }
+        if let id = track.albumBrowseID { RouteLink { CatalogBrowseView(id: id, title: track.album).navigationBarHidden(false) } label: { row("Open album", "opticaldisc") } }
+        if let id = track.artistBrowseID { RouteLink { CatalogBrowseView(id: id, title: track.artist).navigationBarHidden(false) } label: { row("Open artist", "person.fill") } }
+        if !library.snapshot.playlists.isEmpty {
+            Menu {
+                ForEach(library.snapshot.playlists) { list in Button(list.name) { library.add(track.id, to: list.id); dismiss() } }
+            } label: { row("Add to playlist", "music.note.list") }
+        }
+    }
+    private var playbackActions: some View {
+        Group {
+            Button { playback.shuffle.toggle() } label: { row(playback.shuffle ? "Shuffle: On" : "Shuffle: Off", "shuffle") }
+            Button { playback.repeatMode = playback.repeatMode == .off ? .all : (playback.repeatMode == .all ? .one : .off) } label: { row("Repeat: " + playback.repeatMode.rawValue, playback.repeatMode == .one ? "repeat.1" : "repeat") }
+            Menu {
+                ForEach([15, 30, 45, 60], id: \.self) { minutes in Button("\(minutes) minutes") { playback.setSleep(minutes: minutes); dismiss() } }
+                Button("Cancel timer") { playback.setSleep(minutes: nil); dismiss() }
+            } label: { row("Sleep timer", "moon.fill") }
+        }
     }
 }
 struct QueueView: View {
