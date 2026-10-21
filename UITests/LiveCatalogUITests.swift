@@ -41,6 +41,10 @@ final class LiveCatalogUITests: XCTestCase {
         XCTAssertTrue(result.waitForExistence(timeout: 45), "Real source recording never appeared in Search")
         capture(app, "Real-JioSaavn-source-search-not-a-fixture")
         result.tap()
+        // iOS 26 keeps searchable active with its bar above the keyboard;
+        // the navigation title is absent until the native search close action.
+        let closeSearch = app.buttons["close"]
+        if closeSearch.exists && closeSearch.isHittable { closeSearch.tap() }
         dismissSheet(app, title: "Search")
         let nowPlaying = app.buttons["Now playing: Tum Hi Ho"]
         XCTAssertTrue(nowPlaying.waitForExistence(timeout: 12)); nowPlaying.tap()
