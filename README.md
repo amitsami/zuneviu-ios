@@ -1,8 +1,8 @@
-# Zunéviu for iOS — tested development subset, not full Android parity
+# Zunéviu for iOS — tested development subset, not full parity
 
-**Status: incomplete native port, NOT a working Android-equivalent release.**
+**Status: incomplete native port, NOT a working release.**
 
-Version 0.4 development targets **iOS 15.0+**. It retains the Android-shaped split floating dock, native iOS 26 Liquid Glass and an earlier-iOS translucent material fallback.
+Version 0.4 development targets **iOS 15.0+**. It retains the split floating dock, native iOS 26 Liquid Glass and an earlier-iOS translucent material fallback.
 
 New implementation in 0.4 (runtime results are recorded in `BUILD_STATUS.md`):
 
